@@ -1,0 +1,16 @@
+{
+    "name": "goalgorilla/gdpr_consent",
+    "description": "GDPR Consent (and Inform)",
+    "type": "drupal-module",
+    "keywords": [
+        "Open Social",
+        "Drupal",
+        "GDPR"
+    ],
+    "license": "GPL-2.0+",
+    "homepage": "https://github.com/goalgorilla/gdpr_consent",
+    "minimum-stability": "dev",
+    "require": {
+        "composer/installers": "^1.0"
+    }
+}
