@@ -1,0 +1,5 @@
+entity.informblock.add_form:
+  route_name: 'entity.informblock.add_form'
+  title: 'Add Block'
+  appears_on:
+    - entity.informblock.collection
