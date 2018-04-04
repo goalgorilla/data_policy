@@ -105,7 +105,7 @@ class InformBlockForm extends EntityForm {
   }
 
   /**
-   * Helper function to check whether an InformBlock configuration entity exists.
+   * Helper function to check whether an InformBlock entity exists.
    */
   public function exist($id) {
     $entity = $this->entityTypeManager->getStorage('informblock')->getQuery()

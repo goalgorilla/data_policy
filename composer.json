@@ -7,7 +7,7 @@
         "Drupal",
         "GDPR"
     ],
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "homepage": "https://github.com/goalgorilla/gdpr_consent",
     "minimum-stability": "dev",
     "require": {

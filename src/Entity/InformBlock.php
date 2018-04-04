@@ -52,7 +52,7 @@ class InformBlock extends ConfigEntityBase implements InformBlockInterface {
    *
    * If it is set to FALSE it should not display any of the text.
    *
-   * @var boolean
+   * @var bool
    */
   public $status;
 
