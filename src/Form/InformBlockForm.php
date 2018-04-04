@@ -39,6 +39,12 @@ class InformBlockForm extends EntityForm {
 
     $informblock = $this->entity;
 
+    $form['status'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enable on this page'),
+      '#default_value' => isset($informblock->status) ? $informblock->status : TRUE,
+    ];
+
     $form['label'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Title'),
@@ -56,17 +62,11 @@ class InformBlockForm extends EntityForm {
       '#disabled' => !$informblock->isNew(),
     ];
 
-    $form['status'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Enabled'),
-      '#default_value' => isset($informblock->status) ? $informblock->status : TRUE,
-      '#description' => $this->t('Whether this is on or off.'),
-    ];
-
     $form['summary'] = [
       '#type' => 'text_format',
       '#title' => $this->t('Summary'),
-      '#default_value' => $informblock->summary,
+      '#default_value' => $informblock->summary['value'],
+      '#format' => $informblock->summary['format'],
       '#required' => TRUE,
       '#description' => $this->t('Summarise what data is collected.'),
     ];
@@ -74,7 +74,8 @@ class InformBlockForm extends EntityForm {
     $form['body'] = [
       '#type' => 'text_format',
       '#title' => $this->t('Description'),
-      '#default_value' => $informblock->body,
+      '#default_value' => $informblock->body['value'],
+      '#format' => $informblock->body['format'],
       '#required' => FALSE,
       '#description' => $this->t('Describe in detail what data is collected and how it is used.'),
     ];

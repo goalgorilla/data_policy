@@ -2,7 +2,7 @@ entity.informblock.collection:
   path: '/admin/config/system/inform-consent'
   defaults:
     _entity_list: 'informblock'
-    _title: 'Block configuration'
+    _title: 'Data usage explanation'
   requirements:
     _permission: 'administer inform and consent settings'
 
@@ -10,7 +10,7 @@ entity.informblock.add_form:
   path: '/admin/config/system/inform-consent/add'
   defaults:
     _entity_form: 'informblock.add'
-    _title: 'Add Block'
+    _title: 'Add page'
   requirements:
     _permission: 'administer inform and consent settings'
 
@@ -18,7 +18,7 @@ entity.informblock.edit_form:
   path: '/admin/config/system/inform-consent/{informblock}'
   defaults:
     _entity_form: 'informblock.edit'
-    _title: 'Edit Block'
+    _title: 'Edit page'
   requirements:
     _permission: 'administer inform and consent settings'
 
@@ -26,6 +26,6 @@ entity.informblock.delete_form:
   path: '/admin/config/system/inform-consent/{informblock}/delete'
   defaults:
     _entity_form: 'informblock.delete'
-    _title: 'Delete Block'
+    _title: 'Delete page'
   requirements:
     _permission: 'administer inform and consent settings'
