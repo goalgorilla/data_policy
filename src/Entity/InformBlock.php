@@ -48,6 +48,13 @@ class InformBlock extends ConfigEntityBase implements InformBlockInterface {
   public $title;
 
   /**
+   * The link to a page where the Inform Block should be showed.
+   *
+   * @var string
+   */
+  public $link;
+
+  /**
    * The status of the Inform Block.
    *
    * If it is set to FALSE it should not display any of the text.
