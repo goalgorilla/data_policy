@@ -12,6 +12,7 @@ use Drupal\gdpr_consent\InformBlockInterface;
  *   id = "informblock",
  *   label = @Translation("Inform Block"),
  *   handlers = {
+ *     "access" = "Drupal\gdpr_consent\GdprConsentAccessControlHandler",
  *     "list_builder" = "Drupal\gdpr_consent\Controller\InformBlockListBuilder",
  *     "form" = {
  *       "add" = "Drupal\gdpr_consent\Form\InformBlockForm",
@@ -20,7 +21,7 @@ use Drupal\gdpr_consent\InformBlockInterface;
  *     }
  *   },
  *   config_prefix = "informblock",
- *   admin_permission = "administer site configuration",
+ *   admin_permission = "administer inform and consent settings",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",

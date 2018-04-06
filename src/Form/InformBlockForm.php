@@ -43,6 +43,7 @@ class InformBlockForm extends EntityForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Enable on this page'),
       '#default_value' => isset($informblock->status) ? $informblock->status : TRUE,
+      '#disabled' => !$this->currentUser()->hasPermission('change inform and consent setting status'),
     ];
 
     $form['label'] = [

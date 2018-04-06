@@ -4,7 +4,7 @@ entity.informblock.collection:
     _entity_list: 'informblock'
     _title: 'Data usage explanation'
   requirements:
-    _permission: 'administer inform and consent settings'
+    _permission: 'administer inform and consent settings+overview inform and consent settings'
 
 entity.informblock.add_form:
   path: '/admin/config/system/inform-consent/add'
@@ -20,7 +20,7 @@ entity.informblock.edit_form:
     _entity_form: 'informblock.edit'
     _title: 'Edit page'
   requirements:
-    _permission: 'administer inform and consent settings'
+    _permission: 'administer inform and consent settings+edit inform and consent setting'
 
 entity.informblock.delete_form:
   path: '/admin/config/system/inform-consent/{informblock}/delete'

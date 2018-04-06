@@ -5,6 +5,7 @@ namespace Drupal\gdpr_consent\Controller;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\gdpr_consent\Entity\InformBlock;
+use Drupal\gdpr_consent\InformBlockInterface;
 
 /**
  * Class GdprConsentController.
@@ -49,7 +50,7 @@ class GdprConsentController extends ControllerBase {
    *   The access result.
    */
   public function access($informblock) {
-    if (InformBlock::load($informblock) instanceof InformBlock) {
+    if (InformBlock::load($informblock) instanceof InformBlockInterface) {
       return AccessResult::allowed();
     }
 
