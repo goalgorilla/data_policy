@@ -29,3 +29,11 @@ entity.informblock.delete_form:
     _title: 'Delete page'
   requirements:
     _permission: 'administer inform and consent settings'
+
+gdpr_consent.description:
+  path: '/inform-consent/{informblock}'
+  defaults:
+    _controller: '\Drupal\gdpr_consent\Controller\GdprConsentController::page'
+    _title_callback: '\Drupal\gdpr_consent\Controller\GdprConsentController::title'
+  requirements:
+    _custom_access: '\Drupal\gdpr_consent\Controller\GdprConsentController::access'

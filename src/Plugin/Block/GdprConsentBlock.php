@@ -146,7 +146,7 @@ class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterf
       $build['link'] = [
         '#type' => 'link',
         '#title' => $this->t('Read more'),
-        '#url' => Url::fromRoute('entity.informblock.edit_form', [
+        '#url' => Url::fromRoute('gdpr_consent.description', [
           'informblock' => $inform_block->id(),
         ]),
         '#attributes' => [
