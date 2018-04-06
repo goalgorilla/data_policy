@@ -5,6 +5,7 @@ namespace Drupal\gdpr_consent\Plugin\Block;
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -143,6 +144,8 @@ class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterf
     $build['text'] = ['#markup' => $inform_block->summary['value']];
 
     if (!empty($inform_block->body['value'])) {
+      $build['#attached']['library'][] = 'core/drupal.dialog.ajax';
+
       $build['link'] = [
         '#type' => 'link',
         '#title' => $this->t('Read more'),
@@ -198,6 +201,13 @@ class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterf
     }
 
     return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getCacheContexts() {
+    return Cache::mergeTags(parent::getCacheTags(), ['route']);
   }
 
 }
