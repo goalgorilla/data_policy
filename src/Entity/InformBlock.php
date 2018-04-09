@@ -53,7 +53,7 @@ class InformBlock extends ConfigEntityBase implements InformBlockInterface {
    *
    * @var string
    */
-  public $link;
+  public $page;
 
   /**
    * The status of the Inform Block.

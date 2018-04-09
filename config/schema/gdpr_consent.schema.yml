@@ -8,9 +8,9 @@ gdpr_consent.informblock.*:
     label:
       type: label
       label: 'Label'
-    link:
+    page:
       type: string
-      label: 'Link'
+      label: 'Page'
     status:
       type: boolean
       label: 'Status'

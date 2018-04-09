@@ -55,13 +55,13 @@ class InformBlockForm extends EntityForm {
       '#required' => TRUE,
     ];
 
-    $form['link'] = [
+    $form['page'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Link'),
+      '#title' => $this->t('Page'),
       '#maxlength' => 255,
-      '#default_value' => $informblock->link,
-      '#description' => $this->t('Specify page by using their path. An example path is %user-wildcard for every user page. %front is the front page.', [
-        '%user-wildcard' => '/user/*',
+      '#default_value' => $informblock->page,
+      '#description' => $this->t('Specify page by using their path. An example path is %user-wildcard for every user edit page. %front is the front page.', [
+        '%user-wildcard' => '/user/*/edit',
         '%front' => '<front>',
       ]),
       '#required' => TRUE,

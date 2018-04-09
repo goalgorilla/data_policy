@@ -189,7 +189,7 @@ class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterf
       ->loadByProperties(['status' => TRUE]);
 
     foreach ($inform_blocks as $inform_block) {
-      $link = $inform_block->link;
+      $link = $inform_block->page;
       $request = $this->requestStack->getCurrentRequest();
       $path = $this->currentPath->getPath($request);
       $path = $path === '/' ? $path : rtrim($path, '/');
