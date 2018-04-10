@@ -2,6 +2,7 @@
 
 namespace Drupal\gdpr_consent\Form;
 
+use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Entity\EntityTypeManager;
 use Drupal\Core\Form\FormStateInterface;
@@ -43,6 +44,7 @@ class InformBlockForm extends EntityForm {
       '#type' => 'checkbox',
       '#title' => $this->t('Enable on this page'),
       '#default_value' => isset($informblock->status) ? $informblock->status : TRUE,
+      '#disabled' => !$this->currentUser()->hasPermission('change inform and consent setting status'),
     ];
 
     $form['label'] = [
@@ -53,6 +55,19 @@ class InformBlockForm extends EntityForm {
       '#description' => $this->t('Indicate what will be explained on this page.'),
       '#required' => TRUE,
     ];
+
+    $form['page'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Page'),
+      '#maxlength' => 255,
+      '#default_value' => $informblock->page,
+      '#description' => $this->t('Specify page by using their path. An example path is %user-wildcard for every user edit page. %front is the front page.', [
+        '%user-wildcard' => '/user/*/edit',
+        '%front' => '<front>',
+      ]),
+      '#required' => TRUE,
+    ];
+
     $form['id'] = [
       '#type' => 'machine_name',
       '#default_value' => $informblock->id(),
@@ -100,6 +115,10 @@ class InformBlockForm extends EntityForm {
         '%label' => $informblock->label(),
       ]));
     }
+
+    // Invalidate cache tags.
+    $tags = ['config:block.block.gdprconsent'];
+    Cache::invalidateTags($tags);
 
     $form_state->setRedirect('entity.informblock.collection');
   }

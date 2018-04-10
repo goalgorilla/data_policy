@@ -15,6 +15,7 @@ class InformBlockListBuilder extends ConfigEntityListBuilder {
    */
   public function buildHeader() {
     $header['label'] = $this->t('Title');
+    $header['page'] = $this->t('Page');
     $header['enabled'] = $this->t('Enabled');
 
     return $header + parent::buildHeader();
@@ -25,6 +26,7 @@ class InformBlockListBuilder extends ConfigEntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $entity->label();
+    $row['page'] = $entity->page;
     $row['enabled'] = $entity->status === TRUE ? $this->t('Yes') : $this->t('No');
 
     return $row + parent::buildRow($entity);
