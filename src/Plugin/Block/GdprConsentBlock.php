@@ -153,7 +153,7 @@ class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterf
           'informblock' => $inform_block->id(),
         ]),
         '#attributes' => [
-          'class' => ['use-ajax'],
+          'class' => ['use-ajax btn btn-flat'],
           'data-dialog-type' => 'modal',
           'data-dialog-options' => Json::encode([
             'title' => $inform_block->label(),
