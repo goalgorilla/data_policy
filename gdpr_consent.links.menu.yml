@@ -5,7 +5,7 @@ gdpr_consent.settings:
   parent: system.admin_config_system
 
 entity.data_policy.collection:
-  title: 'Data policy list'
+  title: 'Data policy consents'
   route_name: entity.data_policy.collection
-  description: 'List Data policy entities'
+  description: 'List of users which given consent on data policy.'
   parent: system.admin_reports

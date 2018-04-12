@@ -16,11 +16,15 @@ use Drupal\user\UserInterface;
  * @ContentEntityType(
  *   id = "data_policy",
  *   label = @Translation("Data policy"),
+ *   label_collection = @Translation("Data policy consents"),
  *   handlers = {
  *     "list_builder" = "Drupal\gdpr_consent\DataPolicyListBuilder",
+ *     "route_provider" = {
+ *       "html" = "Drupal\gdpr_consent\DataPolicyHtmlRouteProvider",
+ *     },
  *   },
  *   base_table = "data_policy",
- *   admin_permission = "administer data policy entities",
+ *   admin_permission = "overview data policy consents",
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "uuid",
@@ -28,7 +32,7 @@ use Drupal\user\UserInterface;
  *     "langcode" = "langcode",
  *   },
  *   links = {
- *     "collection" = "/admin/structure/data-policy",
+ *     "collection" = "/admin/reports/data-policy",
  *   }
  * )
  */
@@ -39,8 +43,30 @@ class DataPolicy extends ContentEntityBase implements DataPolicyInterface {
   /**
    * {@inheritdoc}
    */
+  public function getName() {
+    return NULL;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setName($name) {
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getCreatedTime() {
     return $this->get('created')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setCreatedTime($timestamp) {
+    $this->set('created', $timestamp);
+    return $this;
   }
 
   /**
@@ -70,6 +96,20 @@ class DataPolicy extends ContentEntityBase implements DataPolicyInterface {
    */
   public function setOwner(UserInterface $account) {
     $this->set('user_id', $account->id());
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isPublished() {
+    return TRUE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setPublished($published) {
     return $this;
   }
 
