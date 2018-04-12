@@ -6,9 +6,11 @@
  */
 
 use Drupal\Component\Serialization\Json;
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\gdpr_consent\Entity\DataPolicy;
 
 /**
  * Implements hook_help().
@@ -45,4 +47,16 @@ function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $
     ]),
     '#required' => TRUE,
   ];
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_insert().
+ */
+function gdpr_consent_user_insert(EntityInterface $entity) {
+  $data_policy = DataPolicy::create();
+
+  /** @var \Drupal\user\UserInterface $entity */
+  $data_policy->setOwner($entity);
+
+  $data_policy->save();
 }

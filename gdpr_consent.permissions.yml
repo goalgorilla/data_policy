@@ -11,3 +11,8 @@ edit inform and consent setting:
 
 change inform and consent setting status:
   title: 'Change inform and consent setting status'
+
+administer data policy entities:
+  title: 'Administer Data policy entities'
+  description: 'Allow to access the administration form to configure Data policy entities.'
+  restrict access: true
