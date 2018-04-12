@@ -5,6 +5,8 @@
  * gdpr_consent.module
  */
 
+use Drupal\Component\Serialization\Json;
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 
@@ -17,4 +19,30 @@ function gdpr_consent_help($route_name, RouteMatchInterface $route_match) {
       '@url' => Link::createFromRoute(t('Data usage explanation'), 'entity.informblock.collection')->toString(),
     ]) . '</p>';
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
+
+  $link = Link::createFromRoute(t('data policy'), 'gdpr_consent.data_policy', [], [
+    'attributes' => [
+      'class' => ['use-ajax'],
+      'data-dialog-type' => 'modal',
+      'data-dialog-options' => Json::encode([
+        'title' => t('Data policy'),
+        'width' => 700,
+      ]),
+    ],
+  ]);
+
+  $form['data_policy'] = [
+    '#type' => 'checkbox',
+    '#title' => t('I agree with the @url', [
+      '@url' => $link->toString(),
+    ]),
+    '#required' => TRUE,
+  ];
 }
