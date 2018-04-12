@@ -9,3 +9,9 @@ entity.data_policy.collection:
   route_name: entity.data_policy.collection
   description: 'List of users which given consent on data policy.'
   parent: system.admin_reports
+
+entity.data_policy.collection:
+  title: 'Data policy consents'
+  route_name: entity.data_policy.collection
+  description: 'List of users which given consent on data policy.'
+  parent: system.admin_reports

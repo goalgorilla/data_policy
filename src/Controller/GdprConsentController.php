@@ -64,8 +64,11 @@ class GdprConsentController extends ControllerBase {
    *   The data policy description text.
    */
   public function dataPolicyPage() {
+    $description = $this->config('gdpr_consent.data_policy')
+      ->get('description');
+
     return [
-      '#markup' => $this->t('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam feugiat pellentesque nibh, quis elementum justo. Mauris a velit at purus consequat maximus. Quisque lacus nulla, gravida vel vulputate nec, mollis in nisi. Cras elementum nibh nec tellus molestie auctor. Vivamus eu vestibulum ex. Nullam pulvinar turpis a sapien eleifend, id malesuada ligula facilisis. Vivamus non elementum dui. Sed tempor eros ac mauris eleifend aliquet.'),
+      '#markup' => '<p>' . str_replace("\n", '</p><p>', $description) . '</p>',
     ];
   }
 

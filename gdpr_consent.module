@@ -36,6 +36,7 @@ function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $
       'data-dialog-options' => Json::encode([
         'title' => t('Data policy'),
         'width' => 700,
+        'height' => 700,
       ]),
     ],
   ]);

@@ -1,0 +1,9 @@
+entity.data_policy.collection:
+  route_name: entity.data_policy.collection
+  base_route: entity.data_policy.collection
+  title: 'View'
+
+gdpr_consent.data_policy.settings:
+  route_name: gdpr_consent.data_policy.settings
+  base_route: entity.data_policy.collection
+  title: 'Settings'
