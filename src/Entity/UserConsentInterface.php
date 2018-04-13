@@ -7,17 +7,17 @@ use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\user\EntityOwnerInterface;
 
 /**
- * Provides an interface for defining Data policy entities.
+ * Provides an interface for defining User consent entities.
  *
  * @ingroup gdpr_consent
  */
-interface DataPolicyInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
+interface UserConsentInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
   /**
-   * Gets the Data policy creation timestamp.
+   * Gets the User consent creation timestamp.
    *
    * @return int
-   *   Creation timestamp of the Data policy.
+   *   Creation timestamp of the User consent.
    */
   public function getCreatedTime();
 

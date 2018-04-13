@@ -10,11 +10,11 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Defines a class to build a listing of Data policy entities.
+ * Defines a class to build a listing of User consent entities.
  *
  * @ingroup gdpr_consent
  */
-class DataPolicyListBuilder extends EntityListBuilder {
+class UserConsentListBuilder extends EntityListBuilder {
 
   /**
    * The date formatter service.
@@ -24,7 +24,7 @@ class DataPolicyListBuilder extends EntityListBuilder {
   protected $dateFormatter;
 
   /**
-   * Constructs a new NodeListBuilder object.
+   * Constructs a new UserConsentListBuilder object.
    *
    * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
    *   The entity type definition.
@@ -65,7 +65,7 @@ class DataPolicyListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\gdpr_consent\Entity\DataPolicyInterface */
+    /* @var $entity \Drupal\gdpr_consent\Entity\UserConsentInterface */
     return [
       'id' => $entity->id(),
       'user' => $entity->getOwner()->getDisplayName(),

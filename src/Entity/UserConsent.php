@@ -9,22 +9,22 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\user\UserInterface;
 
 /**
- * Defines the Data policy entity.
+ * Defines the User consent entity.
  *
  * @ingroup gdpr_consent
  *
  * @ContentEntityType(
- *   id = "data_policy",
- *   label = @Translation("Data policy"),
- *   label_collection = @Translation("Data policy consents"),
+ *   id = "user_consent",
+ *   label = @Translation("User consent"),
+ *   label_collection = @Translation("User consents"),
  *   handlers = {
- *     "list_builder" = "Drupal\gdpr_consent\DataPolicyListBuilder",
+ *     "list_builder" = "Drupal\gdpr_consent\UserConsentListBuilder",
  *     "route_provider" = {
- *       "html" = "Drupal\gdpr_consent\DataPolicyHtmlRouteProvider",
+ *       "html" = "Drupal\gdpr_consent\UserConsentHtmlRouteProvider",
  *     },
  *   },
- *   base_table = "data_policy",
- *   admin_permission = "overview data policy consents",
+ *   base_table = "user_consent",
+ *   admin_permission = "overview user consents",
  *   entity_keys = {
  *     "id" = "id",
  *     "uuid" = "uuid",
@@ -32,11 +32,11 @@ use Drupal\user\UserInterface;
  *     "langcode" = "langcode",
  *   },
  *   links = {
- *     "collection" = "/admin/reports/data-policy",
+ *     "collection" = "/admin/reports/user-consents",
  *   }
  * )
  */
-class DataPolicy extends ContentEntityBase implements DataPolicyInterface {
+class UserConsent extends ContentEntityBase implements UserConsentInterface {
 
   use EntityChangedTrait;
 
@@ -121,7 +121,7 @@ class DataPolicy extends ContentEntityBase implements DataPolicyInterface {
 
     $fields['user_id'] = BaseFieldDefinition::create('entity_reference')
       ->setLabel(t('Authored by'))
-      ->setDescription(t('The user ID of author of the Data policy entity.'))
+      ->setDescription(t('The user ID of author of the User consent entity.'))
       ->setRevisionable(TRUE)
       ->setSetting('target_type', 'user')
       ->setSetting('handler', 'default')
