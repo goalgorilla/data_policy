@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the gdpr_consent module.
+ */
+
+use Drupal\gdpr_consent\Entity\DataPolicy;
+
+/**
+ * Implements hook_install().
+ */
+function gdpr_consent_install() {
+  $data_policy = DataPolicy::create([
+    'name' => 'Data policy',
+    'field_description' => [
+      'value' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas congue sit amet augue iaculis interdum. Mauris sit amet dapibus lectus. Aenean feugiat nulla sem, eget varius lorem semper at. Integer dictum tellus et gravida suscipit. In scelerisque in sapien a mattis. Curabitur tempus dapibus tortor eu ornare. Etiam ut odio dui. Cras ex elit, laoreet ut porttitor a, facilisis sit amet risus. Vivamus volutpat porta felis a vulputate. Sed id tincidunt neque, ut laoreet magna. Donec in tortor magna. Nam vel ligula sit amet mauris accumsan consectetur. Nam non tellus nulla. Proin non augue in libero fringilla varius.
+Curabitur scelerisque a nulla sed placerat. Sed eu purus mauris. Aenean sagittis ornare nisl quis interdum. Ut erat quam, rutrum eget enim at, convallis pretium est. Praesent gravida ex dui, vitae vestibulum risus consequat id. Integer ut euismod diam, ac finibus arcu. Integer mauris risus, gravida quis lectus ut, iaculis scelerisque orci. Quisque porta ultricies eros, vel imperdiet libero ornare id. Aliquam turpis odio, ullamcorper eu orci eget, molestie egestas ipsum. Pellentesque semper risus eget volutpat tempus. Proin eu egestas ipsum. Aliquam aliquet est pretium nisl viverra, vel lacinia dui gravida. In ut urna tellus. Ut ullamcorper ex vitae ipsum sollicitudin tempus.
+Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Curabitur ante massa, imperdiet at erat ut, efficitur fermentum sapien. Maecenas viverra, diam non efficitur pretium, libero est consequat ligula, nec tincidunt magna mi eu sem. Fusce egestas feugiat arcu in elementum. Donec iaculis vitae sem eget lobortis. Aenean enim orci, tempus scelerisque neque vitae, sagittis maximus arcu. Vestibulum sit amet nisi eleifend, finibus nisl vel, lacinia magna. Duis dignissim libero massa, eget sodales felis fringilla tincidunt. Suspendisse dui turpis, lobortis nec justo eget, laoreet consectetur velit. Praesent imperdiet tellus vel consequat mollis. Aenean rutrum, erat at volutpat ultrices, nunc neque mollis urna, quis luctus ex lacus et nibh. Duis ex massa, suscipit sit amet ante in, lacinia blandit felis.',
+    ],
+  ]);
+
+  $data_policy->save();
+
+  \Drupal::configFactory()->getEditable('gdpr_consent.data_policy')
+    ->set('entity_id', $data_policy->id())
+    ->save();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function gdpr_consent_uninstall() {
+  /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
+  foreach (DataPolicy::loadMultiple() as $data_policy) {
+    $data_policy->delete();
+  }
+
+  \Drupal::configFactory()->getEditable('gdpr_consent.data_policy')->delete();
+}
