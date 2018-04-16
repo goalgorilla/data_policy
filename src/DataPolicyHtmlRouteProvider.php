@@ -59,18 +59,21 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
    *   The generated route, if available.
    */
   protected function getHistoryRoute(EntityTypeInterface $entity_type) {
-    if ($entity_type->hasLinkTemplate('version-history')) {
-      $route = new Route($entity_type->getLinkTemplate('version-history'));
-      $route
-        ->setDefaults([
-          '_title' => "{$entity_type->getLabel()} revisions",
-          '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicyController::revisionOverview',
-        ])
-        ->setRequirement('_permission', 'access data policy revisions')
-        ->setOption('_admin_route', TRUE);
-
-      return $route;
+    if (!$entity_type->hasLinkTemplate('version-history')) {
+      return FALSE;
     }
+
+    $route = new Route($entity_type->getLinkTemplate('version-history'));
+
+    $route
+      ->setDefaults([
+        '_title' => 'Data policy',
+        '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicyController::revisionOverview',
+      ])
+      ->setRequirement('_permission', 'view all data policy revisions')
+      ->setOption('_admin_route', TRUE);
+
+    return $route;
   }
 
   /**

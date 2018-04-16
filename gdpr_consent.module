@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\gdpr_consent\Entity\DataPolicy;
 use Drupal\gdpr_consent\Entity\UserConsent;
 
 /**
@@ -58,6 +59,10 @@ function gdpr_consent_user_insert(EntityInterface $entity) {
 
   /** @var \Drupal\user\UserInterface $entity */
   $user_consent->setOwner($entity);
+
+  $entity_id = \Drupal::config('gdpr_consent.data_policy')->get('entity_id');
+
+  $user_consent->setRevision(DataPolicy::load($entity_id));
 
   $user_consent->save();
 }

@@ -3,22 +3,7 @@ entity.user_consent.collection:
   base_route: entity.user_consent.collection
   title: 'View'
 
-gdpr_consent.data_policy.settings:
-  route_name: gdpr_consent.data_policy.settings
-  base_route: entity.user_consent.collection
-  title: 'Settings'
-
 data_policy.settings_tab:
   route_name: data_policy.settings
   title: 'Settings'
   base_route: data_policy.settings
-
-entity.data_policy.canonical:
-  route_name: entity.data_policy.canonical
-  base_route: entity.data_policy.canonical
-  title: 'View'
-
-entity.data_policy.edit_form:
-  route_name: entity.data_policy.edit_form
-  base_route: entity.data_policy.canonical
-  title: 'Edit'

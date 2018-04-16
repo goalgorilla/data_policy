@@ -6,7 +6,6 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Url;
-use Drupal\gdpr_consent\Entity\DataPolicyInterface;
 
 /**
  * Class DataPolicyController.
@@ -25,10 +24,47 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    *   An array suitable for drupal_render().
    */
   public function revisionShow($data_policy_revision) {
-    $data_policy = $this->entityManager()->getStorage('data_policy')->loadRevision($data_policy_revision);
-    $view_builder = $this->entityManager()->getViewBuilder('data_policy');
+    $build['data_policy'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Revision data'),
+    ];
 
-    return $view_builder->view($data_policy);
+    $data_policy = $this->entityTypeManager()->getStorage('data_policy')
+      ->loadRevision($data_policy_revision);
+
+    $view_builder = $this->entityTypeManager()->getViewBuilder('data_policy');
+
+    $build['data_policy']['revision'] = $view_builder->view($data_policy);
+
+    $user_consents = $this->entityTypeManager()->getStorage('user_consent')
+      ->loadByProperties([
+        'data_policy_revision_id' => $data_policy_revision,
+      ]);
+
+    if (!empty($user_consents)) {
+      $build['user_consent'] = [
+        '#type' => 'fieldset',
+        '#title' => $this->t('User consents for current revision'),
+      ];
+
+      $build['user_consent']['list'] = [
+        '#theme' => 'table',
+        '#header' => [
+          $this->t('User'),
+          $this->t('Date and time'),
+        ],
+      ];
+
+      /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */
+      foreach ($user_consents as $user_consent) {
+        $build['user_consent']['list']['#rows'][] = [
+          $user_consent->getOwner()->getDisplayName(),
+          \Drupal::service('date.formatter')->format($user_consent->getChangedTime(), 'short'),
+        ];
+      }
+    }
+
+    return $build;
   }
 
   /**
@@ -41,32 +77,38 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    *   The page title.
    */
   public function revisionPageTitle($data_policy_revision) {
-    $data_policy = $this->entityManager()->getStorage('data_policy')->loadRevision($data_policy_revision);
-    return $this->t('Revision of %title from %date', ['%title' => $data_policy->label(), '%date' => format_date($data_policy->getRevisionCreationTime())]);
+    $data_policy = $this->entityTypeManager()->getStorage('data_policy')
+      ->loadRevision($data_policy_revision);
+
+    $formatter = \Drupal::service('date.formatter');
+
+    return $this->t('Data policy revision from %date', [
+      '%date' => $formatter->format($data_policy->getRevisionCreationTime()),
+    ]);
   }
 
   /**
-   * Generates an overview table of older revisions of a Data policy .
-   *
-   * @param \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy
-   *   A Data policy  object.
+   * Generates an overview table of older revisions of a Data policy.
    *
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function revisionOverview(DataPolicyInterface $data_policy) {
+  public function revisionOverview() {
+    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+
+    /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
+    $data_policy_storage = $this->entityTypeManager()->getStorage('data_policy');
+
+    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
+    $data_policy = $data_policy_storage->load($entity_id);
+
     $account = $this->currentUser();
     $langcode = $data_policy->language()->getId();
-    $langname = $data_policy->language()->getName();
     $languages = $data_policy->getTranslationLanguages();
-    $has_translations = (count($languages) > 1);
-    $data_policy_storage = $this->entityManager()->getStorage('data_policy');
+    $has_translations = count($languages) > 1;
 
-    $build['#title'] = $has_translations ? $this->t('@langname revisions for %title', ['@langname' => $langname, '%title' => $data_policy->label()]) : $this->t('Revisions for %title', ['%title' => $data_policy->label()]);
-    $header = [$this->t('Revision'), $this->t('Operations')];
-
-    $revert_permission = (($account->hasPermission("revert all data policy revisions") || $account->hasPermission('administer data policy entities')));
-    $delete_permission = (($account->hasPermission("delete all data policy revisions") || $account->hasPermission('administer data policy entities')));
+    $revert_permission = $account->hasPermission('revert all data policy revisions') || $account->hasPermission('administer data policy entities');
+    $delete_permission = $account->hasPermission('delete all data policy revisions') || $account->hasPermission('administer data policy entities');
 
     $rows = [];
 
@@ -77,91 +119,116 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
     foreach (array_reverse($vids) as $vid) {
       /** @var \Drupal\gdpr_consent\DataPolicyInterface $revision */
       $revision = $data_policy_storage->loadRevision($vid);
+
       // Only show revisions that are affected by the language that is being
       // displayed.
-      if ($revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
-        $username = [
-          '#theme' => 'username',
-          '#account' => $revision->getRevisionUser(),
-        ];
+      if (!$revision->hasTranslation($langcode) && $revision->getTranslation($langcode)->isRevisionTranslationAffected()) {
+        continue;
+      }
 
-        // Use revision link to link to revisions that are not active.
-        $date = \Drupal::service('date.formatter')->format($revision->getRevisionCreationTime(), 'short');
-        if ($vid != $data_policy->getRevisionId()) {
-          $link = $this->l($date, new Url('entity.data_policy.revision', ['data_policy' => $data_policy->id(), 'data_policy_revision' => $vid]));
-        }
-        else {
-          $link = $data_policy->link($date);
-        }
+      $username = [
+        '#theme' => 'username',
+        '#account' => $revision->getRevisionUser(),
+      ];
 
-        $row = [];
-        $column = [
-          'data' => [
-            '#type' => 'inline_template',
-            '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
-            '#context' => [
-              'date' => $link,
-              'username' => \Drupal::service('renderer')->renderPlain($username),
-              'message' => ['#markup' => $revision->getRevisionLogMessage(), '#allowed_tags' => Xss::getHtmlTagList()],
+      // Use revision link to link to revisions that are not active.
+      $date = \Drupal::service('date.formatter')->format($revision->getRevisionCreationTime(), 'short');
+
+      if ($vid != $data_policy->getRevisionId()) {
+        $url = new Url('entity.data_policy.revision', [
+          'data_policy' => $data_policy->id(),
+          'data_policy_revision' => $vid,
+        ]);
+
+        $link = $this->getLinkGenerator()->generate($date, $url);
+      }
+      else {
+        $link = $data_policy->toLink($date)->toString();
+      }
+
+      $row = [];
+
+      $column = [
+        'data' => [
+          '#type' => 'inline_template',
+          '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if current %} <em>({% trans %}current revision{% endtrans %})</em>{% endif %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
+          '#context' => [
+            'date' => $link,
+            'username' => \Drupal::service('renderer')->renderPlain($username),
+            'current' => $latest_revision,
+            'message' => [
+              '#markup' => $revision->getRevisionLogMessage(),
+              '#allowed_tags' => Xss::getHtmlTagList(),
             ],
           ],
-        ];
-        $row[] = $column;
+        ],
+      ];
 
-        if ($latest_revision) {
-          $row[] = [
-            'data' => [
-              '#prefix' => '<em>',
-              '#markup' => $this->t('Current revision'),
-              '#suffix' => '</em>',
-            ],
-          ];
-          foreach ($row as &$current) {
-            $current['class'] = ['revision-current'];
-          }
-          $latest_revision = FALSE;
-        }
-        else {
-          $links = [];
-          if ($revert_permission) {
-            $links['revert'] = [
-              'title' => $this->t('Revert'),
-              'url' => $has_translations ?
-              Url::fromRoute('entity.data_policy.translation_revert', [
-                'data_policy' => $data_policy->id(),
-                'data_policy_revision' => $vid,
-                'langcode' => $langcode,
-              ]) :
-              Url::fromRoute('entity.data_policy.revision_revert', [
-                'data_policy' => $data_policy->id(),
-                'data_policy_revision' => $vid,
-              ]),
-            ];
-          }
+      $row[] = $column;
 
-          if ($delete_permission) {
-            $links['delete'] = [
-              'title' => $this->t('Delete'),
-              'url' => Url::fromRoute('entity.data_policy.revision_delete', ['data_policy' => $data_policy->id(), 'data_policy_revision' => $vid]),
-            ];
-          }
+      $links = [];
 
-          $row[] = [
-            'data' => [
-              '#type' => 'operations',
-              '#links' => $links,
-            ],
+      $links['view'] = [
+        'title' => $this->t('View'),
+        'url' => Url::fromRoute('entity.data_policy.revision', [
+          'data_policy' => $data_policy->id(),
+          'data_policy_revision' => $vid,
+        ]),
+      ];
+
+      if (!$latest_revision) {
+        if ($revert_permission) {
+          $links['revert'] = [
+            'title' => $this->t('Revert'),
+            'url' => $has_translations ?
+            Url::fromRoute('entity.data_policy.translation_revert', [
+              'data_policy' => $data_policy->id(),
+              'data_policy_revision' => $vid,
+              'langcode' => $langcode,
+            ]) :
+            Url::fromRoute('entity.data_policy.revision_revert', [
+              'data_policy' => $data_policy->id(),
+              'data_policy_revision' => $vid,
+            ]),
           ];
         }
 
-        $rows[] = $row;
+        if ($delete_permission) {
+          $links['delete'] = [
+            'title' => $this->t('Delete'),
+            'url' => Url::fromRoute('entity.data_policy.revision_delete', [
+              'data_policy' => $data_policy->id(),
+              'data_policy_revision' => $vid,
+            ]),
+          ];
+        }
       }
+
+      $row[] = [
+        'data' => [
+          '#type' => 'operations',
+          '#links' => $links,
+        ],
+      ];
+
+      if ($latest_revision) {
+        foreach ($row as &$current) {
+          $current['class'] = ['revision-current'];
+        }
+
+        $latest_revision = FALSE;
+      }
+
+      $rows[] = $row;
     }
 
     $build['data_policy_revisions_table'] = [
       '#theme' => 'table',
+      '#header' => [
+        $this->t('Revision'),
+        $this->t('Operations'),
+      ],
       '#rows' => $rows,
-      '#header' => $header,
     ];
 
     return $build;

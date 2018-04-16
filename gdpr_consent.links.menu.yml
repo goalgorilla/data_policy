@@ -10,14 +10,14 @@ entity.user_consent.collection:
   description: 'List of users which given consent on data policy.'
   parent: system.admin_reports
 
-entity.data_policy.collection:
-  title: 'Data policy'
-  route_name: entity.data_policy.collection
-  description: 'List Data policy entities'
-  parent: system.admin_content
-
 data_policy.admin.structure.settings:
-  title: Data policy settings
+  title: 'Data policy settings'
   description: 'Configure Data policy entities'
   route_name: data_policy.settings
   parent: system.admin_structure
+
+data_policy.user.admin_index.version_history:
+  title: 'Data policy'
+  description: 'Data policy revisions'
+  route_name: entity.data_policy.version_history
+  parent: user.admin_index

@@ -20,10 +20,8 @@ use Drupal\user\UserInterface;
  *   handlers = {
  *     "storage" = "Drupal\gdpr_consent\DataPolicyStorage",
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\gdpr_consent\DataPolicyListBuilder",
  *     "views_data" = "Drupal\gdpr_consent\Entity\DataPolicyViewsData",
  *     "translation" = "Drupal\gdpr_consent\DataPolicyTranslationHandler",
- *
  *     "form" = {
  *       "default" = "Drupal\gdpr_consent\Form\DataPolicyForm",
  *       "edit" = "Drupal\gdpr_consent\Form\DataPolicyForm",
@@ -50,13 +48,12 @@ use Drupal\user\UserInterface;
  *   },
  *   links = {
  *     "canonical" = "/admin/content/data-policy/{data_policy}",
- *     "edit-form" = "/admin/content/data-policy/{data_policy}/edit",
- *     "version-history" = "/admin/content/data-policy/{data_policy}/revisions",
- *     "revision" = "/admin/content/data-policy/{data_policy}/revisions/{data_policy_revision}/view",
- *     "revision_revert" = "/admin/content/data-policy/{data_policy}/revisions/{data_policy_revision}/revert",
- *     "revision_delete" = "/admin/content/data-policy/{data_policy}/revisions/{data_policy_revision}/delete",
- *     "translation_revert" = "/admin/content/data-policy/{data_policy}/revisions/{data_policy_revision}/revert/{langcode}",
- *     "collection" = "/admin/content/data-policy",
+ *     "version-history" = "/admin/config/people/data-policy",
+ *     "revision" = "/admin/config/people/data-policy/{data_policy_revision}",
+ *     "revision_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert",
+ *     "revision_delete" = "/admin/config/people/data-policy/{data_policy_revision}/delete",
+ *     "translation_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert/{langcode}",
+ *     "collection" = "/admin/config/people/data-policy/all",
  *   },
  *   field_ui_base_route = "data_policy.settings"
  * )

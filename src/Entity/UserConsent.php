@@ -6,6 +6,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\user\UserInterface;
 
 /**
@@ -116,6 +117,18 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
   /**
    * {@inheritdoc}
    */
+  public function setRevision(DataPolicyInterface $data_policy) {
+    $vids = $this->entityTypeManager()->getStorage('data_policy')
+      ->revisionIds($data_policy);
+
+    $this->set('data_policy_revision_id', end($vids));
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
 
@@ -143,6 +156,11 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
+
+    $fields['data_policy_revision_id'] = BaseFieldDefinition::create('integer')
+      ->setLabel(new TranslatableMarkup('Data policy revision ID'))
+      ->setReadOnly(TRUE)
+      ->setSetting('unsigned', TRUE);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))

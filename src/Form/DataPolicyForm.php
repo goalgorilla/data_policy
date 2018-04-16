@@ -15,6 +15,22 @@ class DataPolicyForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
+  protected function prepareEntity() {
+    parent::prepareEntity();
+
+    if ($this->getEntity()->isNew()) {
+      $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+
+      $entity = $this->entityTypeManager->getStorage('data_policy')
+        ->load($entity_id);
+
+      $this->setEntity($entity);
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
 
@@ -46,9 +62,9 @@ class DataPolicyForm extends ContentEntityForm {
 
     $entity->save();
 
-    $this->messenger()->addStatus($this->t('Saved data policy.'));
+    $this->messenger()->addStatus($this->t('Created new revision.'));
 
-    $form_state->setRedirect('entity.data_policy.collection');
+    $form_state->setRedirect('entity.data_policy.version_history');
   }
 
 }

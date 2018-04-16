@@ -14,11 +14,74 @@ use Drupal\user\EntityOwnerInterface;
 interface UserConsentInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
   /**
+   * Gets the User consent name.
+   *
+   * @return string
+   *   Name of the User consent.
+   */
+  public function getName();
+
+  /**
+   * Sets the User consent name.
+   *
+   * @param string $name
+   *   The User consent name.
+   *
+   * @return \Drupal\gdpr_consent\Entity\UserConsentInterface
+   *   The called User consent entity.
+   */
+  public function setName($name);
+
+  /**
    * Gets the User consent creation timestamp.
    *
    * @return int
    *   Creation timestamp of the User consent.
    */
   public function getCreatedTime();
+
+  /**
+   * Sets the User consent creation timestamp.
+   *
+   * @param int $timestamp
+   *   The User consent creation timestamp.
+   *
+   * @return \Drupal\gdpr_consent\Entity\UserConsentInterface
+   *   The called User consent entity.
+   */
+  public function setCreatedTime($timestamp);
+
+  /**
+   * Returns the User consent published status indicator.
+   *
+   * Unpublished User consent are only visible to restricted users.
+   *
+   * @return bool
+   *   TRUE if the User consent is published.
+   */
+  public function isPublished();
+
+  /**
+   * Sets the published status of a User consent.
+   *
+   * @param bool $published
+   *   TRUE to set this User consent to published, FALSE to set it to
+   *   unpublished.
+   *
+   * @return \Drupal\gdpr_consent\Entity\UserConsentInterface
+   *   The called User consent entity.
+   */
+  public function setPublished($published);
+
+  /**
+   * Sets the Data policy revision author.
+   *
+   * @param \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy
+   *   The data policy entity object.
+   *
+   * @return \Drupal\gdpr_consent\Entity\UserConsentInterface
+   *   The called User consent entity.
+   */
+  public function setRevision(DataPolicyInterface $data_policy);
 
 }
