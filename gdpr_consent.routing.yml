@@ -33,7 +33,23 @@ entity.informblock.delete_form:
 gdpr_consent.description:
   path: '/inform-consent/{informblock}'
   defaults:
-    _controller: '\Drupal\gdpr_consent\Controller\GdprConsentController::page'
+    _controller: '\Drupal\gdpr_consent\Controller\GdprConsentController::descriptionPage'
     _title_callback: '\Drupal\gdpr_consent\Controller\GdprConsentController::title'
   requirements:
     _custom_access: '\Drupal\gdpr_consent\Controller\GdprConsentController::access'
+
+gdpr_consent.data_policy:
+  path: '/data-policy'
+  defaults:
+    _controller: '\Drupal\gdpr_consent\Controller\GdprConsentController::dataPolicyPage'
+    _title: 'Data policy'
+  requirements:
+    _access: 'TRUE'
+
+gdpr_consent.data_policy.settings:
+  path: '/admin/reports/data-policy/settings'
+  defaults:
+    _form: '\Drupal\gdpr_consent\Form\DataPolicy'
+    _title: 'Data policy settings'
+  requirements:
+    _permission: 'administer data policy settings'
