@@ -60,14 +60,17 @@ class DataPolicyRevisionRevertTranslationForm extends DataPolicyRevisionRevertFo
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'data_policy_revision_revert_translation_confirm';
+    return 'gdpr_consent_data_policy_revision_revert_translation_confirm';
   }
 
   /**
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are you sure you want to revert @language translation to the revision from %revision-date?', ['@language' => $this->languageManager->getLanguageName($this->langcode), '%revision-date' => $this->dateFormatter->format($this->revision->getRevisionCreationTime())]);
+    return $this->t('Are you sure you want to revert @language translation to the revision from %revision-date?', [
+      '@language' => $this->languageManager->getLanguageName($this->langcode),
+      '%revision-date' => $this->dateFormatter->format($this->revision->getRevisionCreationTime()),
+    ]);
   }
 
   /**
@@ -93,7 +96,7 @@ class DataPolicyRevisionRevertTranslationForm extends DataPolicyRevisionRevertFo
     $revert_untranslated_fields = $form_state->getValue('revert_untranslated_fields');
 
     /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $default_revision */
-    $latest_revision = $this->DataPolicyStorage->load($revision->id());
+    $latest_revision = $this->dataPolicyStorage->load($revision->id());
     $latest_revision_translation = $latest_revision->getTranslation($this->langcode);
 
     $revision_translation = $revision->getTranslation($this->langcode);
@@ -106,7 +109,7 @@ class DataPolicyRevisionRevertTranslationForm extends DataPolicyRevisionRevertFo
 
     $latest_revision_translation->setNewRevision();
     $latest_revision_translation->isDefaultRevision(TRUE);
-    $revision->setRevisionCreationTime(REQUEST_TIME);
+    $revision->setRevisionCreationTime($this->time->getRequestTime());
 
     return $latest_revision_translation;
   }

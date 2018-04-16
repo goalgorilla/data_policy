@@ -19,7 +19,7 @@ class DataPolicySettingsForm extends FormBase {
    *   The unique string identifying the form.
    */
   public function getFormId() {
-    return 'datapolicy_settings';
+    return 'gdpr_consent_data_policy_settings';
   }
 
   /**

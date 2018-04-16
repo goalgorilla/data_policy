@@ -117,7 +117,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
     $latest_revision = TRUE;
 
     foreach (array_reverse($vids) as $vid) {
-      /** @var \Drupal\gdpr_consent\DataPolicyInterface $revision */
+      /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $revision */
       $revision = $data_policy_storage->loadRevision($vid);
 
       // Only show revisions that are affected by the language that is being

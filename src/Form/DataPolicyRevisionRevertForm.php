@@ -2,6 +2,7 @@
 
 namespace Drupal\gdpr_consent\Form;
 
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\ConfirmFormBase;
@@ -30,7 +31,7 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
    *
    * @var \Drupal\Core\Entity\EntityStorageInterface
    */
-  protected $DataPolicyStorage;
+  protected $dataPolicyStorage;
 
   /**
    * The date formatter service.
@@ -40,16 +41,26 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
   protected $dateFormatter;
 
   /**
+   * The time service.
+   *
+   * @var \Drupal\Component\Datetime\TimeInterface
+   */
+  protected $time;
+
+  /**
    * Constructs a new DataPolicyRevisionRevertForm.
    *
    * @param \Drupal\Core\Entity\EntityStorageInterface $entity_storage
    *   The Data policy storage.
    * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
    *   The date formatter service.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time service.
    */
-  public function __construct(EntityStorageInterface $entity_storage, DateFormatterInterface $date_formatter) {
-    $this->DataPolicyStorage = $entity_storage;
+  public function __construct(EntityStorageInterface $entity_storage, DateFormatterInterface $date_formatter, TimeInterface $time) {
+    $this->dataPolicyStorage = $entity_storage;
     $this->dateFormatter = $date_formatter;
+    $this->time = $time;
   }
 
   /**
@@ -58,7 +69,8 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('entity.manager')->getStorage('data_policy'),
-      $container->get('date.formatter')
+      $container->get('date.formatter'),
+      $container->get('datetime.time')
     );
   }
 
@@ -66,21 +78,23 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'data_policy_revision_revert_confirm';
+    return 'gdpr_consent_data_policy_revision_revert_confirm';
   }
 
   /**
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return t('Are you sure you want to revert to the revision from %revision-date?', ['%revision-date' => $this->dateFormatter->format($this->revision->getRevisionCreationTime())]);
+    return $this->t('Are you sure you want to revert to the revision from %revision-date?', [
+      '%revision-date' => $this->dateFormatter->format($this->revision->getRevisionCreationTime()),
+    ]);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('entity.data_policy.version_history', ['data_policy' => $this->revision->id()]);
+    return new Url('entity.data_policy.version_history');
   }
 
   /**
@@ -101,10 +115,8 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $data_policy_revision = NULL) {
-    $this->revision = $this->DataPolicyStorage->loadRevision($data_policy_revision);
-    $form = parent::buildForm($form, $form_state);
-
-    return $form;
+    $this->revision = $this->dataPolicyStorage->loadRevision($data_policy_revision);
+    return parent::buildForm($form, $form_state);
   }
 
   /**
@@ -116,15 +128,22 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
     $original_revision_timestamp = $this->revision->getRevisionCreationTime();
 
     $this->revision = $this->prepareRevertedRevision($this->revision, $form_state);
-    $this->revision->revision_log = t('Copy of the revision from %date.', ['%date' => $this->dateFormatter->format($original_revision_timestamp)]);
+
+    $this->revision->revision_log = $this->t('Copy of the revision from %date.', [
+      '%date' => $this->dateFormatter->format($original_revision_timestamp),
+    ]);
+
     $this->revision->save();
 
-    $this->logger('content')->notice('Data policy: reverted %title revision %revision.', ['%title' => $this->revision->label(), '%revision' => $this->revision->getRevisionId()]);
-    drupal_set_message(t('Data policy %title has been reverted to the revision from %revision-date.', ['%title' => $this->revision->label(), '%revision-date' => $this->dateFormatter->format($original_revision_timestamp)]));
-    $form_state->setRedirect(
-      'entity.data_policy.version_history',
-      ['data_policy' => $this->revision->id()]
-    );
+    $this->logger('content')->notice('Data policy: reverted revision %revision.', [
+      '%revision' => $this->revision->getRevisionId(),
+    ]);
+
+    $this->messenger()->addStatus(t('Data policy has been reverted to the revision from %revision-date.', [
+      '%revision-date' => $this->dateFormatter->format($original_revision_timestamp),
+    ]));
+
+    $form_state->setRedirectUrl($this->getCancelUrl());
   }
 
   /**
@@ -141,7 +160,7 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
   protected function prepareRevertedRevision(DataPolicyInterface $revision, FormStateInterface $form_state) {
     $revision->setNewRevision();
     $revision->isDefaultRevision(TRUE);
-    $revision->setRevisionCreationTime(REQUEST_TIME);
+    $revision->setRevisionCreationTime($this->time->getRequestTime());
 
     return $revision;
   }
