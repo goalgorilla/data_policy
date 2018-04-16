@@ -3,15 +3,3 @@ gdpr_consent.settings:
   description: 'List of pages where can be showed information block.'
   route_name: entity.informblock.collection
   parent: system.admin_config_system
-
-entity.data_policy.collection:
-  title: 'Data policy consents'
-  route_name: entity.data_policy.collection
-  description: 'List of users which given consent on data policy.'
-  parent: system.admin_reports
-
-entity.data_policy.collection:
-  title: 'Data policy consents'
-  route_name: entity.data_policy.collection
-  description: 'List of users which given consent on data policy.'
-  parent: system.admin_reports

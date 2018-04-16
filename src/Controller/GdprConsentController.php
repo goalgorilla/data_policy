@@ -23,7 +23,7 @@ class GdprConsentController extends ControllerBase {
    * @return array
    *   The 'body' field value.
    */
-  public function descriptionPage($informblock) {
+  public function page($informblock) {
     return ['#markup' => InformBlock::load($informblock)->body['value']];
   }
 
@@ -55,21 +55,6 @@ class GdprConsentController extends ControllerBase {
     }
 
     return AccessResult::forbidden();
-  }
-
-  /**
-   * Show description of data policy.
-   *
-   * @return array
-   *   The data policy description text.
-   */
-  public function dataPolicyPage() {
-    $description = $this->config('gdpr_consent.data_policy')
-      ->get('description');
-
-    return [
-      '#markup' => '<p>' . str_replace("\n", '</p><p>', $description) . '</p>',
-    ];
   }
 
 }
