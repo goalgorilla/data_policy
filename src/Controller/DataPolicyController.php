@@ -89,6 +89,27 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
   }
 
   /**
+   * Check if reverting is allowed.
+   *
+   * @return bool
+   *   TRUE if reverting is allowed.
+   */
+  public function allowRevert() {
+    $permissions = [
+      'revert all data policy revisions',
+      'administer data policy entities',
+    ];
+
+    foreach ($permissions as $permission) {
+      if ($this->currentUser()->hasPermission($permission)) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Generates an overview table of older revisions of a Data policy.
    *
    * @return array
@@ -108,7 +129,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
     $languages = $data_policy->getTranslationLanguages();
     $has_translations = count($languages) > 1;
 
-    $revert_permission = $account->hasPermission('revert all data policy revisions') || $account->hasPermission('administer data policy entities');
+    $revert_permission = $this->allowRevert();
     $delete_permission = $account->hasPermission('delete all data policy revisions') || $account->hasPermission('administer data policy entities');
 
     $rows = [];

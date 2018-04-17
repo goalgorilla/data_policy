@@ -101,14 +101,14 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getConfirmText() {
-    return t('Revert');
+    return $this->t('Revert');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDescription() {
-    return '';
+    return $this->t('Users will be asked again to agree with this revision.');
   }
 
   /**
@@ -139,7 +139,7 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
       '%revision' => $this->revision->getRevisionId(),
     ]);
 
-    $this->messenger()->addStatus(t('Data policy has been reverted to the revision from %revision-date.', [
+    $this->messenger()->addStatus($this->t('Data policy has been reverted to the revision from %revision-date.', [
       '%revision-date' => $this->dateFormatter->format($original_revision_timestamp),
     ]));
 
