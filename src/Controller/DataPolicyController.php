@@ -2,6 +2,7 @@
 
 namespace Drupal\gdpr_consent\Controller;
 
+use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
@@ -157,7 +158,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
             'username' => \Drupal::service('renderer')->renderPlain($username),
             'current' => $latest_revision,
             'message' => [
-              '#markup' => $revision->getRevisionLogMessage(),
+              '#markup' => Unicode::truncate($revision->getRevisionLogMessage(), 80, TRUE, TRUE),
               '#allowed_tags' => Xss::getHtmlTagList(),
             ],
           ],

@@ -42,7 +42,7 @@ gdpr_consent.data_policy:
   path: '/data-policy'
   defaults:
     _controller: '\Drupal\gdpr_consent\Controller\GdprConsentController::dataPolicyPage'
-    _title: 'Data policy'
+    _title: 'Data Policy'
   requirements:
     _access: 'TRUE'
 
