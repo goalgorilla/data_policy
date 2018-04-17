@@ -4,12 +4,6 @@ gdpr_consent.settings:
   route_name: entity.informblock.collection
   parent: system.admin_config_system
 
-entity.user_consent.collection:
-  title: 'User consents'
-  route_name: entity.user_consent.collection
-  description: 'List of users which given consent on data policy.'
-  parent: system.admin_reports
-
 data_policy.admin.structure.settings:
   title: 'Data policy settings'
   description: 'Configure Data policy entities'

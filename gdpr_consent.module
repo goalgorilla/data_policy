@@ -17,10 +17,25 @@ use Drupal\gdpr_consent\Entity\UserConsent;
  * Implements hook_help().
  */
 function gdpr_consent_help($route_name, RouteMatchInterface $route_match) {
-  if ($route_name == 'entity.block.edit_form' && $route_match->getRawParameter('block') == 'gdpr_consent') {
-    return '<p>' . t('Go to @url page for setting block title on specific pages.', [
-      '@url' => Link::createFromRoute(t('Data usage explanation'), 'entity.informblock.collection')->toString(),
-    ]) . '</p>';
+  switch ($route_name) {
+    // Main module help for the gdpr_consent module.
+    case 'help.page.gdpr_consent':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module helps site managers inform users about data collection.') . '</p>';
+
+      return $output;
+
+    case 'entity.block.edit_form':
+      if ($route_match->getRawParameter('block') != 'gdpr_consent') {
+        break;
+      }
+
+      $url = Link::createFromRoute(t('Data usage explanation'), 'entity.informblock.collection');
+
+      return '<p>' . t('Go to @url page for setting block title on specific pages.', [
+        '@url' => $url->toString(),
+      ]) . '</p>';
   }
 }
 
