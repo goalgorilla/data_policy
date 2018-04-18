@@ -4,6 +4,7 @@ namespace Drupal\gdpr_consent\Controller;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Render\Markup;
 use Drupal\gdpr_consent\Entity\DataPolicy;
 use Drupal\gdpr_consent\Entity\InformBlock;
 use Drupal\gdpr_consent\InformBlockInterface;
@@ -67,9 +68,11 @@ class GdprConsentController extends ControllerBase {
   public function dataPolicyPage() {
     $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
     $description = DataPolicy::load($entity_id)->field_description->value;
+    $description = '<p>' . str_replace("\n", '</p><p>', $description) . '</p>';
 
     return [
-      '#markup' => '<p>' . str_replace("\n", '</p><p>', $description) . '</p>',
+      '#theme' => 'gdpr_consent_data_policy',
+      '#content' => Markup::create($description),
     ];
   }
 
