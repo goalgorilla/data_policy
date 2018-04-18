@@ -16,6 +16,26 @@ use Drupal\Core\Url;
 class DataPolicyController extends ControllerBase implements ContainerInjectionInterface {
 
   /**
+   * The date formatter.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatter
+   */
+  protected $dateFormatter;
+
+  /**
+   * Retrieves the date formatter.
+   *
+   * @return \Drupal\Core\Datetime\DateFormatter
+   *   The date formatter.
+   */
+  protected function dateFormatter() {
+    if (!isset($this->dateFormatter)) {
+      $this->dateFormatter = \Drupal::service('date.formatter');
+    }
+    return $this->dateFormatter;
+  }
+
+  /**
    * Displays a Data policy  revision.
    *
    * @param int $data_policy_revision
@@ -81,32 +101,9 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
     $data_policy = $this->entityTypeManager()->getStorage('data_policy')
       ->loadRevision($data_policy_revision);
 
-    $formatter = \Drupal::service('date.formatter');
-
     return $this->t('Data policy revision from %date', [
-      '%date' => $formatter->format($data_policy->getRevisionCreationTime()),
+      '%date' => $this->dateFormatter()->format($data_policy->getRevisionCreationTime()),
     ]);
-  }
-
-  /**
-   * Check if reverting is allowed.
-   *
-   * @return bool
-   *   TRUE if reverting is allowed.
-   */
-  public function allowRevert() {
-    $permissions = [
-      'revert all data policy revisions',
-      'administer data policy entities',
-    ];
-
-    foreach ($permissions as $permission) {
-      if ($this->currentUser()->hasPermission($permission)) {
-        return TRUE;
-      }
-    }
-
-    return FALSE;
   }
 
   /**
@@ -129,7 +126,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
     $languages = $data_policy->getTranslationLanguages();
     $has_translations = count($languages) > 1;
 
-    $revert_permission = $this->allowRevert();
+    $revert_permission = $account->hasPermission('revert all data policy revisions') || $account->hasPermission('administer data policy entities');
     $delete_permission = $account->hasPermission('delete all data policy revisions') || $account->hasPermission('administer data policy entities');
 
     $rows = [];
