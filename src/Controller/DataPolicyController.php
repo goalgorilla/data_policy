@@ -151,7 +151,8 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
       ];
 
       // Use revision link to link to revisions that are not active.
-      $date = \Drupal::service('date.formatter')->format($revision->getRevisionCreationTime(), 'short');
+      $date = $this->dateFormatter()
+        ->format($revision->getRevisionCreationTime(), 'short');
 
       if ($vid != $data_policy->getRevisionId()) {
         $url = new Url('entity.data_policy.revision', [
