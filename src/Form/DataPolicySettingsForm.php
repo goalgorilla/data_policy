@@ -2,7 +2,7 @@
 
 namespace Drupal\gdpr_consent\Form;
 
-use Drupal\Core\Form\FormBase;
+use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
@@ -10,44 +10,47 @@ use Drupal\Core\Form\FormStateInterface;
  *
  * @ingroup gdpr_consent
  */
-class DataPolicySettingsForm extends FormBase {
+class DataPolicySettingsForm extends ConfigFormBase {
 
   /**
-   * Returns a unique string identifying the form.
-   *
-   * @return string
-   *   The unique string identifying the form.
+   * {@inheritdoc}
    */
   public function getFormId() {
     return 'gdpr_consent_data_policy_settings';
   }
 
   /**
-   * Form submission handler.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
+   * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    // Empty implementation of the abstract submit class.
+  protected function getEditableConfigNames() {
+    return ['gdpr_consent.data_policy'];
   }
 
   /**
-   * Defines the settings form for Data policy entities.
-   *
-   * @param array $form
-   *   An associative array containing the structure of the form.
-   * @param \Drupal\Core\Form\FormStateInterface $form_state
-   *   The current state of the form.
-   *
-   * @return array
-   *   Form definition array.
+   * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['datapolicy_settings']['#markup'] = 'Settings form for Data policy entities. Manage field settings here.';
-    return $form;
+    $config = $this->config('gdpr_consent.data_policy');
+
+    $form['enforce_consent'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Enforce consent'),
+      '#description' => $this->t('A user should give your consent on data policy when he creates an account.'),
+      '#default_value' => $config->get('enforce_consent'),
+    ];
+
+    return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function submitForm(array &$form, FormStateInterface $form_state) {
+    $this->config('gdpr_consent.data_policy')
+      ->set('enforce_consent', $form_state->getValue('enforce_consent'))
+      ->save();
+
+    parent::submitForm($form, $form_state);
   }
 
 }
