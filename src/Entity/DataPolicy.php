@@ -21,7 +21,7 @@ use Drupal\user\UserInterface;
  *     "storage" = "Drupal\gdpr_consent\DataPolicyStorage",
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "views_data" = "Drupal\gdpr_consent\Entity\DataPolicyViewsData",
- *     "translation" = "Drupal\gdpr_consent\DataPolicyTranslationHandler",
+ *     "translation" = "Drupal\content_translation\ContentTranslationHandler",
  *     "form" = {
  *       "default" = "Drupal\gdpr_consent\Form\DataPolicyForm",
  *       "edit" = "Drupal\gdpr_consent\Form\DataPolicyForm",

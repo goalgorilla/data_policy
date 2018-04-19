@@ -17,15 +17,6 @@ class DataPolicyAccessControlHandler extends EntityAccessControlHandler {
   /**
    * {@inheritdoc}
    */
-  public function access(EntityInterface $entity, $operation, AccountInterface $account = NULL, $return_as_object = FALSE) {
-    $access = parent::access($entity, $operation, $account, $return_as_object);
-    $x = 1;
-    return $access;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   protected function checkAccess(EntityInterface $entity, $operation, AccountInterface $account) {
     if ($operation == 'update') {
       return AccessResult::allowedIfHasPermission($account, 'edit data policy');
