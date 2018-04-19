@@ -34,6 +34,8 @@ class DataPolicyForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
 
+    $form['revision_log_message']['widget'][0]['value']['#default_value'] = '';
+
     $form['new_revision'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Create new revision'),
