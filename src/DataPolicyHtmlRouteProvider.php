@@ -39,7 +39,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
     }
 
     if ($translation_route = $this->getRevisionTranslationRevertRoute($entity_type)) {
-      $collection->add("{$entity_type_id}.revision_revert_translation_confirm", $translation_route);
+      $collection->add("entity.{$entity_type_id}.translation_revert", $translation_route);
     }
 
     if ($settings_form_route = $this->getSettingsFormRoute($entity_type)) {

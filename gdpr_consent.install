@@ -5,6 +5,7 @@
  * Install, update and uninstall functions for the gdpr_consent module.
  */
 
+use Drupal\Core\Language\LanguageInterface;
 use Drupal\gdpr_consent\Entity\DataPolicy;
 
 /**
@@ -20,11 +21,33 @@ Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia
     ],
   ]);
 
+  $data_policy->setNewRevision();
   $data_policy->save();
 
   \Drupal::configFactory()->getEditable('gdpr_consent.data_policy')
     ->set('entity_id', $data_policy->id())
     ->save();
+
+  if (!\Drupal::languageManager()->isMultilingual()) {
+    return;
+  }
+
+  $flags = LanguageInterface::STATE_CONFIGURABLE;
+  $languages = \Drupal::languageManager()->getLanguages($flags);
+  $langcode = \Drupal::languageManager()->getDefaultLanguage()->getId();
+
+  unset($languages[$langcode]);
+
+  /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $storage */
+  $storage = \Drupal::entityTypeManager()->getStorage('data_policy');
+
+  foreach (array_keys($languages) as $langcode) {
+    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $translation */
+    $translation = $data_policy->addTranslation($langcode);
+
+    $translation->setNewRevision();
+    $translation->save();
+  }
 }
 
 /**

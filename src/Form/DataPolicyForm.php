@@ -4,6 +4,7 @@ namespace Drupal\gdpr_consent\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Language\LanguageInterface;
 
 /**
  * Form controller for Data policy edit forms.
@@ -44,7 +45,31 @@ class DataPolicyForm extends ContentEntityForm {
       '#weight' => 10,
     ];
 
+    if (isset($form['langcode'])) {
+      $form['langcode']['widget'][0]['value']['#languages'] = LanguageInterface::STATE_CONFIGURABLE;
+    }
+
     return $form;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function buildEntity(array $form, FormStateInterface $form_state) {
+    if (!$form_state->hasValue('langcode')) {
+      return parent::buildEntity($form, $form_state);
+    }
+
+    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $entity */
+    $entity = $this->getEntity();
+
+    $langcode = $form_state->getValue('langcode')[0]['value'];
+
+    if ($entity->langcode->value != $langcode) {
+      $entity = $entity->getTranslation($langcode);
+    }
+
+    return $entity;
   }
 
   /**
@@ -53,14 +78,9 @@ class DataPolicyForm extends ContentEntityForm {
   public function save(array $form, FormStateInterface $form_state) {
     $entity = &$this->entity;
 
-    if ($form_state->getValue('new_revision') != FALSE) {
-      $entity->setNewRevision();
-      $entity->setRevisionCreationTime($this->time->getRequestTime());
-      $entity->setRevisionUserId($this->currentUser()->id());
-    }
-    else {
-      $entity->setNewRevision(FALSE);
-    }
+    $entity->setNewRevision();
+    $entity->setRevisionCreationTime($this->time->getRequestTime());
+    $entity->setRevisionUserId($this->currentUser()->id());
 
     $entity->save();
 
