@@ -16,6 +16,23 @@ use Symfony\Component\HttpKernel\KernelEvents;
 class RedirectSubscriber implements EventSubscriberInterface {
 
   /**
+   * The GDPR consent manager.
+   *
+   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   */
+  protected $gdprConsentManager;
+
+  /**
+   * RedirectSubscriber constructor.
+   *
+   * @param \Drupal\gdpr_consent\GdprConsentManagerInterface $gdpr_consent_manager
+   *   The GDPR consent manager.
+   */
+  public function __construct(GdprConsentManagerInterface $gdpr_consent_manager) {
+    $this->gdprConsentManager = $gdpr_consent_manager;
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function getSubscribedEvents() {
@@ -30,12 +47,13 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *   The event.
    */
   public function checkForRedirection(GetResponseEvent $event) {
-    if (\Drupal::currentUser()->isAnonymous() || \Drupal::currentUser()->id() == 1) {
+    if (!$this->gdprConsentManager->needConsent()) {
       return;
     }
 
     $route_names = [
       'gdpr_consent.data_policy',
+      'gdpr_consent.data_policy.agreement',
       'user.logout',
     ];
 
@@ -43,35 +61,9 @@ class RedirectSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $config = \Drupal::config('gdpr_consent.data_policy');
-
-    if (empty($config->get('enforce_consent'))) {
-      return;
-    }
-
-    $entity_id = $config->get('entity_id');
-
-    /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
-    $data_policy_storage = \Drupal::entityTypeManager()->getStorage('data_policy');
-
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
-    $data_policy = $data_policy_storage->load($entity_id);
-
-    $vids = $data_policy_storage->revisionIds($data_policy);
-
-    $vid = end($vids);
-
-    $user_consents = \Drupal::entityTypeManager()->getStorage('user_consent')
-      ->loadByProperties([
-        'user_id' => \Drupal::currentUser()->id(),
-        'data_policy_revision_id' => $vid,
-      ]);
-
-    if (!empty($user_consents)) {
-      return;
-    }
-
-    $event->setResponse(new RedirectResponse(Url::fromRoute('gdpr_consent.data_policy')->toString()));
+    $url = Url::fromRoute('gdpr_consent.data_policy.agreement');
+    $response = new RedirectResponse($url->toString());
+    $event->setResponse($response);
   }
 
 }

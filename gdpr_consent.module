@@ -5,12 +5,10 @@
  * gdpr_consent.module
  */
 
-use Drupal\Component\Serialization\Json;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
-use Drupal\gdpr_consent\Entity\DataPolicy;
-use Drupal\gdpr_consent\Entity\UserConsent;
+use Drupal\gdpr_consent\Form\DataPolicyAgreement;
 
 /**
  * Implements hook_help().
@@ -66,29 +64,10 @@ function gdpr_consent_theme($existing, $type, $theme, $path) {
  * Implements hook_form_FORM_ID_alter().
  */
 function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
+  $enforce_consent = \Drupal::config('gdpr_consent.data_policy')
+    ->get('enforce_consent');
 
-  $link = Link::createFromRoute(t('data policy'), 'gdpr_consent.data_policy', [], [
-    'attributes' => [
-      'class' => ['use-ajax'],
-      'data-dialog-type' => 'modal',
-      'data-dialog-options' => Json::encode([
-        'title' => t('Data policy'),
-        'width' => 700,
-        'height' => 700,
-      ]),
-    ],
-  ]);
-
-  $config = \Drupal::config('gdpr_consent.data_policy');
-
-  $form['data_policy'] = [
-    '#type' => 'checkbox',
-    '#title' => t('I agree with the @url', [
-      '@url' => $link->toString(),
-    ]),
-    '#required' => !empty($config->get('enforce_consent')),
-  ];
+  DataPolicyAgreement::addCheckbox($form, !empty($enforce_consent));
 
   $form['actions']['submit']['#submit'][] = '_gdpr_consent_user_register_form_submit';
 }
@@ -102,17 +81,7 @@ function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $
  *   The current state of the form.
  */
 function _gdpr_consent_user_register_form_submit(array &$form, FormStateInterface $form_state) {
-  if (empty($form_state->getValue('data_policy'))) {
-    return;
+  if (!empty($form_state->getValue('data_policy'))) {
+    DataPolicyAgreement::saveConsent($form_state->getValue('uid'));
   }
-
-  $user_consent = UserConsent::create();
-
-  $user_consent->setOwnerId($form_state->getValue('uid'));
-
-  $entity_id = \Drupal::config('gdpr_consent.data_policy')->get('entity_id');
-
-  $user_consent->setRevision(DataPolicy::load($entity_id));
-
-  $user_consent->save();
 }

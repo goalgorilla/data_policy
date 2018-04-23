@@ -46,6 +46,14 @@ gdpr_consent.data_policy:
   requirements:
     _access: 'TRUE'
 
+gdpr_consent.data_policy.agreement:
+  path: '/data-policy-agreement'
+  defaults:
+    _form: '\Drupal\gdpr_consent\Form\DataPolicyAgreement'
+    _title: 'Data policy agreement'
+  requirements:
+    _access: 'TRUE'
+
 gdpr_consent.data_policy.edit:
   path: '/admin/config/people/data-policy/edit'
   defaults:

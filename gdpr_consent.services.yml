@@ -1,5 +1,9 @@
 services:
+  gdpr_consent.manager:
+    class: Drupal\gdpr_consent\GdprConsentManager
+    arguments: ['@config.factory', '@current_user', '@entity_type.manager']
   gdpr_consent.redirect_subscriber:
-    class: \Drupal\gdpr_consent\RedirectSubscriber
+    class: Drupal\gdpr_consent\RedirectSubscriber
+    arguments: ['@gdpr_consent.manager']
     tags:
       - { name: event_subscriber }
