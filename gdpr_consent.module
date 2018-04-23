@@ -50,6 +50,15 @@ function gdpr_consent_theme($existing, $type, $theme, $path) {
         'content' => NULL,
       ],
     ],
+    'gdpr_consent_data_policy_revision' => [
+      'template' => 'gdpr-consent-data-policy-revision',
+      'variables' => [
+        'date' => NULL,
+        'username' => NULL,
+        'current' => NULL,
+        'message' => NULL,
+      ],
+    ],
   ];
 }
 

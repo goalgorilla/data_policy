@@ -23,6 +23,13 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
   protected $dateFormatter;
 
   /**
+   * The renderer.
+   *
+   * @var \Drupal\Core\Render\Renderer
+   */
+  protected $renderer;
+
+  /**
    * Retrieves the date formatter.
    *
    * @return \Drupal\Core\Datetime\DateFormatter
@@ -33,6 +40,19 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
       $this->dateFormatter = \Drupal::service('date.formatter');
     }
     return $this->dateFormatter;
+  }
+
+  /**
+   * Retrieves the renderer.
+   *
+   * @return \Drupal\Core\Render\Renderer
+   *   The renderer.
+   */
+  protected function renderer() {
+    if (!isset($this->renderer)) {
+      $this->renderer = \Drupal::service('renderer');
+    }
+    return $this->renderer;
   }
 
   /**
@@ -80,7 +100,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
       foreach ($user_consents as $user_consent) {
         $build['user_consent']['list']['#rows'][] = [
           $user_consent->getOwner()->getDisplayName(),
-          \Drupal::service('date.formatter')->format($user_consent->getChangedTime(), 'short'),
+          $this->dateFormatter()->format($user_consent->getChangedTime(), 'short'),
         ];
       }
     }
@@ -154,32 +174,17 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
       $date = $this->dateFormatter()
         ->format($revision->getRevisionCreationTime(), 'short');
 
-      if ($vid != $data_policy->getRevisionId()) {
-        $url = new Url('entity.data_policy.revision', [
-          'data_policy' => $data_policy->id(),
-          'data_policy_revision' => $vid,
-        ]);
-
-        $link = $this->getLinkGenerator()->generate($date, $url);
-      }
-      else {
-        $link = $data_policy->toLink($date)->toString();
-      }
-
       $row = [];
 
       $column = [
         'data' => [
-          '#type' => 'inline_template',
-          '#template' => '{% trans %}{{ date }} by {{ username }}{% endtrans %}{% if current %} <em>({% trans %}current revision{% endtrans %})</em>{% endif %}{% if message %}<p class="revision-log">{{ message }}</p>{% endif %}',
-          '#context' => [
-            'date' => $link,
-            'username' => \Drupal::service('renderer')->renderPlain($username),
-            'current' => $latest_revision,
-            'message' => [
-              '#markup' => Unicode::truncate($revision->getRevisionLogMessage(), 80, TRUE, TRUE),
-              '#allowed_tags' => Xss::getHtmlTagList(),
-            ],
+          '#theme' => 'gdpr_consent_data_policy_revision',
+          '#date' => $date,
+          '#username' => $this->renderer()->renderPlain($username),
+          '#current' => $latest_revision,
+          '#message' => [
+            '#markup' => Unicode::truncate($revision->getRevisionLogMessage(), 80, TRUE, TRUE),
+            '#allowed_tags' => Xss::getHtmlTagList(),
           ],
         ],
       ];

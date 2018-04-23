@@ -21,6 +21,7 @@ use Drupal\user\UserInterface;
  *     "storage" = "Drupal\gdpr_consent\DataPolicyStorage",
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
  *     "views_data" = "Drupal\gdpr_consent\Entity\DataPolicyViewsData",
+ *     "list_builder" = "Drupal\gdpr_consent\DataPolicyListBuilder",
  *     "translation" = "Drupal\gdpr_consent\DataPolicyTranslationHandler",
  *     "form" = {
  *       "default" = "Drupal\gdpr_consent\Form\DataPolicyForm",
@@ -47,7 +48,7 @@ use Drupal\user\UserInterface;
  *     "status" = "status",
  *   },
  *   links = {
- *     "canonical" = "/admin/content/data-policy/{data_policy}",
+ *     "edit-form" = "/admin/config/people/data-policy/all/{data_policy}",
  *     "version-history" = "/admin/config/people/data-policy",
  *     "revision" = "/admin/config/people/data-policy/{data_policy_revision}",
  *     "revision_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert",
