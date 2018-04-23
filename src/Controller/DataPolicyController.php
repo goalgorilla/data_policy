@@ -4,6 +4,7 @@ namespace Drupal\gdpr_consent\Controller;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Xss;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Url;
@@ -257,6 +258,21 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
     ];
 
     return $build;
+  }
+
+  /**
+   * Check access to agreement page.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   Allow to open page when a user was not give consent on a current version
+   *   of data policy.
+   */
+  public function access() {
+    if (\Drupal::service('gdpr_consent.manager')->needConsent()) {
+      return AccessResult::allowed();
+    }
+
+    return AccessResult::forbidden();
   }
 
 }

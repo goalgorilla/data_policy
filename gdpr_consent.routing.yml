@@ -52,7 +52,7 @@ gdpr_consent.data_policy.agreement:
     _form: '\Drupal\gdpr_consent\Form\DataPolicyAgreement'
     _title: 'Data policy agreement'
   requirements:
-    _access: 'TRUE'
+    _custom_access: '\Drupal\gdpr_consent\Controller\DataPolicyController::access'
 
 gdpr_consent.data_policy.edit:
   path: '/admin/config/people/data-policy/edit'

@@ -44,6 +44,10 @@ class DataPolicyAgreement extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     static::saveConsent($this->currentUser()->id());
+
+    if (\Drupal::destination()->get() == '/data-policy-agreement') {
+      $form_state->setRedirect('<front>');
+    }
   }
 
   /**
