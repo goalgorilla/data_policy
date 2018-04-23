@@ -2,8 +2,9 @@
 
 namespace Drupal\gdpr_consent\Entity;
 
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
-use Drupal\Core\Entity\ContentEntityBase;
+use Drupal\Core\Entity\RevisionableContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\user\UserInterface;
@@ -16,41 +17,96 @@ use Drupal\user\UserInterface;
  * @ContentEntityType(
  *   id = "data_policy",
  *   label = @Translation("Data policy"),
- *   label_collection = @Translation("Data policy consents"),
  *   handlers = {
+ *     "storage" = "Drupal\gdpr_consent\DataPolicyStorage",
+ *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
+ *     "views_data" = "Drupal\gdpr_consent\Entity\DataPolicyViewsData",
  *     "list_builder" = "Drupal\gdpr_consent\DataPolicyListBuilder",
+ *     "translation" = "Drupal\gdpr_consent\DataPolicyTranslationHandler",
+ *     "form" = {
+ *       "default" = "Drupal\gdpr_consent\Form\DataPolicyForm",
+ *       "edit" = "Drupal\gdpr_consent\Form\DataPolicyForm",
+ *     },
+ *     "access" = "Drupal\gdpr_consent\DataPolicyAccessControlHandler",
  *     "route_provider" = {
  *       "html" = "Drupal\gdpr_consent\DataPolicyHtmlRouteProvider",
  *     },
  *   },
  *   base_table = "data_policy",
- *   admin_permission = "overview data policy consents",
+ *   data_table = "data_policy_field_data",
+ *   revision_table = "data_policy_revision",
+ *   revision_data_table = "data_policy_field_revision",
+ *   translatable = TRUE,
+ *   admin_permission = "administer data policy entities",
  *   entity_keys = {
  *     "id" = "id",
+ *     "revision" = "vid",
+ *     "label" = "name",
  *     "uuid" = "uuid",
  *     "uid" = "user_id",
  *     "langcode" = "langcode",
+ *     "status" = "status",
  *   },
  *   links = {
- *     "collection" = "/admin/reports/data-policy",
- *   }
+ *     "edit-form" = "/admin/config/people/data-policy/all/{data_policy}",
+ *     "version-history" = "/admin/config/people/data-policy",
+ *     "revision" = "/admin/config/people/data-policy/{data_policy_revision}",
+ *     "revision_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert",
+ *     "revision_delete" = "/admin/config/people/data-policy/{data_policy_revision}/delete",
+ *     "translation_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert/{langcode}",
+ *     "collection" = "/admin/config/people/data-policy/all",
+ *   },
+ *   field_ui_base_route = "data_policy.settings"
  * )
  */
-class DataPolicy extends ContentEntityBase implements DataPolicyInterface {
+class DataPolicy extends RevisionableContentEntityBase implements DataPolicyInterface {
 
   use EntityChangedTrait;
 
   /**
    * {@inheritdoc}
    */
+  public static function preCreate(EntityStorageInterface $storage_controller, array &$values) {
+    parent::preCreate($storage_controller, $values);
+    $values += [
+      'user_id' => \Drupal::currentUser()->id(),
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageInterface $storage) {
+    parent::preSave($storage);
+
+    foreach (array_keys($this->getTranslationLanguages()) as $langcode) {
+      $translation = $this->getTranslation($langcode);
+
+      // If no owner has been set explicitly, make the anonymous user the owner.
+      if (!$translation->getOwner()) {
+        $translation->setOwnerId(0);
+      }
+    }
+
+    // If no revision author has been set explicitly, make the data_policy owner
+    // the revision author.
+    if (!$this->getRevisionUser()) {
+      $this->setRevisionUserId($this->getOwnerId());
+    }
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getName() {
-    return NULL;
+    return $this->get('name')->value;
   }
 
   /**
    * {@inheritdoc}
    */
   public function setName($name) {
+    $this->set('name', $name);
     return $this;
   }
 
@@ -103,13 +159,14 @@ class DataPolicy extends ContentEntityBase implements DataPolicyInterface {
    * {@inheritdoc}
    */
   public function isPublished() {
-    return TRUE;
+    return (bool) $this->getEntityKey('status');
   }
 
   /**
    * {@inheritdoc}
    */
   public function setPublished($published) {
+    $this->set('status', $published ? TRUE : FALSE);
     return $this;
   }
 
@@ -144,6 +201,33 @@ class DataPolicy extends ContentEntityBase implements DataPolicyInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
+    $fields['name'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Name'))
+      ->setDescription(t('The name of the Data policy entity.'))
+      ->setRevisionable(TRUE)
+      ->setSettings([
+        'max_length' => 50,
+        'text_processing' => 0,
+      ])
+      ->setDefaultValue('')
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'string',
+        'weight' => -4,
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'string_textfield',
+        'weight' => -4,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['status'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Publishing status'))
+      ->setDescription(t('A boolean indicating whether the Data policy is published.'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(TRUE);
+
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
       ->setDescription(t('The time that the entity was created.'));
@@ -151,6 +235,13 @@ class DataPolicy extends ContentEntityBase implements DataPolicyInterface {
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'));
+
+    $fields['revision_translation_affected'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Revision translation affected'))
+      ->setDescription(t('Indicates if the last edit of a translation belongs to current revision.'))
+      ->setReadOnly(TRUE)
+      ->setRevisionable(TRUE)
+      ->setTranslatable(TRUE);
 
     return $fields;
   }

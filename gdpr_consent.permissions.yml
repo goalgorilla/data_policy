@@ -12,8 +12,23 @@ edit inform and consent setting:
 change inform and consent setting status:
   title: 'Change inform and consent setting status'
 
-overview data policy consents:
-  title: 'Overview data policy consents'
+overview user consents:
+  title: 'Overview user consents'
 
-administer data policy settings:
-  title: 'Administer data policy settings'
+administer data policy entities:
+  title: 'Administer Data policy entities'
+  description: 'Allow to access the administration form to configure Data policy entities.'
+  restrict access: true
+
+edit data policy:
+  title: 'Edit Data policy'
+
+view all data policy revisions:
+  title: 'View all Data policy revisions'
+
+revert all data policy revisions:
+  title: 'Revert all Data policy revisions'
+  description: 'Role requires permission <em>view Data policy revisions</em> and <em>edit rights</em> for data policy entities in question or <em>administer data policy entities</em>.'
+
+delete all data policy revisions:
+  title: 'Delete all Data policy revisions'

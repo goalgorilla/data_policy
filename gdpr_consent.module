@@ -11,16 +11,56 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\gdpr_consent\Entity\DataPolicy;
+use Drupal\gdpr_consent\Entity\UserConsent;
 
 /**
  * Implements hook_help().
  */
 function gdpr_consent_help($route_name, RouteMatchInterface $route_match) {
-  if ($route_name == 'entity.block.edit_form' && $route_match->getRawParameter('block') == 'gdpr_consent') {
-    return '<p>' . t('Go to @url page for setting block title on specific pages.', [
-      '@url' => Link::createFromRoute(t('Data usage explanation'), 'entity.informblock.collection')->toString(),
-    ]) . '</p>';
+  switch ($route_name) {
+    // Main module help for the gdpr_consent module.
+    case 'help.page.gdpr_consent':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module helps site managers inform users about data collection.') . '</p>';
+
+      return $output;
+
+    case 'entity.block.edit_form':
+      if ($route_match->getRawParameter('block') != 'gdpr_consent') {
+        break;
+      }
+
+      $url = Link::createFromRoute(t('Data usage explanation'), 'entity.informblock.collection');
+
+      return '<p>' . t('Go to @url page for setting block title on specific pages.', [
+        '@url' => $url->toString(),
+      ]) . '</p>';
   }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function gdpr_consent_theme($existing, $type, $theme, $path) {
+  return [
+    'gdpr_consent_data_policy' => [
+      'render element' => 'element',
+      'template' => 'gdpr-consent-data-policy',
+      'variables' => [
+        'content' => NULL,
+      ],
+    ],
+    'gdpr_consent_data_policy_revision' => [
+      'template' => 'gdpr-consent-data-policy-revision',
+      'variables' => [
+        'date' => NULL,
+        'username' => NULL,
+        'current' => NULL,
+        'message' => NULL,
+      ],
+    ],
+  ];
 }
 
 /**
@@ -54,10 +94,14 @@ function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $
  * Implements hook_ENTITY_TYPE_insert().
  */
 function gdpr_consent_user_insert(EntityInterface $entity) {
-  $data_policy = DataPolicy::create();
+  $user_consent = UserConsent::create();
 
   /** @var \Drupal\user\UserInterface $entity */
-  $data_policy->setOwner($entity);
+  $user_consent->setOwner($entity);
 
-  $data_policy->save();
+  $entity_id = \Drupal::config('gdpr_consent.data_policy')->get('entity_id');
+
+  $user_consent->setRevision(DataPolicy::load($entity_id));
+
+  $user_consent->save();
 }

@@ -3,3 +3,9 @@ entity.informblock.add_form:
   title: 'Add page'
   appears_on:
     - entity.informblock.collection
+
+gdpr_consent.data_policy.edit:
+  route_name: 'gdpr_consent.data_policy.edit'
+  title: 'Add new revision'
+  appears_on:
+    - entity.data_policy.version_history
