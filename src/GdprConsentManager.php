@@ -52,7 +52,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
    * {@inheritdoc}
    */
   public function needConsent() {
-    if ($this->currentUser->isAnonymous() || $this->currentUser->id() == 1) {
+    if ($this->currentUser->hasPermission('without consent')) {
       return FALSE;
     }
 

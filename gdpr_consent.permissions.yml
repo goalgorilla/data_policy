@@ -32,3 +32,9 @@ revert all data policy revisions:
 
 delete all data policy revisions:
   title: 'Delete all Data policy revisions'
+  title: 'Revert all Data policy revisions'
+  description: 'Role requires permission <em>view Data policy revisions</em> and <em>edit rights</em> for data policy entities in question or <em>administer data policy entities</em>.'
+
+without consent:
+  title: 'Do not need consent'
+  description: 'Allow a user continue using a website without giving consent on a current version of data policy.'
