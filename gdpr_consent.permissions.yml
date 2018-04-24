@@ -15,6 +15,9 @@ change inform and consent setting status:
 overview user consents:
   title: 'Overview user consents'
 
+administer data policy settings:
+  title: 'Administer Data policy settings'
+
 administer data policy entities:
   title: 'Administer Data policy entities'
   description: 'Allow to access the administration form to configure Data policy entities.'
