@@ -2,6 +2,7 @@
 
 namespace Drupal\gdpr_consent;
 
+use Drupal\Core\Link;
 use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Url;
@@ -69,17 +70,62 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *   The event.
    */
   public function checkForRedirection(GetResponseEvent $event) {
-    if (!$this->gdprConsentManager->needConsent()) {
+    $route_name = $this->routeMatch->getRouteName();
+
+    if ($route_name == 'gdpr_consent.data_policy.agreement') {
+      return;
+    }
+
+    if (\Drupal::currentUser()->hasPermission('without consent')) {
+      return;
+    }
+
+    $config = \Drupal::configFactory()->get('gdpr_consent.data_policy');
+
+    $entity_id = $config->get('entity_id');
+
+    /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
+    $data_policy_storage = \Drupal::entityTypeManager()->getStorage('data_policy');
+
+    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
+    $data_policy = $data_policy_storage->load($entity_id);
+
+    $vids = $data_policy_storage->revisionIds($data_policy);
+
+    $vid = end($vids);
+
+    $values = [
+      'user_id' => \Drupal::currentUser()->id(),
+      'data_policy_revision_id' => $vid,
+    ];
+
+    if ($enforce_consent = !empty($config->get('enforce_consent'))) {
+      $values['status'] = TRUE;
+    }
+
+    $user_consents = \Drupal::entityTypeManager()->getStorage('user_consent')
+      ->loadByProperties($values);
+
+    if (!empty($user_consents)) {
+      return;
+    }
+
+    if (!$enforce_consent) {
+      $link = Link::createFromRoute(t('here'), 'gdpr_consent.data_policy.agreement');
+
+      \Drupal::messenger()->addStatus(t('You can agree with the data policy @url.', [
+        '@url' => $link->toString(),
+      ]));
+
       return;
     }
 
     $route_names = [
       'gdpr_consent.data_policy',
-      'gdpr_consent.data_policy.agreement',
       'user.logout',
     ];
 
-    if (in_array($this->routeMatch->getRouteName(), $route_names)) {
+    if (in_array($route_name, $route_names)) {
       return;
     }
 

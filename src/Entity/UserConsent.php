@@ -31,6 +31,7 @@ use Drupal\user\UserInterface;
  *     "uuid" = "uuid",
  *     "uid" = "user_id",
  *     "langcode" = "langcode",
+ *     "status" = "status",
  *   },
  *   links = {
  *     "collection" = "/admin/reports/user-consents",
@@ -104,13 +105,14 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
    * {@inheritdoc}
    */
   public function isPublished() {
-    return TRUE;
+    return (bool) $this->getEntityKey('status');
   }
 
   /**
    * {@inheritdoc}
    */
   public function setPublished($published) {
+    $this->set('status', $published ? TRUE : FALSE);
     return $this;
   }
 
@@ -161,6 +163,12 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
       ->setLabel(new TranslatableMarkup('Data policy revision ID'))
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
+
+    $fields['status'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Consent status'))
+      ->setDescription(t('A boolean indicating whether user gave consent on data policy revision.'))
+      ->setRevisionable(TRUE)
+      ->setDefaultValue(TRUE);
 
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Created'))
