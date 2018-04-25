@@ -2,9 +2,12 @@
 
 namespace Drupal\gdpr_consent;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -26,13 +29,6 @@ class RedirectSubscriber implements EventSubscriberInterface {
   protected $routeMatch;
 
   /**
-   * The GDPR consent manager.
-   *
-   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
-   */
-  protected $gdprConsentManager;
-
-  /**
    * The redirect destination helper.
    *
    * @var \Drupal\Core\Routing\RedirectDestinationInterface
@@ -40,19 +36,46 @@ class RedirectSubscriber implements EventSubscriberInterface {
   protected $destination;
 
   /**
+   * The current user.
+   *
+   * @var \Drupal\Core\Session\AccountProxyInterface
+   */
+  protected $currentUser;
+
+  /**
+   * The configuration factory.
+   *
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * The entity type manager.
+   *
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
    * RedirectSubscriber constructor.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
    *   The current active route match object.
-   * @param \Drupal\gdpr_consent\GdprConsentManagerInterface $gdpr_consent_manager
-   *   The GDPR consent manager.
    * @param \Drupal\Core\Routing\RedirectDestinationInterface $destination
    *   The redirect destination helper.
+   * @param \Drupal\Core\Session\AccountProxyInterface $current_user
+   *   The current user.
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   *   The configuration factory.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   The entity type manager.
    */
-  public function __construct(RouteMatchInterface $route_match, GdprConsentManagerInterface $gdpr_consent_manager, RedirectDestinationInterface $destination) {
+  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
     $this->routeMatch = $route_match;
-    $this->gdprConsentManager = $gdpr_consent_manager;
     $this->destination = $destination;
+    $this->currentUser = $current_user;
+    $this->configFactory = $config_factory;
+    $this->entityTypeManager = $entity_type_manager;
   }
 
   /**
@@ -76,16 +99,16 @@ class RedirectSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    if (\Drupal::currentUser()->hasPermission('without consent')) {
+    if ($this->currentUser->hasPermission('without consent')) {
       return;
     }
 
-    $config = \Drupal::configFactory()->get('gdpr_consent.data_policy');
+    $config = $this->configFactory->get('gdpr_consent.data_policy');
 
     $entity_id = $config->get('entity_id');
 
     /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
-    $data_policy_storage = \Drupal::entityTypeManager()->getStorage('data_policy');
+    $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
 
     /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
@@ -95,7 +118,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     $vid = end($vids);
 
     $values = [
-      'user_id' => \Drupal::currentUser()->id(),
+      'user_id' => $this->currentUser->id(),
       'data_policy_revision_id' => $vid,
     ];
 
@@ -103,7 +126,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
       $values['status'] = TRUE;
     }
 
-    $user_consents = \Drupal::entityTypeManager()->getStorage('user_consent')
+    $user_consents = $this->entityTypeManager->getStorage('user_consent')
       ->loadByProperties($values);
 
     if (!empty($user_consents)) {

@@ -93,6 +93,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
         '#theme' => 'table',
         '#header' => [
           $this->t('User'),
+          $this->t('Agreed'),
           $this->t('Date and time'),
         ],
       ];
@@ -101,6 +102,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
       foreach ($user_consents as $user_consent) {
         $build['user_consent']['list']['#rows'][] = [
           $user_consent->getOwner()->getDisplayName(),
+          $user_consent->isPublished() ? $this->t('Yes') : $this->t('No'),
           $this->dateFormatter()->format($user_consent->getChangedTime(), 'short'),
         ];
       }
