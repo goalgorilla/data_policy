@@ -5,9 +5,11 @@ namespace Drupal\gdpr_consent;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
+use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -20,6 +22,8 @@ use Symfony\Component\HttpKernel\KernelEvents;
  * @package Drupal\gdpr_consent
  */
 class RedirectSubscriber implements EventSubscriberInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The current active route match object.
@@ -57,6 +61,13 @@ class RedirectSubscriber implements EventSubscriberInterface {
   protected $entityTypeManager;
 
   /**
+   * The messenger.
+   *
+   * @var \Drupal\Core\Messenger\MessengerInterface
+   */
+  protected $messenger;
+
+  /**
    * RedirectSubscriber constructor.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
@@ -69,13 +80,16 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *   The configuration factory.
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   The entity type manager.
+   * @param \Drupal\Core\Messenger\MessengerInterface $messenger
+   *   The messenger.
    */
-  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager) {
+  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
     $this->routeMatch = $route_match;
     $this->destination = $destination;
     $this->currentUser = $current_user;
     $this->configFactory = $config_factory;
     $this->entityTypeManager = $entity_type_manager;
+    $this->messenger = $messenger;
   }
 
   /**
@@ -134,9 +148,9 @@ class RedirectSubscriber implements EventSubscriberInterface {
     }
 
     if (!$enforce_consent) {
-      $link = Link::createFromRoute(t('here'), 'gdpr_consent.data_policy.agreement');
+      $link = Link::createFromRoute($this->t('here'), 'gdpr_consent.data_policy.agreement');
 
-      \Drupal::messenger()->addStatus(t('You can agree with the data policy @url.', [
+      $this->messenger->addStatus($this->t('We published a new revision of the data policy. You can review the data policy @url.', [
         '@url' => $link->toString(),
       ]));
 
