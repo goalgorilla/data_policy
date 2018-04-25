@@ -15,6 +15,9 @@ change inform and consent setting status:
 overview user consents:
   title: 'Overview user consents'
 
+administer data policy settings:
+  title: 'Administer Data policy settings'
+
 administer data policy entities:
   title: 'Administer Data policy entities'
   description: 'Allow to access the administration form to configure Data policy entities.'
@@ -32,3 +35,7 @@ revert all data policy revisions:
 
 delete all data policy revisions:
   title: 'Delete all Data policy revisions'
+
+without consent:
+  title: 'Do not need consent'
+  description: 'Allow a user continue using a website without giving consent on a current version of data policy.'

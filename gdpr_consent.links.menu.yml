@@ -5,7 +5,7 @@ gdpr_consent.settings:
   parent: system.admin_config_system
 
 data_policy.admin.structure.settings:
-  title: 'Data policy settings'
+  title: 'Data policy'
   description: 'Configure Data policy entities'
   route_name: data_policy.settings
   parent: system.admin_structure

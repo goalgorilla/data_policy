@@ -189,7 +189,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_form' => 'Drupal\gdpr_consent\Form\DataPolicySettingsForm',
           '_title' => "{$entity_type->getLabel()} settings",
         ])
-        ->setRequirement('_permission', $entity_type->getAdminPermission())
+        ->setRequirement('_permission', 'administer data policy settings')
         ->setOption('_admin_route', TRUE);
 
       return $route;

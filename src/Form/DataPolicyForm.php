@@ -55,26 +55,6 @@ class DataPolicyForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
-  public function buildEntity(array $form, FormStateInterface $form_state) {
-    if (!$form_state->hasValue('langcode')) {
-      return parent::buildEntity($form, $form_state);
-    }
-
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $entity */
-    $entity = $this->getEntity();
-
-    $langcode = $form_state->getValue('langcode')[0]['value'];
-
-    if ($entity->langcode->value != $langcode) {
-      $entity = $entity->getTranslation($langcode);
-    }
-
-    return $entity;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function save(array $form, FormStateInterface $form_state) {
     $entity = &$this->entity;
 
