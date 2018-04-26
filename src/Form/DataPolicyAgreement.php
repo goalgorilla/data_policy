@@ -4,6 +4,8 @@ namespace Drupal\gdpr_consent\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\gdpr_consent\GdprConsentManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class DataPolicyAgreement.
@@ -11,6 +13,32 @@ use Drupal\Core\Form\FormStateInterface;
  * @ingroup gdpr_consent
  */
 class DataPolicyAgreement extends FormBase {
+
+  /**
+   * The GDPR consent manager.
+   *
+   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   */
+  protected $gdprConsentManager;
+
+  /**
+   * DataPolicyAgreement constructor.
+   *
+   * @param \Drupal\gdpr_consent\GdprConsentManagerInterface $gdpr_consent_manager
+   *   The GDPR consent manager.
+   */
+  public function __construct(GdprConsentManagerInterface $gdpr_consent_manager) {
+    $this->gdprConsentManager = $gdpr_consent_manager;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('gdpr_consent.manager')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -23,7 +51,7 @@ class DataPolicyAgreement extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    \Drupal::service('gdpr_consent.manager')->addCheckbox($form);
+    $this->gdprConsentManager->addCheckbox($form);
 
     $form['actions']['#type'] = 'actions';
 
@@ -39,7 +67,7 @@ class DataPolicyAgreement extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    \Drupal::service('gdpr_consent.manager')->saveConsent(
+    $this->gdprConsentManager->saveConsent(
       $this->currentUser()->id(),
       !empty($form_state->getValue('data_policy'))
     );
