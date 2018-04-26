@@ -150,7 +150,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     if (!$enforce_consent) {
       $link = Link::createFromRoute($this->t('here'), 'gdpr_consent.data_policy.agreement');
 
-      $this->messenger->addStatus($this->t('We published a new revision of the data policy. You can review the data policy @url.', [
+      $this->messenger->addStatus($this->t('We published a new version of the data policy. You can review the data policy @url.', [
         '@url' => $link->toString(),
       ]));
 
