@@ -7,6 +7,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\gdpr_consent\Entity\DataPolicy;
 use Drupal\gdpr_consent\Entity\UserConsent;
 
@@ -14,6 +15,8 @@ use Drupal\gdpr_consent\Entity\UserConsent;
  * Defines the GDPR Consent Manager service.
  */
 class GdprConsentManager implements GdprConsentManagerInterface {
+
+  use StringTranslationTrait;
 
   /**
    * The configuration factory.
@@ -89,7 +92,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
   public function addCheckbox(array &$form) {
     $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
-    $link = Link::createFromRoute(t('data policy'), 'gdpr_consent.data_policy', [], [
+    $link = Link::createFromRoute($this->t('data policy'), 'gdpr_consent.data_policy', [], [
       'attributes' => [
         'class' => ['use-ajax'],
         'data-dialog-type' => 'modal',
@@ -106,7 +109,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
 
     $form['data_policy'] = [
       '#type' => 'checkbox',
-      '#title' => t('I agree with the @url', [
+      '#title' => $this->t('I agree with the @url', [
         '@url' => $link->toString(),
       ]),
       '#required' => !empty($enforce_consent),
