@@ -54,9 +54,8 @@ use Drupal\user\UserInterface;
  *     "revision_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert",
  *     "revision_delete" = "/admin/config/people/data-policy/{data_policy_revision}/delete",
  *     "translation_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert/{langcode}",
- *     "collection" = "/admin/config/people/data-policy/all",
- *   },
- *   field_ui_base_route = "data_policy.settings"
+ *     "collection" = "/admin/config/people/data-policy/all"
+ *   }
  * )
  */
 class DataPolicy extends RevisionableContentEntityBase implements DataPolicyInterface {

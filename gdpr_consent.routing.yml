@@ -62,6 +62,16 @@ gdpr_consent.data_policy.edit:
   requirements:
     _permission: 'edit data policy'
 
+gdpr_consent.data_policy.settings:
+  path: '/admin/config/people/data-policy/settings'
+  defaults:
+    _form: '\Drupal\gdpr_consent\Form\DataPolicySettingsForm'
+    _title: 'Data policy settings'
+  requirements:
+    _permission: 'administer data policy settings'
+  options:
+    _admin_route: TRUE
+
 entity.data_policy.collection:
   path: '/admin/config/people/data-policy/all'
   defaults:
