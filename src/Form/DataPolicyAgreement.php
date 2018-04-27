@@ -48,7 +48,7 @@ class DataPolicyAgreement extends FormBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('gdpr_consent.manager'),
-      $container->get('messenger')
+      $container->get('redirect.destination')
     );
   }
 
