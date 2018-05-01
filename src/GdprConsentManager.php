@@ -2,9 +2,13 @@
 
 namespace Drupal\gdpr_consent;
 
+use Drupal\Component\Serialization\Json;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\gdpr_consent\Entity\DataPolicy;
+use Drupal\gdpr_consent\Entity\UserConsent;
 
 /**
  * Defines the GDPR Consent Manager service.
@@ -56,16 +60,11 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       return FALSE;
     }
 
-    $config = $this->configFactory->get('gdpr_consent.data_policy');
-
-    if (empty($config->get('enforce_consent'))) {
-      return FALSE;
-    }
-
-    $entity_id = $config->get('entity_id');
-
     /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
+
+    $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
+      ->get('entity_id');
 
     /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
@@ -78,13 +77,53 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       ->loadByProperties([
         'user_id' => $this->currentUser->id(),
         'data_policy_revision_id' => $vid,
+        'status' => TRUE,
       ]);
 
-    if (!empty($user_consents)) {
-      return FALSE;
-    }
+    return empty($user_consents);
+  }
 
-    return TRUE;
+  /**
+   * {@inheritdoc}
+   */
+  public function addCheckbox(array &$form) {
+    $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
+
+    $link = Link::createFromRoute(t('data policy'), 'gdpr_consent.data_policy', [], [
+      'attributes' => [
+        'class' => ['use-ajax'],
+        'data-dialog-type' => 'modal',
+        'data-dialog-options' => Json::encode([
+          'title' => t('Data policy'),
+          'width' => 700,
+          'height' => 700,
+        ]),
+      ],
+    ]);
+
+    $enforce_consent = $this->configFactory->get('gdpr_consent.data_policy')
+      ->get('enforce_consent');
+
+    $form['data_policy'] = [
+      '#type' => 'checkbox',
+      '#title' => t('I agree with the @url', [
+        '@url' => $link->toString(),
+      ]),
+      '#required' => !empty($enforce_consent),
+    ];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function saveConsent($user_id, $agree) {
+    $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
+      ->get('entity_id');
+
+    UserConsent::create()->setRevision(DataPolicy::load($entity_id))
+      ->setOwnerId($user_id)
+      ->setPublished($agree)
+      ->save();
   }
 
 }

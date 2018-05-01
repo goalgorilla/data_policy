@@ -12,6 +12,9 @@ use Drupal\gdpr_consent\Entity\DataPolicy;
  * Implements hook_install().
  */
 function gdpr_consent_install() {
+  // Hide a message about a new version of data policy for the anonymous user.
+  user_role_grant_permissions('anonymous', ['without consent']);
+
   $data_policy = DataPolicy::create([
     'name' => 'Data policy',
     'field_description' => [
