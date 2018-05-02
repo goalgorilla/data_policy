@@ -57,7 +57,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
   }
 
   /**
-   * Displays a Data policy  revision.
+   * Displays a Data policy revision.
    *
    * @param int $data_policy_revision
    *   The Data policy  revision ID.
@@ -112,7 +112,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
   }
 
   /**
-   * Page title callback for a Data policy  revision.
+   * Page title callback for a Data policy revision.
    *
    * @param int $data_policy_revision
    *   The Data policy  revision ID.

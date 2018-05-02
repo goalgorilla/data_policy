@@ -5,6 +5,7 @@ dependencies:
     - field.storage.data_policy.field_description
   module:
     - gdpr_consent
+    - text
 id: data_policy.data_policy.field_description
 field_name: field_description
 entity_type: data_policy
@@ -16,4 +17,4 @@ translatable: false
 default_value: {  }
 default_value_callback: ''
 settings: {  }
-field_type: string_long
+field_type: text_long

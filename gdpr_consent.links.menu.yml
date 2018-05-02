@@ -4,14 +4,14 @@ gdpr_consent.settings:
   route_name: entity.informblock.collection
   parent: system.admin_config_system
 
-data_policy.admin.structure.settings:
-  title: 'Data policy'
-  description: 'Configure Data policy entities'
-  route_name: data_policy.settings
-  parent: system.admin_structure
-
 data_policy.user.admin_index.version_history:
   title: 'Data policy'
   description: 'Data policy revisions'
   route_name: entity.data_policy.version_history
   parent: user.admin_index
+
+gdpr_consent.data_policy.settings:
+  title: 'Settings'
+  description: 'Data policy enforce consent option'
+  route_name: gdpr_consent.data_policy.settings
+  parent: data_policy.user.admin_index.version_history
