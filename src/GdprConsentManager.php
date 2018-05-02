@@ -112,7 +112,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       '#title' => $this->t('I agree with the @url', [
         '@url' => $link->toString(),
       ]),
-      '#required' => !empty($enforce_consent),
+      '#required' => !empty($enforce_consent) && $this->currentUser->isAnonymous(),
     ];
   }
 
