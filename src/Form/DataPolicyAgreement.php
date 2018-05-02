@@ -66,23 +66,25 @@ class DataPolicyAgreement extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $this->gdprConsentManager->addCheckbox($form);
 
-    $form['data_policy']['#weight'] = 1;
+    if (!empty($this->config('gdpr_consent.data_policy')->get('enforce_consent'))) {
+      $form['data_policy']['#weight'] = 1;
 
-    $link = Link::createFromRoute($this->t('the account cancellation'), 'entity.user.cancel_form', [
-      'user' => $this->currentUser()->id(),
-    ]);
+      $link = Link::createFromRoute($this->t('the account cancellation'), 'entity.user.cancel_form', [
+        'user' => $this->currentUser()->id(),
+      ]);
 
-    $form['not_agree'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'p',
-      '#value' => $this->t('Agreement to the data policy is required for continue using this platform. If you do not agree with the data policy, you will be guided to @url process.', [
-        '@url' => $link->toString(),
-      ]),
-      '#theme_wrappers' => [
-        'form_element',
-      ],
-      '#weight' => 0,
-    ];
+      $form['not_agree'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $this->t('Agreement to the data policy is required for continue using this platform. If you do not agree with the data policy, you will be guided to @url process.', [
+          '@url' => $link->toString(),
+        ]),
+        '#theme_wrappers' => [
+          'form_element',
+        ],
+        '#weight' => 0,
+      ];
+    }
 
     $form['actions']['#type'] = 'actions';
 
