@@ -159,7 +159,6 @@ class RedirectSubscriber implements EventSubscriberInterface {
 
     $route_names = [
       'entity.user.cancel_form',
-      'entity.user.canonical',
       'entity.user.edit_form',
       'gdpr_consent.data_policy',
       'system.404',
