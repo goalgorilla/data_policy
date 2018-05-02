@@ -92,13 +92,19 @@ class DataPolicyAgreement extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $this->gdprConsentManager->saveConsent(
-      $this->currentUser()->id(),
-      !empty($form_state->getValue('data_policy'))
-    );
+    $agree = !empty($form_state->getValue('data_policy'));
 
-    if ($this->destination->get() == '/data-policy-agreement') {
-      $form_state->setRedirect('<front>');
+    $this->gdprConsentManager->saveConsent($this->currentUser()->id(), $agree);
+
+    if ($agree) {
+      if ($this->destination->get() == '/data-policy-agreement') {
+        $form_state->setRedirect('<front>');
+      }
+    }
+    else {
+      $form_state->setRedirect('entity.user.cancel_form', [
+        'user' => $this->currentUser()->id(),
+      ]);
     }
   }
 
