@@ -14,6 +14,21 @@ use Drupal\user\EntityOwnerInterface;
 interface UserConsentInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
   /**
+   * The user only visits agreement page.
+   */
+  const STATE_UNDECIED = 0;
+
+  /**
+   * The user submitted agreement form but do not set checkbox.
+   */
+  const STATE_NOT_AGREE = 1;
+
+  /**
+   * The user has given consent on the current version of data policy.
+   */
+  const STATE_AGRRE = 2;
+
+  /**
    * Gets the User consent name.
    *
    * @return string

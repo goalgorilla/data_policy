@@ -64,6 +64,8 @@ class DataPolicyAgreement extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $this->gdprConsentManager->saveConsent($this->currentUser()->id());
+
     $this->gdprConsentManager->addCheckbox($form);
 
     if (!empty($this->config('gdpr_consent.data_policy')->get('enforce_consent'))) {

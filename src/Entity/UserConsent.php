@@ -6,7 +6,6 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\user\UserInterface;
 
 /**
@@ -160,13 +159,18 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['data_policy_revision_id'] = BaseFieldDefinition::create('integer')
-      ->setLabel(new TranslatableMarkup('Data policy revision ID'))
+      ->setLabel(t('Data policy revision ID'))
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
-    $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setLabel(t('Consent status'))
-      ->setDescription(t('A boolean indicating whether user gave consent on data policy revision.'))
+    $fields['state'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('State of consent'))
+      ->setReadOnly(TRUE)
+      ->setSetting('unsigned', TRUE);
+
+    $fields['status'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Publishing status'))
+      ->setDescription(t('A boolean indicating whether the User consent is published.'))
       ->setRevisionable(TRUE)
       ->setDefaultValue(TRUE);
 

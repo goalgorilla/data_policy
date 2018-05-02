@@ -8,6 +8,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Url;
+use Drupal\gdpr_consent\Entity\UserConsentInterface;
 
 /**
  * Class DataPolicyController.
@@ -93,16 +94,22 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
         '#theme' => 'table',
         '#header' => [
           $this->t('User'),
-          $this->t('Agreed'),
+          $this->t('State'),
           $this->t('Date and time'),
         ],
+      ];
+
+      $states = [
+        UserConsentInterface::STATE_UNDECIED => $this->t('Undecided'),
+        UserConsentInterface::STATE_NOT_AGREE => $this->t('Not agree'),
+        UserConsentInterface::STATE_AGRRE => $this->t('Agree'),
       ];
 
       /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */
       foreach ($user_consents as $user_consent) {
         $build['user_consent']['list']['#rows'][] = [
           $user_consent->getOwner()->getDisplayName(),
-          $user_consent->isPublished() ? $this->t('Yes') : $this->t('No'),
+          $states[$user_consent->state->value],
           $this->dateFormatter()->format($user_consent->getChangedTime(), 'short'),
         ];
       }
@@ -270,11 +277,11 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    *   of data policy.
    */
   public function access() {
-    if (\Drupal::service('gdpr_consent.manager')->needConsent()) {
-      return AccessResult::allowed();
+    if ($this->currentUser()->hasPermission('without consent')) {
+      return AccessResult::forbidden();
     }
 
-    return AccessResult::forbidden();
+    return AccessResult::allowed();
   }
 
 }

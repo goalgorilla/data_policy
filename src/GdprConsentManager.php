@@ -10,6 +10,7 @@ use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\gdpr_consent\Entity\DataPolicy;
 use Drupal\gdpr_consent\Entity\UserConsent;
+use Drupal\gdpr_consent\Entity\UserConsentInterface;
 
 /**
  * Defines the GDPR Consent Manager service.
@@ -119,13 +120,20 @@ class GdprConsentManager implements GdprConsentManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function saveConsent($user_id, $agree) {
+  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIED) {
     $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
       ->get('entity_id');
 
+    if ($state === TRUE) {
+      $state = UserConsentInterface::STATE_AGRRE;
+    }
+    elseif ($state === FALSE) {
+      $state = UserConsentInterface::STATE_NOT_AGREE;
+    }
+
     UserConsent::create()->setRevision(DataPolicy::load($entity_id))
       ->setOwnerId($user_id)
-      ->setPublished($agree)
+      ->set('state', $state)
       ->save();
   }
 

@@ -11,6 +11,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\gdpr_consent\Entity\UserConsentInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -137,7 +138,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     ];
 
     if ($enforce_consent = !empty($config->get('enforce_consent'))) {
-      $values['status'] = TRUE;
+      $values['state'] = UserConsentInterface::STATE_AGRRE;
     }
 
     $user_consents = $this->entityTypeManager->getStorage('user_consent')
