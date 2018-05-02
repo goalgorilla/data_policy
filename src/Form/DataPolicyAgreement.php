@@ -66,14 +66,14 @@ class DataPolicyAgreement extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $this->gdprConsentManager->addCheckbox($form);
 
-    $link = Link::createFromRoute($this->t('cancel their account'), 'entity.user.cancel_form', [
+    $link = Link::createFromRoute($this->t('cancel your account'), 'entity.user.cancel_form', [
       'user' => $this->currentUser()->id(),
     ]);
 
     $form['not_agree'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
-      '#value' => $this->t('You can @url if they do not agree.', [
+      '#value' => $this->t('You can @url if you do not agree.', [
         '@url' => $link->toString(),
       ]),
     ];
