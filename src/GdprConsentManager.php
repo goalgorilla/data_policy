@@ -60,31 +60,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
    * {@inheritdoc}
    */
   public function needConsent() {
-    if ($this->currentUser->hasPermission('without consent')) {
-      return FALSE;
-    }
-
-    /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
-    $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
-
-    $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
-      ->get('entity_id');
-
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
-    $data_policy = $data_policy_storage->load($entity_id);
-
-    $vids = $data_policy_storage->revisionIds($data_policy);
-
-    $vid = end($vids);
-
-    $user_consents = $this->entityTypeManager->getStorage('user_consent')
-      ->loadByProperties([
-        'user_id' => $this->currentUser->id(),
-        'data_policy_revision_id' => $vid,
-        'status' => TRUE,
-      ]);
-
-    return empty($user_consents);
+    return !$this->currentUser->hasPermission('without consent');
   }
 
   /**
@@ -113,6 +89,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       '#title' => $this->t('I agree with the @url', [
         '@url' => $link->toString(),
       ]),
+      '#default_value' => $this->isConsent(),
       '#required' => !empty($enforce_consent) && $this->currentUser->isAnonymous(),
     ];
   }
@@ -121,9 +98,6 @@ class GdprConsentManager implements GdprConsentManagerInterface {
    * {@inheritdoc}
    */
   public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIED) {
-    $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
-      ->get('entity_id');
-
     if ($state === TRUE) {
       $state = UserConsentInterface::STATE_AGRRE;
     }
@@ -131,10 +105,48 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       $state = UserConsentInterface::STATE_NOT_AGREE;
     }
 
+    if ($this->isConsent($state)) {
+      return;
+    }
+
+    $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
+      ->get('entity_id');
+
     UserConsent::create()->setRevision(DataPolicy::load($entity_id))
       ->setOwnerId($user_id)
       ->set('state', $state)
       ->save();
+  }
+
+  /**
+   * Check if exists consent in the specific state.
+   *
+   * @param int $state
+   *   The user consent state.
+   *
+   * @return bool
+   *   TRUE if consent exists.
+   */
+  private function isConsent($state = UserConsentInterface::STATE_AGRRE) {
+    $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
+      ->get('entity_id');
+
+    /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
+    $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
+
+    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
+    $data_policy = $data_policy_storage->load($entity_id);
+
+    $vids = $data_policy_storage->revisionIds($data_policy);
+
+    $user_consents = $this->entityTypeManager->getStorage('user_consent')
+      ->loadByProperties([
+        'user_id' => $this->currentUser->id(),
+        'data_policy_revision_id' => end($vids),
+        'state' => $state,
+      ]);
+
+    return !empty($user_consents);
   }
 
 }

@@ -112,6 +112,8 @@ class DataPolicyAgreement extends FormBase {
       }
     }
     else {
+      $this->getRequest()->query->remove('destination');
+
       $form_state->setRedirect('entity.user.cancel_form', [
         'user' => $this->currentUser()->id(),
       ]);
