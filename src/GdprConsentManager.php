@@ -97,9 +97,9 @@ class GdprConsentManager implements GdprConsentManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIED) {
+  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED) {
     if ($state === TRUE) {
-      $state = UserConsentInterface::STATE_AGRRE;
+      $state = UserConsentInterface::STATE_AGREE;
     }
     elseif ($state === FALSE) {
       $state = UserConsentInterface::STATE_NOT_AGREE;
@@ -127,7 +127,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
    * @return bool
    *   TRUE if consent exists.
    */
-  private function isConsent($state = UserConsentInterface::STATE_AGRRE) {
+  private function isConsent($state = UserConsentInterface::STATE_AGREE) {
     $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
       ->get('entity_id');
 

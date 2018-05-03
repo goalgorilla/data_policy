@@ -16,7 +16,7 @@ interface UserConsentInterface extends ContentEntityInterface, EntityChangedInte
   /**
    * The user only visits agreement page.
    */
-  const STATE_UNDECIED = 0;
+  const STATE_UNDECIDED = 0;
 
   /**
    * The user submitted agreement form but do not set checkbox.
@@ -26,7 +26,7 @@ interface UserConsentInterface extends ContentEntityInterface, EntityChangedInte
   /**
    * The user has given consent on the current version of data policy.
    */
-  const STATE_AGRRE = 2;
+  const STATE_AGREE = 2;
 
   /**
    * Gets the User consent name.

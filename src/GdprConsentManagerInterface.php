@@ -36,6 +36,6 @@ interface GdprConsentManagerInterface {
    *   - not agree,
    *   - agree.
    */
-  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIED);
+  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED);
 
 }

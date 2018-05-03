@@ -100,9 +100,9 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
       ];
 
       $states = [
-        UserConsentInterface::STATE_UNDECIED => $this->t('Undecided'),
+        UserConsentInterface::STATE_UNDECIDED => $this->t('Undecided'),
         UserConsentInterface::STATE_NOT_AGREE => $this->t('Not agree'),
-        UserConsentInterface::STATE_AGRRE => $this->t('Agree'),
+        UserConsentInterface::STATE_AGREE => $this->t('Agree'),
       ];
 
       /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */

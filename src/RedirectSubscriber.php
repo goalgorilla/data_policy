@@ -138,7 +138,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     ];
 
     if ($enforce_consent = !empty($config->get('enforce_consent'))) {
-      $values['state'] = UserConsentInterface::STATE_AGRRE;
+      $values['state'] = UserConsentInterface::STATE_AGREE;
     }
 
     $user_consents = $this->entityTypeManager->getStorage('user_consent')
