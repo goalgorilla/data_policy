@@ -69,26 +69,6 @@ class DataPolicyAgreement extends FormBase {
 
     $this->gdprConsentManager->addCheckbox($form);
 
-    // Add a message that the data policy was updated.
-    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
-    $timestamp = DataPolicy::load($entity_id)->getChangedTime();
-    $date = \Drupal::service('date.formatter')->format($timestamp, 'html_date');
-    $form['date'] = [
-      '#theme' => 'status_messages',
-      '#message_list' => [
-        'info' => [
-          [
-            '#type' => 'html_tag',
-            '#tag' => 'strong',
-            '#value' => t('Our data policy has been updated on %date', [
-              '%date' => $date,
-            ]),
-          ],
-        ],
-      ],
-      '#weight' => -1,
-    ];
-
     if (!empty($this->config('gdpr_consent.data_policy')->get('enforce_consent'))) {
       $form['data_policy']['#weight'] = 1;
 
@@ -124,15 +104,21 @@ class DataPolicyAgreement extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $agree = !empty($form_state->getValue('data_policy'));
+    $enforce = $this->config('gdpr_consent.data_policy')->get('enforce_consent');
 
     $this->gdprConsentManager->saveConsent($this->currentUser()->id(), $agree);
 
-    if ($agree) {
-      if ($this->destination->get() == '/data-policy-agreement') {
+    // If the user agrees or does not agree (but it is not enforced), check if
+    // we should redirect him to the front page.
+    if ($agree || (!$agree && empty($enforce))) {
+      if ($this->destination->get() === '/data-policy-agreement') {
         $form_state->setRedirect('<front>');
       }
     }
-    else {
+
+    // If the user does not agree and it is enforced, we will redirect him to
+    // the cancel account page.
+    if (!$agree && !empty($enforce)) {
       $this->getRequest()->query->remove('destination');
 
       $form_state->setRedirect('entity.user.cancel_form', [
