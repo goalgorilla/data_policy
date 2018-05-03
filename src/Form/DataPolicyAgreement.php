@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RedirectDestinationInterface;
+use Drupal\gdpr_consent\Entity\DataPolicy;
 use Drupal\gdpr_consent\GdprConsentManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -65,6 +66,26 @@ class DataPolicyAgreement extends FormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $this->gdprConsentManager->addCheckbox($form);
+
+    // Add a message that the data policy was updated.
+    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+    $timestamp = DataPolicy::load($entity_id)->getChangedTime();
+    $date = \Drupal::service('date.formatter')->format($timestamp, 'html_date');
+    $form['date'] = [
+      '#theme' => 'status_messages',
+      '#message_list' => [
+        'info' => [
+          [
+            '#type' => 'html_tag',
+            '#tag' => 'strong',
+            '#value' => t('Our data policy has been updated on %date', [
+              '%date' => $date,
+            ]),
+          ],
+        ],
+      ],
+      '#weight' => -1,
+    ];
 
     if (!empty($this->config('gdpr_consent.data_policy')->get('enforce_consent'))) {
       $form['data_policy']['#weight'] = 1;
