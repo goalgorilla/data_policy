@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\gdpr_consent\Entity\DataPolicy;
 use Drupal\gdpr_consent\Entity\UserConsent;
 use Drupal\gdpr_consent\Entity\UserConsentInterface;
 
@@ -39,6 +38,13 @@ class GdprConsentManager implements GdprConsentManagerInterface {
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
+
+  /**
+   * The data policy entity.
+   *
+   * @var \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   */
+  protected $entity;
 
   /**
    * Constructs a new GDPR Consent Manager service.
@@ -81,16 +87,15 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       ],
     ]);
 
-    $enforce_consent = $this->configFactory->get('gdpr_consent.data_policy')
-      ->get('enforce_consent');
+    $enforce_consent = !empty($this->getConfig('enforce_consent'));
 
     $form['data_policy'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('I agree with the @url', [
         '@url' => $link->toString(),
       ]),
-      '#default_value' => $this->isConsent(),
-      '#required' => !empty($enforce_consent) && $this->currentUser->isAnonymous(),
+      '#default_value' => $this->getState() == UserConsentInterface::STATE_AGREE,
+      '#required' => $enforce_consent && $this->currentUser->isAnonymous(),
     ];
   }
 
@@ -105,48 +110,77 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       $state = UserConsentInterface::STATE_NOT_AGREE;
     }
 
-    if ($this->isConsent($state)) {
-      return;
+    $last_state = $this->getState();
+
+    if ($last_state !== FALSE) {
+      if ($last_state == $state) {
+        return;
+      }
+      else {
+        if (!empty($this->getConfig('enforce_consent'))) {
+          // Allow switching to state with higher priority (from "undecided" to
+          // "no agree").
+          if ($last_state > $state) {
+            return;
+          }
+        }
+        else {
+          // Allow all switching cases without cases when switchbacking to the
+          // "undecided" state (from "not agree" to "undecided" or from "agree"
+          // to "undecided").
+          if ($last_state != UserConsentInterface::STATE_UNDECIDED && $state == UserConsentInterface::STATE_UNDECIDED) {
+            return;
+          }
+        }
+      }
     }
 
-    $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
-      ->get('entity_id');
-
-    UserConsent::create()->setRevision(DataPolicy::load($entity_id))
+    UserConsent::create()->setRevision($this->entity)
       ->setOwnerId($user_id)
       ->set('state', $state)
       ->save();
   }
 
   /**
-   * Check if exists consent in the specific state.
+   * Return state of last consent of the current user.
    *
-   * @param int $state
-   *   The user consent state.
-   *
-   * @return bool
-   *   TRUE if consent exists.
+   * @return int|false
+   *   The state number or FALSE if consents are absent.
    */
-  private function isConsent($state = UserConsentInterface::STATE_AGREE) {
-    $entity_id = $this->configFactory->get('gdpr_consent.data_policy')
-      ->get('entity_id');
-
+  protected function getState() {
     /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
 
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
-    $data_policy = $data_policy_storage->load($entity_id);
-
-    $vids = $data_policy_storage->revisionIds($data_policy);
+    $this->entity = $data_policy_storage->load($this->getConfig('entity_id'));
+    $vids = $data_policy_storage->revisionIds($this->entity);
 
     $user_consents = $this->entityTypeManager->getStorage('user_consent')
       ->loadByProperties([
         'user_id' => $this->currentUser->id(),
         'data_policy_revision_id' => end($vids),
-        'state' => $state,
       ]);
 
-    return !empty($user_consents);
+    if (!empty($user_consents)) {
+      /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */
+      $user_consent = end($user_consents);
+
+      return $user_consent->state->value;
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Return value from the configuration.
+   *
+   * @param string $name
+   *   The key in config.
+   *
+   * @return mixed
+   *   The value related with key.
+   */
+  protected function getConfig($name) {
+    return $this->configFactory->get('gdpr_consent.data_policy')->get($name);
   }
 
 }
