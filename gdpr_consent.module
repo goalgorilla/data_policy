@@ -63,9 +63,17 @@ function gdpr_consent_theme($existing, $type, $theme, $path) {
  * Implements hook_form_FORM_ID_alter().
  */
 function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  \Drupal::service('gdpr_consent.manager')->addCheckbox($form);
+  /** @var \Drupal\gdpr_consent\GdprConsentManagerInterface $gdpr_consent_manager */
+  $gdpr_consent_manager = \Drupal::service('gdpr_consent.manager');
+
+  if (!$gdpr_consent_manager->isDataPolicy()) {
+    return;
+  }
+
+  $gdpr_consent_manager->addCheckbox($form);
 
   $form['actions']['submit']['#submit'][] = '_gdpr_consent_user_register_form_submit';
+
 }
 
 /**

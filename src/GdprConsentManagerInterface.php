@@ -38,4 +38,12 @@ interface GdprConsentManagerInterface {
    */
   public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED);
 
+  /**
+   * Check if data policy is created.
+   *
+   * @return bool
+   *   TRUE if data policy entity is created.
+   */
+  public function isDataPolicy();
+
 }

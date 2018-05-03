@@ -32,6 +32,13 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
   protected $renderer;
 
   /**
+   * The GDPR consent manager.
+   *
+   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   */
+  protected $gdprConsentManager;
+
+  /**
    * Retrieves the date formatter.
    *
    * @return \Drupal\Core\Datetime\DateFormatter
@@ -55,6 +62,19 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
       $this->renderer = \Drupal::service('renderer');
     }
     return $this->renderer;
+  }
+
+  /**
+   * Returns the GDPR consent manager service.
+   *
+   * @return \Drupal\gdpr_consent\GdprConsentManagerInterface
+   *   The GDPR consent manager.
+   */
+  protected function gdprConsentManager() {
+    if (!$this->gdprConsentManager) {
+      $this->gdprConsentManager = \Drupal::service('gdpr_consent.manager');
+    }
+    return $this->gdprConsentManager;
   }
 
   /**
@@ -143,7 +163,23 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    *   An array as expected by drupal_render().
    */
   public function revisionOverview() {
+    $build = [
+      'data_policy_revisions_table' => [
+        '#theme' => 'table',
+        '#header' => [
+          $this->t('Revision'),
+          $this->t('Operations'),
+        ],
+        '#rows' => [],
+        '#empty' => $this->t('List is empty.'),
+      ],
+    ];
+
     $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+
+    if (empty($entity_id)) {
+      return $build;
+    }
 
     /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager()->getStorage('data_policy');
@@ -158,8 +194,6 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
 
     $revert_permission = $account->hasPermission('revert all data policy revisions') || $account->hasPermission('administer data policy entities');
     $delete_permission = $account->hasPermission('delete all data policy revisions') || $account->hasPermission('administer data policy entities');
-
-    $rows = [];
 
     $vids = $data_policy_storage->revisionIds($data_policy);
 
@@ -250,17 +284,8 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
         }
       }
 
-      $rows[] = $row;
+      $build['data_policy_revisions_table']['#rows'][] = $row;
     }
-
-    $build['data_policy_revisions_table'] = [
-      '#theme' => 'table',
-      '#header' => [
-        $this->t('Revision'),
-        $this->t('Operations'),
-      ],
-      '#rows' => $rows,
-    ];
 
     return $build;
   }
@@ -273,11 +298,11 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    *   of data policy.
    */
   public function access() {
-    if ($this->currentUser()->hasPermission('without consent')) {
-      return AccessResult::forbidden();
+    if ($this->gdprConsentManager()->needConsent()) {
+      return AccessResult::allowed();
     }
 
-    return AccessResult::allowed();
+    return AccessResult::forbidden();
   }
 
 }

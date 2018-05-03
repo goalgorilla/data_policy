@@ -66,7 +66,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
    * {@inheritdoc}
    */
   public function needConsent() {
-    return !$this->currentUser->hasPermission('without consent');
+    return $this->isDataPolicy() && !$this->currentUser->hasPermission('without consent');
   }
 
   /**
@@ -139,6 +139,13 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       ->setOwnerId($user_id)
       ->set('state', $state)
       ->save();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isDataPolicy() {
+    return !empty($this->getConfig('entity_id'));
   }
 
   /**

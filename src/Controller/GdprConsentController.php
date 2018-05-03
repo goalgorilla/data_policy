@@ -17,6 +17,26 @@ use Drupal\gdpr_consent\InformBlockInterface;
 class GdprConsentController extends ControllerBase {
 
   /**
+   * The GDPR consent manager.
+   *
+   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   */
+  protected $gdprConsentManager;
+
+  /**
+   * Returns the GDPR consent manager service.
+   *
+   * @return \Drupal\gdpr_consent\GdprConsentManagerInterface
+   *   The GDPR consent manager.
+   */
+  protected function gdprConsentManager() {
+    if (!$this->gdprConsentManager) {
+      $this->gdprConsentManager = \Drupal::service('gdpr_consent.manager');
+    }
+    return $this->gdprConsentManager;
+  }
+
+  /**
    * Show description of information block for the current page.
    *
    * @param string $informblock
@@ -74,6 +94,16 @@ class GdprConsentController extends ControllerBase {
       '#theme' => 'gdpr_consent_data_policy',
       '#content' => Markup::create($description),
     ];
+  }
+
+  /**
+   * Check if data policy is created.
+   *
+   * @return \Drupal\Core\Access\AccessResult
+   *   The access result.
+   */
+  public function dataPolicyAccess() {
+    return AccessResult::allowedIf($this->gdprConsentManager()->isDataPolicy());
   }
 
 }

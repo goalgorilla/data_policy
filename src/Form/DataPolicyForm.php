@@ -19,14 +19,20 @@ class DataPolicyForm extends ContentEntityForm {
   protected function prepareEntity() {
     parent::prepareEntity();
 
-    if ($this->getEntity()->isNew()) {
-      $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
-
-      $entity = $this->entityTypeManager->getStorage('data_policy')
-        ->load($entity_id);
-
-      $this->setEntity($entity);
+    if (!$this->getEntity()->isNew()) {
+      return;
     }
+
+    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+
+    if (empty($entity_id)) {
+      return;
+    }
+
+    $entity = $this->entityTypeManager->getStorage('data_policy')
+      ->load($entity_id);
+
+    $this->setEntity($entity);
   }
 
   /**
@@ -37,10 +43,15 @@ class DataPolicyForm extends ContentEntityForm {
 
     $form['revision_log_message']['widget'][0]['value']['#default_value'] = '';
 
+    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+    $is_new = empty($entity_id);
+
     $form['active_revision'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Active'),
       '#description' => $this->t('When this field is checked then after submitting the form will be creating revision which will marked as active.'),
+      '#default_value' => $is_new,
+      '#disabled' => $is_new,
       '#weight' => 10,
     ];
 
@@ -75,6 +86,12 @@ class DataPolicyForm extends ContentEntityForm {
     $entity->setRevisionUserId($this->currentUser()->id());
 
     $entity->save();
+
+    $config = $this->configFactory()->getEditable('gdpr_consent.data_policy');
+
+    if (empty($config->get('entity_id'))) {
+      $config->set('entity_id', $entity->id())->save();
+    }
 
     $this->messenger()->addStatus($this->t('Created new revision.'));
 
