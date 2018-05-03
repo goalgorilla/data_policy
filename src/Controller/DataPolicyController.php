@@ -163,8 +163,6 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
 
     $vids = $data_policy_storage->revisionIds($data_policy);
 
-    $latest_revision = TRUE;
-
     foreach (array_reverse($vids) as $vid) {
       /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $revision */
       $revision = $data_policy_storage->loadRevision($vid);
@@ -191,7 +189,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
           '#theme' => 'gdpr_consent_data_policy_revision',
           '#date' => $date,
           '#username' => $this->renderer()->renderPlain($username),
-          '#current' => $latest_revision,
+          '#current' => $revision->isDefaultRevision(),
           '#message' => [
             '#markup' => Unicode::truncate($revision->getRevisionLogMessage(), 80, TRUE, TRUE),
             '#allowed_tags' => Xss::getHtmlTagList(),
@@ -211,7 +209,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
         ]),
       ];
 
-      if (!$latest_revision) {
+      if (!$revision->isDefaultRevision()) {
         if ($revert_permission) {
           $links['revert'] = [
             'title' => $this->t('Revert'),
@@ -246,12 +244,10 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
         ],
       ];
 
-      if ($latest_revision) {
+      if ($revision->isDefaultRevision()) {
         foreach ($row as &$current) {
           $current['class'] = ['revision-current'];
         }
-
-        $latest_revision = FALSE;
       }
 
       $rows[] = $row;

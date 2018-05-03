@@ -37,6 +37,13 @@ class DataPolicyForm extends ContentEntityForm {
 
     $form['revision_log_message']['widget'][0]['value']['#default_value'] = '';
 
+    $form['active_revision'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Active'),
+      '#description' => $this->t('When this field is checked then after submitting the form will be creating revision which will marked as active.'),
+      '#weight' => 10,
+    ];
+
     $form['new_revision'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Create new revision'),
@@ -59,6 +66,11 @@ class DataPolicyForm extends ContentEntityForm {
     $entity = &$this->entity;
 
     $entity->setNewRevision();
+
+    if (empty($form_state->getValue('active_revision'))) {
+      $entity->isDefaultRevision(FALSE);
+    }
+
     $entity->setRevisionCreationTime($this->time->getRequestTime());
     $entity->setRevisionUserId($this->currentUser()->id());
 
