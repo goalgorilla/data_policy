@@ -46,4 +46,15 @@ interface GdprConsentManagerInterface {
    */
   public function isDataPolicy();
 
+  /**
+   * Return value from the configuration.
+   *
+   * @param string $name
+   *   The key in config.
+   *
+   * @return mixed
+   *   The value related with key.
+   */
+  public function getConfig($name);
+
 }

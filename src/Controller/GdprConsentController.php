@@ -4,8 +4,6 @@ namespace Drupal\gdpr_consent\Controller;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Render\Markup;
-use Drupal\gdpr_consent\Entity\DataPolicy;
 use Drupal\gdpr_consent\Entity\InformBlock;
 use Drupal\gdpr_consent\InformBlockInterface;
 
@@ -77,33 +75,6 @@ class GdprConsentController extends ControllerBase {
     }
 
     return AccessResult::forbidden();
-  }
-
-  /**
-   * Show description of data policy.
-   *
-   * @return array
-   *   The data policy description text.
-   */
-  public function dataPolicyPage() {
-    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
-    $description = DataPolicy::load($entity_id)->field_description->value;
-    $description = '<p>' . str_replace("\n", '</p><p>', $description) . '</p>';
-
-    return [
-      '#theme' => 'gdpr_consent_data_policy',
-      '#content' => Markup::create($description),
-    ];
-  }
-
-  /**
-   * Check if data policy is created.
-   *
-   * @return \Drupal\Core\Access\AccessResult
-   *   The access result.
-   */
-  public function dataPolicyAccess() {
-    return AccessResult::allowedIf($this->gdprConsentManager()->isDataPolicy());
   }
 
 }

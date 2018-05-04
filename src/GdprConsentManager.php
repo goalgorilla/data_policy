@@ -178,15 +178,9 @@ class GdprConsentManager implements GdprConsentManagerInterface {
   }
 
   /**
-   * Return value from the configuration.
-   *
-   * @param string $name
-   *   The key in config.
-   *
-   * @return mixed
-   *   The value related with key.
+   * {@inheritdoc}
    */
-  protected function getConfig($name) {
+  public function getConfig($name) {
     return $this->configFactory->get('gdpr_consent.data_policy')->get($name);
   }
 

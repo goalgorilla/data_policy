@@ -7,15 +7,16 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
 use Drupal\gdpr_consent\Entity\UserConsentInterface;
 
 /**
- * Class DataPolicyController.
+ * Class DataPolicy.
  *
  *  Returns responses for Data policy routes.
  */
-class DataPolicyController extends ControllerBase implements ContainerInjectionInterface {
+class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
 
   /**
    * The date formatter.
@@ -78,6 +79,47 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
   }
 
   /**
+   * Show description of data policy.
+   *
+   * @return array
+   *   The data policy description text.
+   */
+  public function entityOverviewPage() {
+    $entity_id = $this->gdprConsentManager()->getConfig('entity_id');
+
+    if (!empty($entity_id)) {
+      $description = $this->entityTypeManager()->getStorage('data_policy')
+        ->load($entity_id)
+        ->field_description
+        ->value;
+
+      $description = Markup::create($description);
+    }
+    else {
+      $description = $this->t('Data policy is not created.');
+    }
+
+    return [
+      '#theme' => 'gdpr_consent_data_policy',
+      '#content' => $description,
+    ];
+  }
+
+  /**
+   * Check if data policy is created.
+   *
+   * @return \Drupal\Core\Access\AccessResult
+   *   The access result.
+   */
+  public function entityOverviewAccess() {
+    if ($this->gdprConsentManager()->isDataPolicy()) {
+      return AccessResult::allowed();
+    }
+
+    return AccessResult::forbidden();
+  }
+
+  /**
    * Displays a Data policy revision.
    *
    * @param int $data_policy_revision
@@ -86,7 +128,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    * @return array
    *   An array suitable for drupal_render().
    */
-  public function revisionShow($data_policy_revision) {
+  public function revisionOverviewPage($data_policy_revision) {
     $build['data_policy'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Revision data'),
@@ -147,7 +189,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    * @return string
    *   The page title.
    */
-  public function revisionPageTitle($data_policy_revision) {
+  public function revisionOverviewTitle($data_policy_revision) {
     $data_policy = $this->entityTypeManager()->getStorage('data_policy')
       ->loadRevision($data_policy_revision);
 
@@ -162,7 +204,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function revisionOverview() {
+  public function revisionsOverviewPage() {
     $build = [
       'data_policy_revisions_table' => [
         '#theme' => 'table',
@@ -297,7 +339,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    *   Allow to open page when a user was not give consent on a current version
    *   of data policy.
    */
-  public function access() {
+  public function agreementAccess() {
     if ($this->gdprConsentManager()->needConsent()) {
       return AccessResult::allowed();
     }

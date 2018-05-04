@@ -64,7 +64,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
     $route
       ->setDefaults([
         '_title' => 'Data policy',
-        '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicyController::revisionOverview',
+        '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionsOverviewPage',
       ])
       ->setRequirement('_permission', 'view all data policy revisions')
       ->setOption('_admin_route', TRUE);
@@ -86,8 +86,8 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
       $route = new Route($entity_type->getLinkTemplate('revision'));
       $route
         ->setDefaults([
-          '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicyController::revisionShow',
-          '_title_callback' => '\Drupal\gdpr_consent\Controller\DataPolicyController::revisionPageTitle',
+          '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionOverviewPage',
+          '_title_callback' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionOverviewTitle',
         ])
         ->setRequirement('_permission', 'access data policy revisions')
         ->setOption('_admin_route', TRUE);

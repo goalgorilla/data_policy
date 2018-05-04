@@ -41,10 +41,10 @@ gdpr_consent.description:
 gdpr_consent.data_policy:
   path: '/data-policy'
   defaults:
-    _controller: '\Drupal\gdpr_consent\Controller\GdprConsentController::dataPolicyPage'
+    _controller: '\Drupal\gdpr_consent\Controller\DataPolicy::entityOverviewPage'
     _title: 'Data Policy'
   requirements:
-    _custom_access: '\Drupal\gdpr_consent\Controller\GdprConsentController::dataPolicyAccess'
+    _custom_access: '\Drupal\gdpr_consent\Controller\DataPolicy::entityOverviewAccess'
 
 gdpr_consent.data_policy.agreement:
   path: '/data-policy-agreement'
@@ -52,7 +52,7 @@ gdpr_consent.data_policy.agreement:
     _form: '\Drupal\gdpr_consent\Form\DataPolicyAgreement'
     _title: 'Data policy agreement'
   requirements:
-    _custom_access: '\Drupal\gdpr_consent\Controller\DataPolicyController::access'
+    _custom_access: '\Drupal\gdpr_consent\Controller\DataPolicy::agreementAccess'
 
 gdpr_consent.data_policy.edit:
   path: '/admin/config/people/data-policy/edit'
