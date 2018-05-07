@@ -80,14 +80,9 @@ class DataPolicyForm extends ContentEntityForm {
 
     $entity->setNewRevision();
 
-    $config = $this->configFactory()->getEditable('gdpr_consent.data_policy');
+    $active_revision = !empty($form_state->getValue('active_revision'));
 
-    if (!empty($form_state->getValue('active_revision'))) {
-      $ids = $config->get('revision_ids');
-      $ids[$entity->getRevisionId()] = TRUE;
-      $config->set('revision_ids', $ids)->save();
-    }
-    else {
+    if (!$active_revision) {
       $entity->isDefaultRevision(FALSE);
     }
 
@@ -95,6 +90,14 @@ class DataPolicyForm extends ContentEntityForm {
     $entity->setRevisionUserId($this->currentUser()->id());
 
     $entity->save();
+
+    $config = $this->configFactory()->getEditable('gdpr_consent.data_policy');
+
+    if ($active_revision) {
+      $ids = $config->get('revision_ids');
+      $ids[$entity->getRevisionId()] = TRUE;
+      $config->set('revision_ids', $ids)->save();
+    }
 
     if (empty($config->get('entity_id'))) {
       $config->set('entity_id', $entity->id())->save();
