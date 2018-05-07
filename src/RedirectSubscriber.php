@@ -142,9 +142,11 @@ class RedirectSubscriber implements EventSubscriberInterface {
     /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
 
-    $vids = $data_policy_storage->revisionIds($data_policy);
-
-    $vid = end($vids);
+    foreach ($data_policy_storage->revisionIds($data_policy) as $vid) {
+      if ($data_policy_storage->loadRevision($vid)->isDefaultRevision()) {
+        break;
+      }
+    }
 
     $values = [
       'user_id' => $this->currentUser->id(),
