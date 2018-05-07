@@ -60,7 +60,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
    */
   protected function getHistoryRoute(EntityTypeInterface $entity_type) {
     if (!$entity_type->hasLinkTemplate('version-history')) {
-      return FALSE;
+      return NULL;
     }
 
     $route = new Route($entity_type->getLinkTemplate('version-history'));
@@ -110,18 +110,21 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
    *   The generated route, if available.
    */
   protected function getRevisionEditRoute(EntityTypeInterface $entity_type) {
-    if ($entity_type->hasLinkTemplate('revision_edit')) {
-      $route = new Route($entity_type->getLinkTemplate('revision_edit'));
-      $route
-        ->setDefaults([
-          '_form' => '\Drupal\gdpr_consent\Form\DataPolicyRevisionEdit',
-          '_title' => 'Edit revision',
-        ])
-        ->setRequirement('_permission', 'edit data policy')
-        ->setOption('_admin_route', TRUE);
-
-      return $route;
+    if (!$entity_type->hasLinkTemplate('revision_edit')) {
+      return NULL;
     }
+
+    $route = new Route($entity_type->getLinkTemplate('revision_edit'));
+
+    $route
+      ->setDefaults([
+        '_form' => '\Drupal\gdpr_consent\Form\DataPolicyRevisionEdit',
+        '_title' => 'Edit revision',
+      ])
+      ->setRequirement('_custom_access', '\Drupal\gdpr_consent\Controller\DataPolicy::revisionEditAccess')
+      ->setOption('_admin_route', TRUE);
+
+    return $route;
   }
 
   /**
