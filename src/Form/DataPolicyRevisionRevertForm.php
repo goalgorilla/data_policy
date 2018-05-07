@@ -18,7 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class DataPolicyRevisionRevertForm extends ConfirmFormBase {
 
-
   /**
    * The Data policy revision.
    *
@@ -159,7 +158,7 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
    */
   protected function prepareRevertedRevision(DataPolicyInterface $revision, FormStateInterface $form_state) {
     $revision->setNewRevision();
-    $revision->isDefaultRevision(TRUE);
+    $revision->isDefaultRevision(FALSE);
     $revision->setRevisionCreationTime($this->time->getRequestTime());
 
     return $revision;

@@ -234,6 +234,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
     $languages = $data_policy->getTranslationLanguages();
     $has_translations = count($languages) > 1;
 
+    $edit_permission = $account->hasPermission('edit data policy') || $account->hasPermission('administer data policy entities');
     $revert_permission = $account->hasPermission('revert all data policy revisions') || $account->hasPermission('administer data policy entities');
     $delete_permission = $account->hasPermission('delete all data policy revisions') || $account->hasPermission('administer data policy entities');
 
@@ -284,6 +285,16 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
           'data_policy_revision' => $vid,
         ]),
       ];
+
+      if ($edit_permission) {
+        $links['edit'] = [
+          'title' => $this->t('Edit'),
+          'url' => Url::fromRoute('entity.data_policy.revision_edit', [
+            'data_policy' => $data_policy->id(),
+            'data_policy_revision' => $vid,
+          ]),
+        ];
+      }
 
       if (!$revision->isDefaultRevision()) {
         if ($revert_permission) {
