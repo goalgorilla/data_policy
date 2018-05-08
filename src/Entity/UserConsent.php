@@ -113,7 +113,7 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
    * {@inheritdoc}
    */
   public function setPublished($published) {
-    $this->set('status', $published ? TRUE : FALSE);
+    $this->set('status', $published);
     return $this;
   }
 
@@ -167,7 +167,7 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
-    $fields['status'] = BaseFieldDefinition::create('integer')
+    $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Publishing status'))
       ->setDescription(t('A boolean indicating whether the User consent is published.'))
       ->setRevisionable(TRUE)

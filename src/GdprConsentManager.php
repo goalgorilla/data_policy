@@ -135,6 +135,19 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       }
     }
 
+    $user_consents = $this->entityTypeManager->getStorage('user_consent')
+      ->loadByProperties([
+        'user_id' => $user_id,
+        'status' => TRUE,
+      ]);
+
+    if (!empty($user_consents)) {
+      /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */
+      $user_consent = reset($user_consents);
+
+      $user_consent->setPublished(FALSE)->save();
+    }
+
     UserConsent::create()->setRevision($this->entity)
       ->setOwnerId($user_id)
       ->set('state', $state)
