@@ -107,7 +107,7 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getDescription() {
-    return $this->t('Users will be asked again to agree with this revision.');
+    return $this->t('After making this revision active users will be asked again to agree with this revision.');
   }
 
   /**
