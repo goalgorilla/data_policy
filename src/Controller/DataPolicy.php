@@ -285,6 +285,16 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
         ]),
       ];
 
+      if ($this->revisionEditAccess($vid)->isAllowed()) {
+        $links['edit'] = [
+          'title' => $this->t('Edit'),
+          'url' => Url::fromRoute('entity.data_policy.revision_edit', [
+            'data_policy' => $data_policy->id(),
+            'data_policy_revision' => $vid,
+          ]),
+        ];
+      }
+
       if (!$revision->isDefaultRevision()) {
         if ($revert_permission) {
           $links['revert'] = [
@@ -342,6 +352,27 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
   public function agreementAccess() {
     if ($this->gdprConsentManager()->needConsent()) {
       return AccessResult::allowed();
+    }
+
+    return AccessResult::forbidden();
+  }
+
+  /**
+   * Check access to revision edit page.
+   *
+   * @param int $data_policy_revision
+   *   The data policy revision ID.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   Allow editing revision if it never been active.
+   */
+  public function revisionEditAccess($data_policy_revision) {
+    if ($this->currentUser()->hasPermission('administer data policy entities') || $this->currentUser()->hasPermission('edit data policy')) {
+      $ids = $this->gdprConsentManager()->getConfig('revision_ids');
+
+      if (!isset($ids[$data_policy_revision])) {
+        return AccessResult::allowed();
+      }
     }
 
     return AccessResult::forbidden();

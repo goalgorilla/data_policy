@@ -41,7 +41,9 @@ class DataPolicyForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
 
-    $form['revision_log_message']['widget'][0]['value']['#default_value'] = '';
+    if ($this->clearMessage()) {
+      $form['revision_log_message']['widget'][0]['value']['#default_value'] = '';
+    }
 
     $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
     $is_new = empty($entity_id);
@@ -78,7 +80,9 @@ class DataPolicyForm extends ContentEntityForm {
 
     $entity->setNewRevision();
 
-    if (empty($form_state->getValue('active_revision'))) {
+    $active_revision = !empty($form_state->getValue('active_revision'));
+
+    if (!$active_revision) {
       $entity->isDefaultRevision(FALSE);
     }
 
@@ -89,6 +93,12 @@ class DataPolicyForm extends ContentEntityForm {
 
     $config = $this->configFactory()->getEditable('gdpr_consent.data_policy');
 
+    if ($active_revision) {
+      $ids = $config->get('revision_ids');
+      $ids[$entity->getRevisionId()] = TRUE;
+      $config->set('revision_ids', $ids)->save();
+    }
+
     if (empty($config->get('entity_id'))) {
       $config->set('entity_id', $entity->id())->save();
     }
@@ -96,6 +106,16 @@ class DataPolicyForm extends ContentEntityForm {
     $this->messenger()->addStatus($this->t('Created new revision.'));
 
     $form_state->setRedirect('entity.data_policy.version_history');
+  }
+
+  /**
+   * Get status of clearing revision log message.
+   *
+   * @return bool
+   *   TRUE if the message should be cleared.
+   */
+  public function clearMessage() {
+    return TRUE;
   }
 
 }

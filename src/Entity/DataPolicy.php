@@ -51,6 +51,7 @@ use Drupal\user\UserInterface;
  *     "edit-form" = "/admin/config/people/data-policy/all/{data_policy}",
  *     "version-history" = "/admin/config/people/data-policy",
  *     "revision" = "/admin/config/people/data-policy/{data_policy_revision}",
+ *     "revision_edit" = "/admin/config/people/data-policy/{data_policy_revision}/edit",
  *     "revision_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert",
  *     "revision_delete" = "/admin/config/people/data-policy/{data_policy_revision}/delete",
  *     "translation_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert/{langcode}",

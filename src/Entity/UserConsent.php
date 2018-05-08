@@ -121,10 +121,7 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
    * {@inheritdoc}
    */
   public function setRevision(DataPolicyInterface $data_policy) {
-    $vids = $this->entityTypeManager()->getStorage('data_policy')
-      ->revisionIds($data_policy);
-
-    $this->set('data_policy_revision_id', end($vids));
+    $this->set('data_policy_revision_id', $data_policy->getRevisionId());
 
     return $this;
   }
