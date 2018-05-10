@@ -63,8 +63,16 @@ function gdpr_consent_theme($existing, $type, $theme, $path) {
  * Implements hook_views_data_alter().
  */
 function gdpr_consent_views_data_alter(array &$data) {
-  $data['user_consent']['data_policy_revision_id']['filter']['id'] = 'user_consent_data_policy_revision';
-  $data['user_consent']['state']['filter']['id'] = 'user_consent_state';
+  $plugins = [
+    'data_policy_revision_id' => 'user_consent_data_policy_revision',
+    'state' => 'user_consent_state',
+  ];
+
+  foreach ($plugins as $field => $plugin) {
+    foreach (['field', 'filter'] as $type) {
+      $data['user_consent'][$field][$type]['id'] = $plugin;
+    }
+  }
 }
 
 /**
