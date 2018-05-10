@@ -77,7 +77,7 @@ display:
           description: ''
           columns:
             data_policy_revision_id: data_policy_revision_id
-            name: name
+            user_id: user_id
             state: state
             changed: changed
           info:
@@ -88,7 +88,7 @@ display:
               separator: ''
               empty_column: false
               responsive: ''
-            name:
+            user_id:
               sortable: true
               default_sort_order: asc
               align: ''
@@ -110,7 +110,7 @@ display:
               empty_column: false
               responsive: ''
           default: changed
-          empty_table: false
+          empty_table: true
       row:
         type: fields
       fields:
@@ -516,7 +516,20 @@ display:
       title: 'Data Policy Agreements'
       header: {  }
       footer: {  }
-      empty: {  }
+      empty:
+        area:
+          id: area
+          table: views
+          field: area
+          relationship: none
+          group_type: group
+          admin_label: ''
+          empty: true
+          tokenize: false
+          content:
+            value: 'User consents not found.'
+            format: basic_html
+          plugin_id: text
       relationships: {  }
       arguments: {  }
       display_extenders: {  }
