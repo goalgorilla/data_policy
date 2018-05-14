@@ -25,7 +25,7 @@ class UserConsentState extends InOperator {
     $this->valueOptions = [
       UserConsentInterface::STATE_AGREE => $this->t('Agree'),
       UserConsentInterface::STATE_NOT_AGREE => $this->t('Not agree'),
-      UserConsentInterface::STATE_UNDECIDED => $this->t('Undesided'),
+      UserConsentInterface::STATE_UNDECIDED => $this->t('Undecided'),
     ];
 
     return $this->valueOptions;
