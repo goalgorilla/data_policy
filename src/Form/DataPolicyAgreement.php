@@ -65,6 +65,8 @@ class DataPolicyAgreement extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $this->gdprConsentManager->saveConsent($this->currentUser()->id());
+
     $this->gdprConsentManager->addCheckbox($form);
 
     // Add a message that the data policy was updated.
@@ -122,15 +124,23 @@ class DataPolicyAgreement extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $agree = !empty($form_state->getValue('data_policy'));
+    $enforce = $this->config('gdpr_consent.data_policy')->get('enforce_consent');
 
     $this->gdprConsentManager->saveConsent($this->currentUser()->id(), $agree);
 
-    if ($agree) {
-      if ($this->destination->get() == '/data-policy-agreement') {
+    // If the user agrees or does not agree (but it is not enforced), check if
+    // we should redirect him to the front page.
+    if ($agree || (!$agree && empty($enforce))) {
+      if ($this->destination->get() === '/data-policy-agreement') {
         $form_state->setRedirect('<front>');
       }
     }
-    else {
+
+    // If the user does not agree and it is enforced, we will redirect him to
+    // the cancel account page.
+    if (!$agree && !empty($enforce)) {
+      $this->getRequest()->query->remove('destination');
+
       $form_state->setRedirect('entity.user.cancel_form', [
         'user' => $this->currentUser()->id(),
       ]);

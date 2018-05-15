@@ -7,14 +7,16 @@ use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
+use Drupal\gdpr_consent\Entity\UserConsentInterface;
 
 /**
- * Class DataPolicyController.
+ * Class DataPolicy.
  *
  *  Returns responses for Data policy routes.
  */
-class DataPolicyController extends ControllerBase implements ContainerInjectionInterface {
+class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
 
   /**
    * The date formatter.
@@ -29,6 +31,13 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    * @var \Drupal\Core\Render\Renderer
    */
   protected $renderer;
+
+  /**
+   * The GDPR consent manager.
+   *
+   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   */
+  protected $gdprConsentManager;
 
   /**
    * Retrieves the date formatter.
@@ -57,6 +66,60 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
   }
 
   /**
+   * Returns the GDPR consent manager service.
+   *
+   * @return \Drupal\gdpr_consent\GdprConsentManagerInterface
+   *   The GDPR consent manager.
+   */
+  protected function gdprConsentManager() {
+    if (!$this->gdprConsentManager) {
+      $this->gdprConsentManager = \Drupal::service('gdpr_consent.manager');
+    }
+    return $this->gdprConsentManager;
+  }
+
+  /**
+   * Show description of data policy.
+   *
+   * @return array
+   *   The data policy description text.
+   */
+  public function entityOverviewPage() {
+    $entity_id = $this->gdprConsentManager()->getConfig('entity_id');
+
+    if (!empty($entity_id)) {
+      $description = $this->entityTypeManager()->getStorage('data_policy')
+        ->load($entity_id)
+        ->field_description
+        ->value;
+
+      $description = Markup::create($description);
+    }
+    else {
+      $description = $this->t('Data policy is not created.');
+    }
+
+    return [
+      '#theme' => 'gdpr_consent_data_policy',
+      '#content' => $description,
+    ];
+  }
+
+  /**
+   * Check if data policy is created.
+   *
+   * @return \Drupal\Core\Access\AccessResult
+   *   The access result.
+   */
+  public function entityOverviewAccess() {
+    if ($this->gdprConsentManager()->isDataPolicy()) {
+      return AccessResult::allowed();
+    }
+
+    return AccessResult::forbidden();
+  }
+
+  /**
    * Displays a Data policy revision.
    *
    * @param int $data_policy_revision
@@ -65,7 +128,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    * @return array
    *   An array suitable for drupal_render().
    */
-  public function revisionShow($data_policy_revision) {
+  public function revisionOverviewPage($data_policy_revision) {
     $build['data_policy'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Revision data'),
@@ -93,16 +156,22 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
         '#theme' => 'table',
         '#header' => [
           $this->t('User'),
-          $this->t('Agreed'),
+          $this->t('State'),
           $this->t('Date and time'),
         ],
+      ];
+
+      $states = [
+        UserConsentInterface::STATE_UNDECIDED => $this->t('Undecided'),
+        UserConsentInterface::STATE_NOT_AGREE => $this->t('Not agree'),
+        UserConsentInterface::STATE_AGREE => $this->t('Agree'),
       ];
 
       /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */
       foreach ($user_consents as $user_consent) {
         $build['user_consent']['list']['#rows'][] = [
           $user_consent->getOwner()->getDisplayName(),
-          $user_consent->isPublished() ? $this->t('Yes') : $this->t('No'),
+          $states[$user_consent->state->value],
           $this->dateFormatter()->format($user_consent->getChangedTime(), 'short'),
         ];
       }
@@ -120,7 +189,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    * @return string
    *   The page title.
    */
-  public function revisionPageTitle($data_policy_revision) {
+  public function revisionOverviewTitle($data_policy_revision) {
     $data_policy = $this->entityTypeManager()->getStorage('data_policy')
       ->loadRevision($data_policy_revision);
 
@@ -135,8 +204,24 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function revisionOverview() {
+  public function revisionsOverviewPage() {
+    $build = [
+      'data_policy_revisions_table' => [
+        '#theme' => 'table',
+        '#header' => [
+          $this->t('Revision'),
+          $this->t('Operations'),
+        ],
+        '#rows' => [],
+        '#empty' => $this->t('List is empty.'),
+      ],
+    ];
+
     $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+
+    if (empty($entity_id)) {
+      return $build;
+    }
 
     /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager()->getStorage('data_policy');
@@ -152,11 +237,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
     $revert_permission = $account->hasPermission('revert all data policy revisions') || $account->hasPermission('administer data policy entities');
     $delete_permission = $account->hasPermission('delete all data policy revisions') || $account->hasPermission('administer data policy entities');
 
-    $rows = [];
-
     $vids = $data_policy_storage->revisionIds($data_policy);
-
-    $latest_revision = TRUE;
 
     foreach (array_reverse($vids) as $vid) {
       /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $revision */
@@ -184,7 +265,7 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
           '#theme' => 'gdpr_consent_data_policy_revision',
           '#date' => $date,
           '#username' => $this->renderer()->renderPlain($username),
-          '#current' => $latest_revision,
+          '#current' => $revision->isDefaultRevision(),
           '#message' => [
             '#markup' => Unicode::truncate($revision->getRevisionLogMessage(), 80, TRUE, TRUE),
             '#allowed_tags' => Xss::getHtmlTagList(),
@@ -204,7 +285,17 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
         ]),
       ];
 
-      if (!$latest_revision) {
+      if ($this->revisionEditAccess($vid)->isAllowed()) {
+        $links['edit'] = [
+          'title' => $this->t('Edit'),
+          'url' => Url::fromRoute('entity.data_policy.revision_edit', [
+            'data_policy' => $data_policy->id(),
+            'data_policy_revision' => $vid,
+          ]),
+        ];
+      }
+
+      if (!$revision->isDefaultRevision()) {
         if ($revert_permission) {
           $links['revert'] = [
             'title' => $this->t('Revert'),
@@ -239,25 +330,14 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
         ],
       ];
 
-      if ($latest_revision) {
+      if ($revision->isDefaultRevision()) {
         foreach ($row as &$current) {
           $current['class'] = ['revision-current'];
         }
-
-        $latest_revision = FALSE;
       }
 
-      $rows[] = $row;
+      $build['data_policy_revisions_table']['#rows'][] = $row;
     }
-
-    $build['data_policy_revisions_table'] = [
-      '#theme' => 'table',
-      '#header' => [
-        $this->t('Revision'),
-        $this->t('Operations'),
-      ],
-      '#rows' => $rows,
-    ];
 
     return $build;
   }
@@ -269,9 +349,30 @@ class DataPolicyController extends ControllerBase implements ContainerInjectionI
    *   Allow to open page when a user was not give consent on a current version
    *   of data policy.
    */
-  public function access() {
-    if (\Drupal::service('gdpr_consent.manager')->needConsent()) {
+  public function agreementAccess() {
+    if ($this->gdprConsentManager()->needConsent()) {
       return AccessResult::allowed();
+    }
+
+    return AccessResult::forbidden();
+  }
+
+  /**
+   * Check access to revision edit page.
+   *
+   * @param int $data_policy_revision
+   *   The data policy revision ID.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   Allow editing revision if it never been active.
+   */
+  public function revisionEditAccess($data_policy_revision) {
+    if ($this->currentUser()->hasPermission('administer data policy entities') || $this->currentUser()->hasPermission('edit data policy')) {
+      $ids = $this->gdprConsentManager()->getConfig('revision_ids');
+
+      if (!isset($ids[$data_policy_revision])) {
+        return AccessResult::allowed();
+      }
     }
 
     return AccessResult::forbidden();

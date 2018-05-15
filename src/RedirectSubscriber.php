@@ -11,6 +11,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\gdpr_consent\Entity\UserConsentInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -68,6 +69,13 @@ class RedirectSubscriber implements EventSubscriberInterface {
   protected $messenger;
 
   /**
+   * The GDPR consent manager.
+   *
+   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   */
+  protected $gdprConsentManager;
+
+  /**
    * RedirectSubscriber constructor.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
@@ -82,14 +90,17 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *   The entity type manager.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger.
+   * @param \Drupal\gdpr_consent\GdprConsentManagerInterface $gdpr_consent_manager
+   *   The GDPR consent manager.
    */
-  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger) {
+  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger, GdprConsentManagerInterface $gdpr_consent_manager) {
     $this->routeMatch = $route_match;
     $this->destination = $destination;
     $this->currentUser = $current_user;
     $this->configFactory = $config_factory;
     $this->entityTypeManager = $entity_type_manager;
     $this->messenger = $messenger;
+    $this->gdprConsentManager = $gdpr_consent_manager;
   }
 
   /**
@@ -107,6 +118,10 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *   The event.
    */
   public function checkForRedirection(GetResponseEvent $event) {
+    if (!$this->gdprConsentManager->isDataPolicy()) {
+      return;
+    }
+
     $route_name = $this->routeMatch->getRouteName();
 
     if ($route_name == 'gdpr_consent.data_policy.agreement') {
@@ -127,9 +142,11 @@ class RedirectSubscriber implements EventSubscriberInterface {
     /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
 
-    $vids = $data_policy_storage->revisionIds($data_policy);
-
-    $vid = end($vids);
+    foreach ($data_policy_storage->revisionIds($data_policy) as $vid) {
+      if ($data_policy_storage->loadRevision($vid)->isDefaultRevision()) {
+        break;
+      }
+    }
 
     $values = [
       'user_id' => $this->currentUser->id(),
@@ -137,7 +154,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     ];
 
     if ($enforce_consent = !empty($config->get('enforce_consent'))) {
-      $values['status'] = TRUE;
+      $values['state'] = UserConsentInterface::STATE_AGREE;
     }
 
     $user_consents = $this->entityTypeManager->getStorage('user_consent')

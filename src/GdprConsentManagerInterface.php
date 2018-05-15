@@ -2,6 +2,8 @@
 
 namespace Drupal\gdpr_consent;
 
+use Drupal\gdpr_consent\Entity\UserConsentInterface;
+
 /**
  * Defines the GDPR Consent Manager service interface.
  */
@@ -28,9 +30,31 @@ interface GdprConsentManagerInterface {
    *
    * @param int $user_id
    *   The user ID.
-   * @param bool $agree
-   *   The status of user consent entity.
+   * @param mixed $state
+   *   The one of three allowed states:
+   *   - undecided,
+   *   - not agree,
+   *   - agree.
    */
-  public function saveConsent($user_id, $agree);
+  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED);
+
+  /**
+   * Check if data policy is created.
+   *
+   * @return bool
+   *   TRUE if data policy entity is created.
+   */
+  public function isDataPolicy();
+
+  /**
+   * Return value from the configuration.
+   *
+   * @param string $name
+   *   The key in config.
+   *
+   * @return mixed
+   *   The value related with key.
+   */
+  public function getConfig($name);
 
 }

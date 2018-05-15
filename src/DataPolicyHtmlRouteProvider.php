@@ -30,6 +30,10 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
       $collection->add("entity.{$entity_type_id}.revision", $revision_route);
     }
 
+    if ($edit_route = $this->getRevisionEditRoute($entity_type)) {
+      $collection->add("entity.{$entity_type_id}.revision_edit", $edit_route);
+    }
+
     if ($revert_route = $this->getRevisionRevertRoute($entity_type)) {
       $collection->add("entity.{$entity_type_id}.revision_revert", $revert_route);
     }
@@ -56,7 +60,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
    */
   protected function getHistoryRoute(EntityTypeInterface $entity_type) {
     if (!$entity_type->hasLinkTemplate('version-history')) {
-      return FALSE;
+      return NULL;
     }
 
     $route = new Route($entity_type->getLinkTemplate('version-history'));
@@ -64,7 +68,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
     $route
       ->setDefaults([
         '_title' => 'Data policy',
-        '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicyController::revisionOverview',
+        '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionsOverviewPage',
       ])
       ->setRequirement('_permission', 'view all data policy revisions')
       ->setOption('_admin_route', TRUE);
@@ -86,14 +90,41 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
       $route = new Route($entity_type->getLinkTemplate('revision'));
       $route
         ->setDefaults([
-          '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicyController::revisionShow',
-          '_title_callback' => '\Drupal\gdpr_consent\Controller\DataPolicyController::revisionPageTitle',
+          '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionOverviewPage',
+          '_title_callback' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionOverviewTitle',
         ])
         ->setRequirement('_permission', 'access data policy revisions')
         ->setOption('_admin_route', TRUE);
 
       return $route;
     }
+  }
+
+  /**
+   * Gets the revision edit route.
+   *
+   * @param \Drupal\Core\Entity\EntityTypeInterface $entity_type
+   *   The entity type.
+   *
+   * @return \Symfony\Component\Routing\Route|null
+   *   The generated route, if available.
+   */
+  protected function getRevisionEditRoute(EntityTypeInterface $entity_type) {
+    if (!$entity_type->hasLinkTemplate('revision_edit')) {
+      return NULL;
+    }
+
+    $route = new Route($entity_type->getLinkTemplate('revision_edit'));
+
+    $route
+      ->setDefaults([
+        '_form' => '\Drupal\gdpr_consent\Form\DataPolicyRevisionEdit',
+        '_title' => 'Edit revision',
+      ])
+      ->setRequirement('_custom_access', '\Drupal\gdpr_consent\Controller\DataPolicy::revisionEditAccess')
+      ->setOption('_admin_route', TRUE);
+
+    return $route;
   }
 
   /**
