@@ -135,10 +135,15 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       }
     }
 
+    $revision_id = $this->entityTypeManager->getStorage('data_policy')
+      ->load($this->getConfig('entity_id'))
+      ->getRevisionId();
+
     $user_consents = $this->entityTypeManager->getStorage('user_consent')
       ->loadByProperties([
         'user_id' => $user_id,
         'status' => TRUE,
+        'data_policy_revision_id' => $revision_id,
       ]);
 
     if (!empty($user_consents)) {
