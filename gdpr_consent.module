@@ -60,6 +60,22 @@ function gdpr_consent_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Implements hook_views_data_alter().
+ */
+function gdpr_consent_views_data_alter(array &$data) {
+  $plugins = [
+    'data_policy_revision_id' => 'user_consent_data_policy_revision',
+    'state' => 'user_consent_state',
+  ];
+
+  foreach ($plugins as $field => $plugin) {
+    foreach (['field', 'filter'] as $type) {
+      $data['user_consent'][$field][$type]['id'] = $plugin;
+    }
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {

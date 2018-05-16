@@ -18,6 +18,8 @@ use Drupal\user\UserInterface;
  *   label = @Translation("User consent"),
  *   label_collection = @Translation("User consents"),
  *   handlers = {
+ *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
+ *     "views_data" = "Drupal\gdpr_consent\Entity\UserConsentViewsData",
  *     "list_builder" = "Drupal\gdpr_consent\UserConsentListBuilder",
  *     "route_provider" = {
  *       "html" = "Drupal\gdpr_consent\UserConsentHtmlRouteProvider",
@@ -111,7 +113,7 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
    * {@inheritdoc}
    */
   public function setPublished($published) {
-    $this->set('status', $published ? TRUE : FALSE);
+    $this->set('status', $published);
     return $this;
   }
 
@@ -165,7 +167,7 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
       ->setReadOnly(TRUE)
       ->setSetting('unsigned', TRUE);
 
-    $fields['status'] = BaseFieldDefinition::create('integer')
+    $fields['status'] = BaseFieldDefinition::create('boolean')
       ->setLabel(t('Publishing status'))
       ->setDescription(t('A boolean indicating whether the User consent is published.'))
       ->setRevisionable(TRUE)

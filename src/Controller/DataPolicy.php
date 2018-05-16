@@ -9,7 +9,6 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
-use Drupal\gdpr_consent\Entity\UserConsentInterface;
 
 /**
  * Class DataPolicy.
@@ -137,47 +136,8 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
     $data_policy = $this->entityTypeManager()->getStorage('data_policy')
       ->loadRevision($data_policy_revision);
 
-    $view_builder = $this->entityTypeManager()->getViewBuilder('data_policy');
-
-    $build['data_policy']['revision'] = $view_builder->view($data_policy);
-
-    $user_consents = $this->entityTypeManager()->getStorage('user_consent')
-      ->loadByProperties([
-        'data_policy_revision_id' => $data_policy_revision,
-      ]);
-
-    if (!empty($user_consents)) {
-      $build['user_consent'] = [
-        '#type' => 'fieldset',
-        '#title' => $this->t('User consents for current revision'),
-      ];
-
-      $build['user_consent']['list'] = [
-        '#theme' => 'table',
-        '#header' => [
-          $this->t('User'),
-          $this->t('State'),
-          $this->t('Date and time'),
-        ],
-      ];
-
-      $states = [
-        UserConsentInterface::STATE_UNDECIDED => $this->t('Undecided'),
-        UserConsentInterface::STATE_NOT_AGREE => $this->t('Not agree'),
-        UserConsentInterface::STATE_AGREE => $this->t('Agree'),
-      ];
-
-      /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */
-      foreach ($user_consents as $user_consent) {
-        $build['user_consent']['list']['#rows'][] = [
-          $user_consent->getOwner()->getDisplayName(),
-          $states[$user_consent->state->value],
-          $this->dateFormatter()->format($user_consent->getChangedTime(), 'short'),
-        ];
-      }
-    }
-
-    return $build;
+    return $this->entityTypeManager()->getViewBuilder('data_policy')
+      ->view($data_policy);
   }
 
   /**
