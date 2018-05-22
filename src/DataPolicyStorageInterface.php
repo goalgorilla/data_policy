@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Core\Entity\ContentEntityStorageInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\gdpr_consent\Entity\DataPolicyInterface;
+use Drupal\data_policy\Entity\DataPolicyInterface;
 
 /**
  * Defines the storage handler class for Data policy entities.
@@ -13,14 +13,14 @@ use Drupal\gdpr_consent\Entity\DataPolicyInterface;
  * This extends the base storage class, adding required special handling for
  * Data policy entities.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 interface DataPolicyStorageInterface extends ContentEntityStorageInterface {
 
   /**
    * Gets a list of Data policy revision IDs for a specific Data policy.
    *
-   * @param \Drupal\gdpr_consent\Entity\DataPolicyInterface $entity
+   * @param \Drupal\data_policy\Entity\DataPolicyInterface $entity
    *   The Data policy entity.
    *
    * @return int[]
@@ -42,7 +42,7 @@ interface DataPolicyStorageInterface extends ContentEntityStorageInterface {
   /**
    * Counts the number of revisions in the default language.
    *
-   * @param \Drupal\gdpr_consent\Entity\DataPolicyInterface $entity
+   * @param \Drupal\data_policy\Entity\DataPolicyInterface $entity
    *   The Data policy entity.
    *
    * @return int

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Controller;
+namespace Drupal\data_policy\Controller;
 
 use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;

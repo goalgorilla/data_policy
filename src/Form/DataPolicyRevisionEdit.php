@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Form;
+namespace Drupal\data_policy\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides a form for editing a Data policy revision.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 class DataPolicyRevisionEdit extends DataPolicyForm {
 
@@ -37,7 +37,7 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
     $this->moduleHandler = $module_handler;
     $this->configFactory = $config_factory;
 
-    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+    $entity_id = $this->config('data_policy.data_policy')->get('entity_id');
 
     $this->entity = $this->entityManager->getStorage('data_policy')
       ->load($entity_id);
@@ -60,14 +60,14 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'gdpr_consent_data_policy_revision_edit';
+    return 'data_policy_data_policy_revision_edit';
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state, $data_policy_revision = NULL) {
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $entity */
+    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $entity */
     $entity = &$this->entity;
 
     $entity = $this->entityManager->getStorage('data_policy')
@@ -86,12 +86,12 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $entity */
+    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $entity */
     $entity = &$this->entity;
 
     if (!empty($form_state->getValue('active_revision')) && !$entity->isDefaultRevision()) {
       $entity->isDefaultRevision(TRUE);
-      $config = $this->configFactory->getEditable('gdpr_consent.data_policy');
+      $config = $this->configFactory->getEditable('data_policy.data_policy');
       $ids = $config->get('revision_ids');
       $ids[$entity->getRevisionId()] = TRUE;
       $config->set('revision_ids', $ids)->save();

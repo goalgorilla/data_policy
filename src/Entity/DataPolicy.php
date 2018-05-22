@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Entity;
+namespace Drupal\data_policy\Entity;
 
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -12,24 +12,24 @@ use Drupal\user\UserInterface;
 /**
  * Defines the Data policy entity.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  *
  * @ContentEntityType(
  *   id = "data_policy",
  *   label = @Translation("Data policy"),
  *   handlers = {
- *     "storage" = "Drupal\gdpr_consent\DataPolicyStorage",
+ *     "storage" = "Drupal\data_policy\DataPolicyStorage",
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "views_data" = "Drupal\gdpr_consent\Entity\DataPolicyViewsData",
- *     "list_builder" = "Drupal\gdpr_consent\DataPolicyListBuilder",
- *     "translation" = "Drupal\gdpr_consent\DataPolicyTranslationHandler",
+ *     "views_data" = "Drupal\data_policy\Entity\DataPolicyViewsData",
+ *     "list_builder" = "Drupal\data_policy\DataPolicyListBuilder",
+ *     "translation" = "Drupal\data_policy\DataPolicyTranslationHandler",
  *     "form" = {
- *       "default" = "Drupal\gdpr_consent\Form\DataPolicyForm",
- *       "edit" = "Drupal\gdpr_consent\Form\DataPolicyForm",
+ *       "default" = "Drupal\data_policy\Form\DataPolicyForm",
+ *       "edit" = "Drupal\data_policy\Form\DataPolicyForm",
  *     },
- *     "access" = "Drupal\gdpr_consent\DataPolicyAccessControlHandler",
+ *     "access" = "Drupal\data_policy\DataPolicyAccessControlHandler",
  *     "route_provider" = {
- *       "html" = "Drupal\gdpr_consent\DataPolicyHtmlRouteProvider",
+ *       "html" = "Drupal\data_policy\DataPolicyHtmlRouteProvider",
  *     },
  *   },
  *   base_table = "data_policy",

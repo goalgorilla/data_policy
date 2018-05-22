@@ -1,4 +1,4 @@
-gdpr_consent.settings:
+data_policy.settings:
   title: 'Data usage explanation'
   description: 'List of pages where can be showed information block.'
   route_name: entity.informblock.collection
@@ -10,8 +10,8 @@ data_policy.user.admin_index.version_history:
   route_name: entity.data_policy.version_history
   parent: user.admin_index
 
-gdpr_consent.data_policy.settings:
+data_policy.data_policy.settings:
   title: 'Settings'
   description: 'Data policy enforce consent option'
-  route_name: gdpr_consent.data_policy.settings
+  route_name: data_policy.data_policy.settings
   parent: data_policy.user.admin_index.version_history

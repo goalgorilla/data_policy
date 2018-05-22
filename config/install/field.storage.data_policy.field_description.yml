@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies:
   module:
-    - gdpr_consent
+    - data_policy
     - text
 id: data_policy.field_description
 field_name: field_description

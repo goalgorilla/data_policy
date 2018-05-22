@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Entity;
+namespace Drupal\data_policy\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\RevisionLogInterface;
@@ -10,7 +10,7 @@ use Drupal\user\EntityOwnerInterface;
 /**
  * Provides an interface for defining Data policy entities.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 interface DataPolicyInterface extends ContentEntityInterface, RevisionLogInterface, EntityChangedInterface, EntityOwnerInterface {
 
@@ -28,7 +28,7 @@ interface DataPolicyInterface extends ContentEntityInterface, RevisionLogInterfa
    * @param string $name
    *   The Data policy name.
    *
-   * @return \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @return \Drupal\data_policy\Entity\DataPolicyInterface
    *   The called Data policy entity.
    */
   public function setName($name);
@@ -47,7 +47,7 @@ interface DataPolicyInterface extends ContentEntityInterface, RevisionLogInterfa
    * @param int $timestamp
    *   The Data policy creation timestamp.
    *
-   * @return \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @return \Drupal\data_policy\Entity\DataPolicyInterface
    *   The called Data policy entity.
    */
   public function setCreatedTime($timestamp);
@@ -69,7 +69,7 @@ interface DataPolicyInterface extends ContentEntityInterface, RevisionLogInterfa
    *   TRUE to set this Data policy to published, FALSE to set it to
    *   unpublished.
    *
-   * @return \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @return \Drupal\data_policy\Entity\DataPolicyInterface
    *   The called Data policy entity.
    */
   public function setPublished($published);
@@ -88,7 +88,7 @@ interface DataPolicyInterface extends ContentEntityInterface, RevisionLogInterfa
    * @param int $timestamp
    *   The UNIX timestamp of when this revision was created.
    *
-   * @return \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @return \Drupal\data_policy\Entity\DataPolicyInterface
    *   The called Data policy entity.
    */
   public function setRevisionCreationTime($timestamp);
@@ -107,7 +107,7 @@ interface DataPolicyInterface extends ContentEntityInterface, RevisionLogInterfa
    * @param int $uid
    *   The user ID of the revision author.
    *
-   * @return \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @return \Drupal\data_policy\Entity\DataPolicyInterface
    *   The called Data policy entity.
    */
   public function setRevisionUserId($uid);

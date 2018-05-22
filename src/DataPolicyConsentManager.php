@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -8,13 +8,13 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
-use Drupal\gdpr_consent\Entity\UserConsent;
-use Drupal\gdpr_consent\Entity\UserConsentInterface;
+use Drupal\data_policy\Entity\UserConsent;
+use Drupal\data_policy\Entity\UserConsentInterface;
 
 /**
- * Defines the GDPR Consent Manager service.
+ * Defines the Data Policy Consent Manager service.
  */
-class GdprConsentManager implements GdprConsentManagerInterface {
+class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
 
   use StringTranslationTrait;
 
@@ -42,7 +42,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
   /**
    * The data policy entity.
    *
-   * @var \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @var \Drupal\data_policy\Entity\DataPolicyInterface
    */
   protected $entity;
 
@@ -75,7 +75,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
   public function addCheckbox(array &$form) {
     $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
-    $link = Link::createFromRoute($this->t('data policy'), 'gdpr_consent.data_policy', [], [
+    $link = Link::createFromRoute($this->t('data policy'), 'data_policy.data_policy', [], [
       'attributes' => [
         'class' => ['use-ajax'],
         'data-dialog-type' => 'modal',
@@ -147,7 +147,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       ]);
 
     if (!empty($user_consents)) {
-      /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */
+      /** @var \Drupal\data_policy\Entity\UserConsentInterface $user_consent */
       $user_consent = reset($user_consents);
 
       $user_consent->setPublished(FALSE)->save();
@@ -173,7 +173,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
    *   The state number or FALSE if consents are absent.
    */
   protected function getState() {
-    /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
+    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
 
     $this->entity = $data_policy_storage->load($this->getConfig('entity_id'));
@@ -194,7 +194,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
       ]);
 
     if (!empty($user_consents)) {
-      /** @var \Drupal\gdpr_consent\Entity\UserConsentInterface $user_consent */
+      /** @var \Drupal\data_policy\Entity\UserConsentInterface $user_consent */
       $user_consent = end($user_consents);
 
       return $user_consent->state->value;
@@ -207,7 +207,7 @@ class GdprConsentManager implements GdprConsentManagerInterface {
    * {@inheritdoc}
    */
   public function getConfig($name) {
-    return $this->configFactory->get('gdpr_consent.data_policy')->get($name);
+    return $this->configFactory->get('data_policy.data_policy')->get($name);
   }
 
 }

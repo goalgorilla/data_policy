@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Controller;
+namespace Drupal\data_policy\Controller;
 
 use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Xss;
@@ -32,11 +32,11 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
   protected $renderer;
 
   /**
-   * The GDPR consent manager.
+   * The Data Policy consent manager.
    *
-   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   * @var \Drupal\data_policy\DataPolicyConsentManagerInterface
    */
-  protected $gdprConsentManager;
+  protected $dataPolicyConsentManager;
 
   /**
    * Retrieves the date formatter.
@@ -65,16 +65,16 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
   }
 
   /**
-   * Returns the GDPR consent manager service.
+   * Returns the Data Policy consent manager service.
    *
-   * @return \Drupal\gdpr_consent\GdprConsentManagerInterface
-   *   The GDPR consent manager.
+   * @return \Drupal\data_policy\DataPolicyConsentManagerInterface
+   *   The Data Policy consent manager.
    */
-  protected function gdprConsentManager() {
-    if (!$this->gdprConsentManager) {
-      $this->gdprConsentManager = \Drupal::service('gdpr_consent.manager');
+  protected function dataPolicyConsentManager() {
+    if (!$this->dataPolicyConsentManager) {
+      $this->dataPolicyConsentManager = \Drupal::service('data_policy.manager');
     }
-    return $this->gdprConsentManager;
+    return $this->dataPolicyConsentManager;
   }
 
   /**
@@ -84,7 +84,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   The data policy description text.
    */
   public function entityOverviewPage() {
-    $entity_id = $this->gdprConsentManager()->getConfig('entity_id');
+    $entity_id = $this->dataPolicyConsentManager()->getConfig('entity_id');
 
     if (!empty($entity_id)) {
       $description = $this->entityTypeManager()->getStorage('data_policy')
@@ -99,7 +99,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
     }
 
     return [
-      '#theme' => 'gdpr_consent_data_policy',
+      '#theme' => 'data_policy_data_policy',
       '#content' => $description,
     ];
   }
@@ -111,7 +111,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   The access result.
    */
   public function entityOverviewAccess() {
-    if ($this->gdprConsentManager()->isDataPolicy()) {
+    if ($this->dataPolicyConsentManager()->isDataPolicy()) {
       return AccessResult::allowed();
     }
 
@@ -177,16 +177,16 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
       ],
     ];
 
-    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+    $entity_id = $this->config('data_policy.data_policy')->get('entity_id');
 
     if (empty($entity_id)) {
       return $build;
     }
 
-    /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
+    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager()->getStorage('data_policy');
 
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
+    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
 
     $account = $this->currentUser();
@@ -200,7 +200,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
     $vids = $data_policy_storage->revisionIds($data_policy);
 
     foreach (array_reverse($vids) as $vid) {
-      /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $revision */
+      /** @var \Drupal\data_policy\Entity\DataPolicyInterface $revision */
       $revision = $data_policy_storage->loadRevision($vid);
 
       // Only show revisions that are affected by the language that is being
@@ -222,7 +222,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
 
       $column = [
         'data' => [
-          '#theme' => 'gdpr_consent_data_policy_revision',
+          '#theme' => 'data_policy_data_policy_revision',
           '#date' => $date,
           '#username' => $this->renderer()->renderPlain($username),
           '#current' => $revision->isDefaultRevision(),
@@ -310,7 +310,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   of data policy.
    */
   public function agreementAccess() {
-    if ($this->gdprConsentManager()->needConsent()) {
+    if ($this->dataPolicyConsentManager()->needConsent()) {
       return AccessResult::allowed();
     }
 
@@ -328,7 +328,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    */
   public function revisionEditAccess($data_policy_revision) {
     if ($this->currentUser()->hasPermission('administer data policy entities') || $this->currentUser()->hasPermission('edit data policy')) {
-      $ids = $this->gdprConsentManager()->getConfig('revision_ids');
+      $ids = $this->dataPolicyConsentManager()->getConfig('revision_ids');
 
       if (!isset($ids[$data_policy_revision])) {
         return AccessResult::allowed();

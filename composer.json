@@ -1,11 +1,11 @@
 {
-    "name": "goalgorilla/gdpr_consent",
-    "description": "GDPR Consent (and Inform)",
+    "name": "goalgorilla/data_policy",
+    "description": "Create data policies and track user agreements as well as informing users.",
     "type": "drupal-module",
     "keywords": [
-        "Open Social",
         "Drupal",
-        "GDPR"
+        "GDPR",
+        "Data policy"
     ],
     "license": "GPL-2.0-or-later",
     "homepage": "https://github.com/goalgorilla/gdpr_consent",

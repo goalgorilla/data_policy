@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Entity\EntityAccessControlHandler;
@@ -13,9 +13,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Defines the access control handler for the informblock entity type.
  *
- * @see \Drupal\gdpr_consent\Entity\InformBlock
+ * @see \Drupal\data_policy\Entity\InformBlock
  */
-class GdprConsentAccessControlHandler extends EntityAccessControlHandler implements EntityHandlerInterface {
+class DataPolicyInformAccessControlHandler extends EntityAccessControlHandler implements EntityHandlerInterface {
 
   /**
    * {@inheritdoc}

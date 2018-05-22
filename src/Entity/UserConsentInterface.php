@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Entity;
+namespace Drupal\data_policy\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
@@ -9,7 +9,7 @@ use Drupal\user\EntityOwnerInterface;
 /**
  * Provides an interface for defining User consent entities.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 interface UserConsentInterface extends ContentEntityInterface, EntityChangedInterface, EntityOwnerInterface {
 
@@ -42,7 +42,7 @@ interface UserConsentInterface extends ContentEntityInterface, EntityChangedInte
    * @param string $name
    *   The User consent name.
    *
-   * @return \Drupal\gdpr_consent\Entity\UserConsentInterface
+   * @return \Drupal\data_policy\Entity\UserConsentInterface
    *   The called User consent entity.
    */
   public function setName($name);
@@ -61,7 +61,7 @@ interface UserConsentInterface extends ContentEntityInterface, EntityChangedInte
    * @param int $timestamp
    *   The User consent creation timestamp.
    *
-   * @return \Drupal\gdpr_consent\Entity\UserConsentInterface
+   * @return \Drupal\data_policy\Entity\UserConsentInterface
    *   The called User consent entity.
    */
   public function setCreatedTime($timestamp);
@@ -83,7 +83,7 @@ interface UserConsentInterface extends ContentEntityInterface, EntityChangedInte
    *   TRUE to set this User consent to published, FALSE to set it to
    *   unpublished.
    *
-   * @return \Drupal\gdpr_consent\Entity\UserConsentInterface
+   * @return \Drupal\data_policy\Entity\UserConsentInterface
    *   The called User consent entity.
    */
   public function setPublished($published);
@@ -91,10 +91,10 @@ interface UserConsentInterface extends ContentEntityInterface, EntityChangedInte
   /**
    * Sets the Data policy revision author.
    *
-   * @param \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy
+   * @param \Drupal\data_policy\Entity\DataPolicyInterface $data_policy
    *   The data policy entity object.
    *
-   * @return \Drupal\gdpr_consent\Entity\UserConsentInterface
+   * @return \Drupal\data_policy\Entity\UserConsentInterface
    *   The called User consent entity.
    */
   public function setRevision(DataPolicyInterface $data_policy);

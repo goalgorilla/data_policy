@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Entity;
+namespace Drupal\data_policy\Entity;
 
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
@@ -11,7 +11,7 @@ use Drupal\user\UserInterface;
 /**
  * Defines the User consent entity.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  *
  * @ContentEntityType(
  *   id = "user_consent",
@@ -19,10 +19,10 @@ use Drupal\user\UserInterface;
  *   label_collection = @Translation("User consents"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "views_data" = "Drupal\gdpr_consent\Entity\UserConsentViewsData",
- *     "list_builder" = "Drupal\gdpr_consent\UserConsentListBuilder",
+ *     "views_data" = "Drupal\data_policy\Entity\UserConsentViewsData",
+ *     "list_builder" = "Drupal\data_policy\UserConsentListBuilder",
  *     "route_provider" = {
- *       "html" = "Drupal\gdpr_consent\UserConsentHtmlRouteProvider",
+ *       "html" = "Drupal\data_policy\UserConsentHtmlRouteProvider",
  *     },
  *   },
  *   base_table = "user_consent",

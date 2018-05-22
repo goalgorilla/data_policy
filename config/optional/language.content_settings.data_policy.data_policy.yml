@@ -3,7 +3,7 @@ status: true
 dependencies:
   module:
     - content_translation
-    - gdpr_consent
+    - data_policy
 third_party_settings:
   content_translation:
     enabled: true

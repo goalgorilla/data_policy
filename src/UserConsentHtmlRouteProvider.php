@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityInterface;
@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Defines a class to build a listing of User consent entities.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 class UserConsentListBuilder extends EntityListBuilder {
 
@@ -65,7 +65,7 @@ class UserConsentListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /* @var $entity \Drupal\gdpr_consent\Entity\UserConsentInterface */
+    /* @var $entity \Drupal\data_policy\Entity\UserConsentInterface */
     return [
       'id' => $entity->id(),
       'user' => $entity->getOwner()->getDisplayName(),

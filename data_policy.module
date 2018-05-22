@@ -2,7 +2,7 @@
 
 /**
  * @file
- * gdpr_consent.module
+ * data_policy.module
  */
 
 use Drupal\Core\Form\FormStateInterface;
@@ -12,10 +12,10 @@ use Drupal\Core\Routing\RouteMatchInterface;
 /**
  * Implements hook_help().
  */
-function gdpr_consent_help($route_name, RouteMatchInterface $route_match) {
+function data_policy_help($route_name, RouteMatchInterface $route_match) {
   switch ($route_name) {
-    // Main module help for the gdpr_consent module.
-    case 'help.page.gdpr_consent':
+    // Main module help for the data_policy module.
+    case 'help.page.data_policy':
       $output = '';
       $output .= '<h3>' . t('About') . '</h3>';
       $output .= '<p>' . t('This module helps site managers inform users about data collection.') . '</p>';
@@ -23,7 +23,7 @@ function gdpr_consent_help($route_name, RouteMatchInterface $route_match) {
       return $output;
 
     case 'entity.block.edit_form':
-      if ($route_match->getRawParameter('block') != 'gdpr_consent') {
+      if ($route_match->getRawParameter('block') != 'data_policy') {
         break;
       }
 
@@ -38,17 +38,17 @@ function gdpr_consent_help($route_name, RouteMatchInterface $route_match) {
 /**
  * Implements hook_theme().
  */
-function gdpr_consent_theme($existing, $type, $theme, $path) {
+function data_policy_theme($existing, $type, $theme, $path) {
   return [
-    'gdpr_consent_data_policy' => [
+    'data_policy_data_policy' => [
       'render element' => 'element',
-      'template' => 'gdpr-consent-data-policy',
+      'template' => 'data-policy-data-policy',
       'variables' => [
         'content' => NULL,
       ],
     ],
-    'gdpr_consent_data_policy_revision' => [
-      'template' => 'gdpr-consent-data-policy-revision',
+    'data_policy_data_policy_revision' => [
+      'template' => 'data-policy-data-policy-revision',
       'variables' => [
         'date' => NULL,
         'username' => NULL,
@@ -62,7 +62,7 @@ function gdpr_consent_theme($existing, $type, $theme, $path) {
 /**
  * Implements hook_views_data_alter().
  */
-function gdpr_consent_views_data_alter(array &$data) {
+function data_policy_views_data_alter(array &$data) {
   $plugins = [
     'data_policy_revision_id' => 'user_consent_data_policy_revision',
     'state' => 'user_consent_state',
@@ -78,17 +78,17 @@ function gdpr_consent_views_data_alter(array &$data) {
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  /** @var \Drupal\gdpr_consent\GdprConsentManagerInterface $gdpr_consent_manager */
-  $gdpr_consent_manager = \Drupal::service('gdpr_consent.manager');
+function data_policy_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  /** @var \Drupal\data_policy\DataPolicyManagerInterface $data_policy_manager */
+  $data_policy_manager = \Drupal::service('data_policy.manager');
 
-  if (!$gdpr_consent_manager->isDataPolicy()) {
+  if (!$data_policy_manager->isDataPolicy()) {
     return;
   }
 
-  $gdpr_consent_manager->addCheckbox($form);
+  $data_policy_manager->addCheckbox($form);
 
-  $form['actions']['submit']['#submit'][] = '_gdpr_consent_user_register_form_submit';
+  $form['actions']['submit']['#submit'][] = '_data_policy_user_register_form_submit';
 
 }
 
@@ -100,7 +100,7 @@ function gdpr_consent_form_user_register_form_alter(&$form, FormStateInterface $
  * @param \Drupal\Core\Form\FormStateInterface $form_state
  *   The current state of the form.
  */
-function _gdpr_consent_user_register_form_submit(array &$form, FormStateInterface $form_state) {
+function _data_policy_user_register_form_submit(array &$form, FormStateInterface $form_state) {
   $values = $form_state->getValues();
-  \Drupal::service('gdpr_consent.manager')->saveConsent($values['uid'], !empty($values['data_policy']));
+  \Drupal::service('data_policy.manager')->saveConsent($values['uid'], !empty($values['data_policy']));
 }

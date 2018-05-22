@@ -4,8 +4,8 @@ entity.informblock.add_form:
   appears_on:
     - entity.informblock.collection
 
-gdpr_consent.data_policy.edit:
-  route_name: 'gdpr_consent.data_policy.edit'
+data_policy.data_policy.edit:
+  route_name: 'data_policy.data_policy.edit'
   title: 'Add new revision'
   appears_on:
     - entity.data_policy.version_history

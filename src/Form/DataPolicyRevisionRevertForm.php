@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Form;
+namespace Drupal\data_policy\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Datetime\DateFormatterInterface;
@@ -8,20 +8,20 @@ use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\ConfirmFormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
-use Drupal\gdpr_consent\Entity\DataPolicyInterface;
+use Drupal\data_policy\Entity\DataPolicyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a form for reverting a Data policy revision.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 class DataPolicyRevisionRevertForm extends ConfirmFormBase {
 
   /**
    * The Data policy revision.
    *
-   * @var \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @var \Drupal\data_policy\Entity\DataPolicyInterface
    */
   protected $revision;
 
@@ -77,7 +77,7 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'gdpr_consent_data_policy_revision_revert_confirm';
+    return 'data_policy_data_policy_revision_revert_confirm';
   }
 
   /**
@@ -148,12 +148,12 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
   /**
    * Prepares a revision to be reverted.
    *
-   * @param \Drupal\gdpr_consent\Entity\DataPolicyInterface $revision
+   * @param \Drupal\data_policy\Entity\DataPolicyInterface $revision
    *   The revision to be reverted.
    * @param \Drupal\Core\Form\FormStateInterface $form_state
    *   The current state of the form.
    *
-   * @return \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @return \Drupal\data_policy\Entity\DataPolicyInterface
    *   The prepared revision ready to be stored.
    */
   protected function prepareRevertedRevision(DataPolicyInterface $revision, FormStateInterface $form_state) {

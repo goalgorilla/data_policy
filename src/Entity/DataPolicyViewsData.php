@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Entity;
+namespace Drupal\data_policy\Entity;
 
 use Drupal\views\EntityViewsData;
 

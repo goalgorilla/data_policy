@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Form;
+namespace Drupal\data_policy\Form;
 
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Datetime\DateFormatterInterface;
@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Provides a form for deleting a Data policy revision.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 class DataPolicyRevisionDeleteForm extends ConfirmFormBase {
 
@@ -21,7 +21,7 @@ class DataPolicyRevisionDeleteForm extends ConfirmFormBase {
   /**
    * The Data policy revision.
    *
-   * @var \Drupal\gdpr_consent\Entity\DataPolicyInterface
+   * @var \Drupal\data_policy\Entity\DataPolicyInterface
    */
   protected $revision;
 
@@ -79,7 +79,7 @@ class DataPolicyRevisionDeleteForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'gdpr_consent_data_policy_revision_delete_confirm';
+    return 'data_policy_data_policy_revision_delete_confirm';
   }
 
   /**

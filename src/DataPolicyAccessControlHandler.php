@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Core\Entity\EntityAccessControlHandler;
 use Drupal\Core\Entity\EntityInterface;
@@ -10,7 +10,7 @@ use Drupal\Core\Access\AccessResult;
 /**
  * Access controller for the Data policy entity.
  *
- * @see \Drupal\gdpr_consent\Entity\DataPolicy.
+ * @see \Drupal\data_policy\Entity\DataPolicy.
  */
 class DataPolicyAccessControlHandler extends EntityAccessControlHandler {
 

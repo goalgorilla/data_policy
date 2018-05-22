@@ -1,4 +1,4 @@
-gdpr_consent.informblock.*:
+data_policy.informblock.*:
   type: config_entity
   label: 'Inform Block config'
   mapping:
