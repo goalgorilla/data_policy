@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Form;
+namespace Drupal\data_policy\Form;
 
 use Drupal\Core\Cache\Cache;
 use Drupal\Core\Entity\EntityForm;
@@ -117,7 +117,7 @@ class InformBlockForm extends EntityForm {
     }
 
     // Invalidate cache tags.
-    $tags = ['config:block.block.gdprconsent'];
+    $tags = ['config:block.block.datapolicyinform'];
     Cache::invalidateTags($tags);
 
     $form_state->setRedirect('entity.informblock.collection');

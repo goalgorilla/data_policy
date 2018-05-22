@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -11,7 +11,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
-use Drupal\gdpr_consent\Entity\UserConsentInterface;
+use Drupal\data_policy\Entity\UserConsentInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * Class RedirectSubscriber.
  *
- * @package Drupal\gdpr_consent
+ * @package Drupal\data_policy
  */
 class RedirectSubscriber implements EventSubscriberInterface {
 
@@ -69,11 +69,11 @@ class RedirectSubscriber implements EventSubscriberInterface {
   protected $messenger;
 
   /**
-   * The GDPR consent manager.
+   * The Data Policy consent manager.
    *
-   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   * @var \Drupal\data_policy\DataPolicyConsentManagerInterface
    */
-  protected $gdprConsentManager;
+  protected $dataPolicyConsentManager;
 
   /**
    * RedirectSubscriber constructor.
@@ -90,17 +90,17 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *   The entity type manager.
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    *   The messenger.
-   * @param \Drupal\gdpr_consent\GdprConsentManagerInterface $gdpr_consent_manager
-   *   The GDPR consent manager.
+   * @param \Drupal\data_policy\DataPolicyConsentManagerInterface $data_policy_manager
+   *   The Data Policy consent manager.
    */
-  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger, GdprConsentManagerInterface $gdpr_consent_manager) {
+  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger, DataPolicyConsentManagerInterface $data_policy_manager) {
     $this->routeMatch = $route_match;
     $this->destination = $destination;
     $this->currentUser = $current_user;
     $this->configFactory = $config_factory;
     $this->entityTypeManager = $entity_type_manager;
     $this->messenger = $messenger;
-    $this->gdprConsentManager = $gdpr_consent_manager;
+    $this->dataPolicyConsentManager = $data_policy_manager;
   }
 
   /**
@@ -118,13 +118,13 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *   The event.
    */
   public function checkForRedirection(GetResponseEvent $event) {
-    if (!$this->gdprConsentManager->isDataPolicy()) {
+    if (!$this->dataPolicyConsentManager->isDataPolicy()) {
       return;
     }
 
     $route_name = $this->routeMatch->getRouteName();
 
-    if ($route_name == 'gdpr_consent.data_policy.agreement') {
+    if ($route_name == 'data_policy.data_policy.agreement') {
       return;
     }
 
@@ -132,14 +132,14 @@ class RedirectSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $config = $this->configFactory->get('gdpr_consent.data_policy');
+    $config = $this->configFactory->get('data_policy.data_policy');
 
     $entity_id = $config->get('entity_id');
 
-    /** @var \Drupal\gdpr_consent\DataPolicyStorageInterface $data_policy_storage */
+    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
 
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $data_policy */
+    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
 
     foreach ($data_policy_storage->revisionIds($data_policy) as $vid) {
@@ -165,7 +165,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     }
 
     if (!$enforce_consent) {
-      $link = Link::createFromRoute($this->t('here'), 'gdpr_consent.data_policy.agreement');
+      $link = Link::createFromRoute($this->t('here'), 'data_policy.data_policy.agreement');
 
       $this->messenger->addStatus($this->t('We published a new version of the data policy. You can review the data policy @url.', [
         '@url' => $link->toString(),
@@ -176,7 +176,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
 
     $route_names = [
       'entity.user.cancel_form',
-      'gdpr_consent.data_policy',
+      'data_policy.data_policy',
       'system.404',
       'system.batch_page.html',
       'system.batch_page.json',
@@ -188,7 +188,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    $url = Url::fromRoute('gdpr_consent.data_policy.agreement', [], [
+    $url = Url::fromRoute('data_policy.data_policy.agreement', [], [
       'query' => $this->destination->getAsArray(),
     ]);
 

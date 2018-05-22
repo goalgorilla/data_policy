@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Form;
+namespace Drupal\data_policy\Form;
 
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
@@ -9,7 +9,7 @@ use Drupal\Core\Language\LanguageInterface;
 /**
  * Form controller for Data policy edit forms.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 class DataPolicyForm extends ContentEntityForm {
 
@@ -23,7 +23,7 @@ class DataPolicyForm extends ContentEntityForm {
       return;
     }
 
-    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+    $entity_id = $this->config('data_policy.data_policy')->get('entity_id');
 
     if (empty($entity_id)) {
       return;
@@ -45,13 +45,13 @@ class DataPolicyForm extends ContentEntityForm {
       $form['revision_log_message']['widget'][0]['value']['#default_value'] = '';
     }
 
-    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+    $entity_id = $this->config('data_policy.data_policy')->get('entity_id');
     $is_new = empty($entity_id);
 
     $form['active_revision'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Active'),
-      '#description' => $this->t('When this field is checked then after submitting the form will be creating revision which will marked as active.'),
+      '#description' => $this->t('When this field is checked, after submitting the form, a new revision will be created which will be marked active.'),
       '#default_value' => $is_new,
       '#disabled' => $is_new,
       '#weight' => 10,
@@ -91,7 +91,7 @@ class DataPolicyForm extends ContentEntityForm {
 
     $entity->save();
 
-    $config = $this->configFactory()->getEditable('gdpr_consent.data_policy');
+    $config = $this->configFactory()->getEditable('data_policy.data_policy');
 
     if ($active_revision) {
       $ids = $config->get('revision_ids');

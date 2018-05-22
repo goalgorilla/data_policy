@@ -4,7 +4,7 @@ dependencies:
   config:
     - field.field.data_policy.data_policy.field_description
   module:
-    - gdpr_consent
+    - data_policy
     - user
 id: data_policy.data_policy.default
 targetEntityType: data_policy

@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Core\Entity\Sql\SqlContentEntityStorage;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Language\LanguageInterface;
-use Drupal\gdpr_consent\Entity\DataPolicyInterface;
+use Drupal\data_policy\Entity\DataPolicyInterface;
 
 /**
  * Defines the storage handler class for Data policy entities.
@@ -13,7 +13,7 @@ use Drupal\gdpr_consent\Entity\DataPolicyInterface;
  * This extends the base storage class, adding required special handling for
  * Data policy entities.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 class DataPolicyStorage extends SqlContentEntityStorage implements DataPolicyStorageInterface {
 

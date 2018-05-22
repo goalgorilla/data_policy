@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\Routing\AdminHtmlRouteProvider;
@@ -68,7 +68,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
     $route
       ->setDefaults([
         '_title' => 'Data policy',
-        '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionsOverviewPage',
+        '_controller' => '\Drupal\data_policy\Controller\DataPolicy::revisionsOverviewPage',
       ])
       ->setRequirement('_permission', 'view all data policy revisions')
       ->setOption('_admin_route', TRUE);
@@ -90,8 +90,8 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
       $route = new Route($entity_type->getLinkTemplate('revision'));
       $route
         ->setDefaults([
-          '_controller' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionOverviewPage',
-          '_title_callback' => '\Drupal\gdpr_consent\Controller\DataPolicy::revisionOverviewTitle',
+          '_controller' => '\Drupal\data_policy\Controller\DataPolicy::revisionOverviewPage',
+          '_title_callback' => '\Drupal\data_policy\Controller\DataPolicy::revisionOverviewTitle',
         ])
         ->setRequirement('_permission', 'access data policy revisions')
         ->setOption('_admin_route', TRUE);
@@ -118,10 +118,10 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
 
     $route
       ->setDefaults([
-        '_form' => '\Drupal\gdpr_consent\Form\DataPolicyRevisionEdit',
+        '_form' => '\Drupal\data_policy\Form\DataPolicyRevisionEdit',
         '_title' => 'Edit revision',
       ])
-      ->setRequirement('_custom_access', '\Drupal\gdpr_consent\Controller\DataPolicy::revisionEditAccess')
+      ->setRequirement('_custom_access', '\Drupal\data_policy\Controller\DataPolicy::revisionEditAccess')
       ->setOption('_admin_route', TRUE);
 
     return $route;
@@ -141,7 +141,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
       $route = new Route($entity_type->getLinkTemplate('revision_revert'));
       $route
         ->setDefaults([
-          '_form' => '\Drupal\gdpr_consent\Form\DataPolicyRevisionRevertForm',
+          '_form' => '\Drupal\data_policy\Form\DataPolicyRevisionRevertForm',
           '_title' => 'Revert to earlier revision',
         ])
         ->setRequirement('_permission', 'revert all data policy revisions')
@@ -165,7 +165,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
       $route = new Route($entity_type->getLinkTemplate('revision_delete'));
       $route
         ->setDefaults([
-          '_form' => '\Drupal\gdpr_consent\Form\DataPolicyRevisionDeleteForm',
+          '_form' => '\Drupal\data_policy\Form\DataPolicyRevisionDeleteForm',
           '_title' => 'Delete earlier revision',
         ])
         ->setRequirement('_permission', 'delete all data policy revisions')
@@ -189,7 +189,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
       $route = new Route($entity_type->getLinkTemplate('translation_revert'));
       $route
         ->setDefaults([
-          '_form' => '\Drupal\gdpr_consent\Form\DataPolicyRevisionRevertTranslationForm',
+          '_form' => '\Drupal\data_policy\Form\DataPolicyRevisionRevertTranslationForm',
           '_title' => 'Revert to earlier revision of a translation',
         ])
         ->setRequirement('_permission', 'revert all data policy revisions')

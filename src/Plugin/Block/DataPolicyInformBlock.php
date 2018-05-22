@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Plugin\Block;
+namespace Drupal\data_policy\Plugin\Block;
 
 use Drupal\Component\Serialization\Json;
 use Drupal\Component\Utility\Unicode;
@@ -15,20 +15,20 @@ use Drupal\Core\Path\CurrentPathStack;
 use Drupal\Core\Path\PathMatcherInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
-use Drupal\gdpr_consent\InformBlockInterface;
+use Drupal\data_policy\InformBlockInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Provides a 'GDPR Consent' block.
+ * Provides a 'Data Policy' block.
  *
  * @Block(
- *   id = "gdpr_consent_block",
- *   admin_label = @Translation("GDPR Consent"),
- *   category = @Translation("GDPR")
+ *   id = "data_policy_inform_block",
+ *   admin_label = @Translation("Data Policy Inform"),
+ *   category = @Translation("Data Policy")
  * )
  */
-class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterface {
+class DataPolicyInformBlock extends BlockBase implements ContainerFactoryPluginInterface {
 
   /**
    * The request stack.
@@ -66,7 +66,7 @@ class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterf
   protected $entityTypeManager;
 
   /**
-   * Constructs a new GdprConsentBlock instance.
+   * Constructs a new DataPolicyInformBlock instance.
    *
    * @param array $configuration
    *   A configuration array containing information about the plugin instance.
@@ -149,7 +149,7 @@ class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterf
       $build['link'] = [
         '#type' => 'link',
         '#title' => $this->t('Read more'),
-        '#url' => Url::fromRoute('gdpr_consent.description', [
+        '#url' => Url::fromRoute('data_policy.description', [
           'informblock' => $inform_block->id(),
         ]),
         '#attributes' => [
@@ -180,7 +180,7 @@ class GdprConsentBlock extends BlockBase implements ContainerFactoryPluginInterf
   /**
    * Get entity of inform_block for current page.
    *
-   * @return \Drupal\gdpr_consent\InformBlockInterface|null
+   * @return \Drupal\data_policy\InformBlockInterface|null
    *   If current page has data for information block then will be returned
    *   entity else NULL.
    */

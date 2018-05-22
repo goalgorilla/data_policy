@@ -1,7 +1,0 @@
-name: GDPR Inform and Consent
-description: This module helps site managers inform users about data collection.
-core: 8.x
-configure: entity.informblock.collection
-dependencies:
-  - drupal:block
-type: module

@@ -1,28 +1,28 @@
 <?php
 
-namespace Drupal\gdpr_consent\Form;
+namespace Drupal\data_policy\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RedirectDestinationInterface;
-use Drupal\gdpr_consent\Entity\DataPolicy;
-use Drupal\gdpr_consent\GdprConsentManagerInterface;
+use Drupal\data_policy\Entity\DataPolicy;
+use Drupal\data_policy\DataPolicyConsentManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class DataPolicyAgreement.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 class DataPolicyAgreement extends FormBase {
 
   /**
-   * The GDPR consent manager.
+   * The Data Policy consent manager.
    *
-   * @var \Drupal\gdpr_consent\GdprConsentManagerInterface
+   * @var \Drupal\data_policy\DataPolicyConsentManagerInterface
    */
-  protected $gdprConsentManager;
+  protected $dataPolicyConsentManager;
 
   /**
    * The redirect destination helper.
@@ -34,13 +34,13 @@ class DataPolicyAgreement extends FormBase {
   /**
    * DataPolicyAgreement constructor.
    *
-   * @param \Drupal\gdpr_consent\GdprConsentManagerInterface $gdpr_consent_manager
-   *   The GDPR consent manager.
+   * @param \Drupal\data_policy\DataPolicyConsentManagerInterface $data_policy_manager
+   *   The Data Policy consent manager.
    * @param \Drupal\Core\Routing\RedirectDestinationInterface $destination
    *   The redirect destination helper.
    */
-  public function __construct(GdprConsentManagerInterface $gdpr_consent_manager, RedirectDestinationInterface $destination) {
-    $this->gdprConsentManager = $gdpr_consent_manager;
+  public function __construct(DataPolicyConsentManagerInterface $data_policy_manager, RedirectDestinationInterface $destination) {
+    $this->dataPolicyConsentManager = $data_policy_manager;
     $this->destination = $destination;
   }
 
@@ -49,7 +49,7 @@ class DataPolicyAgreement extends FormBase {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('gdpr_consent.manager'),
+      $container->get('data_policy.manager'),
       $container->get('redirect.destination')
     );
   }
@@ -58,19 +58,19 @@ class DataPolicyAgreement extends FormBase {
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'gdpr_consent_data_policy_agreement';
+    return 'data_policy_data_policy_agreement';
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $this->gdprConsentManager->saveConsent($this->currentUser()->id());
+    $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id());
 
-    $this->gdprConsentManager->addCheckbox($form);
+    $this->dataPolicyConsentManager->addCheckbox($form);
 
     // Add a message that the data policy was updated.
-    $entity_id = $this->config('gdpr_consent.data_policy')->get('entity_id');
+    $entity_id = $this->config('data_policy.data_policy')->get('entity_id');
     $timestamp = DataPolicy::load($entity_id)->getChangedTime();
     $date = \Drupal::service('date.formatter')->format($timestamp, 'html_date');
     $form['date'] = [
@@ -89,7 +89,7 @@ class DataPolicyAgreement extends FormBase {
       '#weight' => -1,
     ];
 
-    if (!empty($this->config('gdpr_consent.data_policy')->get('enforce_consent'))) {
+    if (!empty($this->config('data_policy.data_policy')->get('enforce_consent'))) {
       $form['data_policy']['#weight'] = 1;
 
       $link = Link::createFromRoute($this->t('the account cancellation'), 'entity.user.cancel_form', [
@@ -124,9 +124,9 @@ class DataPolicyAgreement extends FormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $agree = !empty($form_state->getValue('data_policy'));
-    $enforce = $this->config('gdpr_consent.data_policy')->get('enforce_consent');
+    $enforce = $this->config('data_policy.data_policy')->get('enforce_consent');
 
-    $this->gdprConsentManager->saveConsent($this->currentUser()->id(), $agree);
+    $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id(), $agree);
 
     // If the user agrees or does not agree (but it is not enforced), check if
     // we should redirect him to the front page.

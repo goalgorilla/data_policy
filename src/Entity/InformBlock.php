@@ -1,9 +1,9 @@
 <?php
 
-namespace Drupal\gdpr_consent\Entity;
+namespace Drupal\data_policy\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
-use Drupal\gdpr_consent\InformBlockInterface;
+use Drupal\data_policy\InformBlockInterface;
 
 /**
  * Defines the InformBlock entity.
@@ -12,12 +12,12 @@ use Drupal\gdpr_consent\InformBlockInterface;
  *   id = "informblock",
  *   label = @Translation("Inform Block"),
  *   handlers = {
- *     "access" = "Drupal\gdpr_consent\GdprConsentAccessControlHandler",
- *     "list_builder" = "Drupal\gdpr_consent\Controller\InformBlockListBuilder",
+ *     "access" = "Drupal\data_policy\DataPolicyInformAccessControlHandler",
+ *     "list_builder" = "Drupal\data_policy\Controller\InformBlockListBuilder",
  *     "form" = {
- *       "add" = "Drupal\gdpr_consent\Form\InformBlockForm",
- *       "edit" = "Drupal\gdpr_consent\Form\InformBlockForm",
- *       "delete" = "Drupal\gdpr_consent\Form\InformBlockDeleteForm",
+ *       "add" = "Drupal\data_policy\Form\InformBlockForm",
+ *       "edit" = "Drupal\data_policy\Form\InformBlockForm",
+ *       "delete" = "Drupal\data_policy\Form\InformBlockDeleteForm",
  *     }
  *   },
  *   config_prefix = "informblock",

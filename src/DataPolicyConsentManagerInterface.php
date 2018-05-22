@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\gdpr_consent;
+namespace Drupal\data_policy;
 
-use Drupal\gdpr_consent\Entity\UserConsentInterface;
+use Drupal\data_policy\Entity\UserConsentInterface;
 
 /**
- * Defines the GDPR Consent Manager service interface.
+ * Defines the Data Policy Consent Manager service interface.
  */
-interface GdprConsentManagerInterface {
+interface DataPolicyConsentManagerInterface {
 
   /**
    * Check if user gave consent on a current version of data policy.

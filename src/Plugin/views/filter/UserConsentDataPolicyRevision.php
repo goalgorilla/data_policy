@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Plugin\views\filter;
+namespace Drupal\data_policy\Plugin\views\filter;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
@@ -96,7 +96,7 @@ class UserConsentDataPolicyRevision extends InOperator {
       return $this->valueOptions;
     }
 
-    $ids = $this->configFactory->getEditable('gdpr_consent.data_policy')
+    $ids = $this->configFactory->getEditable('data_policy.data_policy')
       ->get('revision_ids');
 
     if (empty($ids)) {
@@ -123,7 +123,7 @@ class UserConsentDataPolicyRevision extends InOperator {
   protected function defineOptions() {
     $options = parent::defineOptions();
 
-    $entity_id = $this->configFactory->getEditable('gdpr_consent.data_policy')
+    $entity_id = $this->configFactory->getEditable('data_policy.data_policy')
       ->get('entity_id');
 
     if (!empty($entity_id)) {

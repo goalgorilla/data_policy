@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Plugin\views\field;
+namespace Drupal\data_policy\Plugin\views\field;
 
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityStorageInterface;

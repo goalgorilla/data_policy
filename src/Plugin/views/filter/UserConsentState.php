@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\gdpr_consent\Plugin\views\filter;
+namespace Drupal\data_policy\Plugin\views\filter;
 
-use Drupal\gdpr_consent\Entity\UserConsentInterface;
+use Drupal\data_policy\Entity\UserConsentInterface;
 use Drupal\views\Plugin\views\filter\InOperator;
 
 /**

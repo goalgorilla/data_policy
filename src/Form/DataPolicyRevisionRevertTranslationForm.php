@@ -1,18 +1,18 @@
 <?php
 
-namespace Drupal\gdpr_consent\Form;
+namespace Drupal\data_policy\Form;
 
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Language\LanguageManagerInterface;
-use Drupal\gdpr_consent\Entity\DataPolicyInterface;
+use Drupal\data_policy\Entity\DataPolicyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a form for reverting a revision for a single translation.
  *
- * @ingroup gdpr_consent
+ * @ingroup data_policy
  */
 class DataPolicyRevisionRevertTranslationForm extends DataPolicyRevisionRevertForm {
 
@@ -60,7 +60,7 @@ class DataPolicyRevisionRevertTranslationForm extends DataPolicyRevisionRevertFo
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'gdpr_consent_data_policy_revision_revert_translation_confirm';
+    return 'data_policy_data_policy_revision_revert_translation_confirm';
   }
 
   /**
@@ -95,7 +95,7 @@ class DataPolicyRevisionRevertTranslationForm extends DataPolicyRevisionRevertFo
   protected function prepareRevertedRevision(DataPolicyInterface $revision, FormStateInterface $form_state) {
     $revert_untranslated_fields = $form_state->getValue('revert_untranslated_fields');
 
-    /** @var \Drupal\gdpr_consent\Entity\DataPolicyInterface $default_revision */
+    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $default_revision */
     $latest_revision = $this->dataPolicyStorage->load($revision->id());
     $latest_revision_translation = $latest_revision->getTranslation($this->langcode);
 
