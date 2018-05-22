@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\gdpr_consent\Form;
+namespace Drupal\data_policy\Form;
 
 use Drupal\Core\Entity\EntityConfirmFormBase;
 use Drupal\Core\Url;
@@ -15,7 +15,9 @@ class InformBlockDeleteForm extends EntityConfirmFormBase {
    * {@inheritdoc}
    */
   public function getQuestion() {
-    return $this->t('Are you sure you want to delete %name?', ['%name' => $this->entity->label()]);
+    return $this->t('Are you sure you want to delete %name?', [
+      '%name' => $this->entity->label(),
+    ]);
   }
 
   /**
@@ -37,7 +39,10 @@ class InformBlockDeleteForm extends EntityConfirmFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->entity->delete();
-    drupal_set_message($this->t('%label has been deleted.', ['%label' => $this->entity->label()]));
+
+    $this->messenger()->addStatus($this->t('%label has been deleted.', [
+      '%label' => $this->entity->label(),
+    ]));
 
     $form_state->setRedirectUrl($this->getCancelUrl());
   }

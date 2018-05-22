@@ -1,18 +1,38 @@
 <?php
 
-namespace Drupal\gdpr_consent\Controller;
+namespace Drupal\data_policy\Controller;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\gdpr_consent\Entity\InformBlock;
-use Drupal\gdpr_consent\InformBlockInterface;
+use Drupal\data_policy\Entity\InformBlock;
+use Drupal\data_policy\InformBlockInterface;
 
 /**
- * Class GdprConsentController.
+ * Class DataPolicyInformController.
  *
- * @package Drupal\gdpr_consent\Controller
+ * @package Drupal\data_policy\Controller
  */
-class GdprConsentController extends ControllerBase {
+class DataPolicyInformController extends ControllerBase {
+
+  /**
+   * The Data Policy consent manager.
+   *
+   * @var \Drupal\data_policy\DataPolicyConsentManagerInterface
+   */
+  protected $dataPolicyConsentManager;
+
+  /**
+   * Returns the Data Policy consent manager service.
+   *
+   * @return \Drupal\data_policy\DataPolicyConsentManagerInterface
+   *   The Data Policy consent manager.
+   */
+  protected function dataPolicyConsentManager() {
+    if (!$this->dataPolicyConsentManager) {
+      $this->dataPolicyConsentManager = \Drupal::service('data_policy.manager');
+    }
+    return $this->dataPolicyConsentManager;
+  }
 
   /**
    * Show description of information block for the current page.
