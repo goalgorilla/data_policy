@@ -43,7 +43,7 @@ class DataPolicyInformController extends ControllerBase {
    * @return array
    *   The 'body' field value.
    */
-  public function page($informblock) {
+  public function descriptionPage($informblock) {
     return ['#markup' => InformBlock::load($informblock)->body['value']];
   }
 
