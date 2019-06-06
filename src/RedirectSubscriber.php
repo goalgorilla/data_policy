@@ -4,6 +4,7 @@ namespace Drupal\data_policy;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Messenger\MessengerInterface;
 use Drupal\Core\Routing\RedirectDestinationInterface;
@@ -76,6 +77,13 @@ class RedirectSubscriber implements EventSubscriberInterface {
   protected $dataPolicyConsentManager;
 
   /**
+   * The module handler interface.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * RedirectSubscriber constructor.
    *
    * @param \Drupal\Core\Routing\RouteMatchInterface $route_match
@@ -92,8 +100,10 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *   The messenger.
    * @param \Drupal\data_policy\DataPolicyConsentManagerInterface $data_policy_manager
    *   The Data Policy consent manager.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler interface.
    */
-  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger, DataPolicyConsentManagerInterface $data_policy_manager) {
+  public function __construct(RouteMatchInterface $route_match, RedirectDestinationInterface $destination, AccountProxyInterface $current_user, ConfigFactoryInterface $config_factory, EntityTypeManagerInterface $entity_type_manager, MessengerInterface $messenger, DataPolicyConsentManagerInterface $data_policy_manager, ModuleHandlerInterface $module_handler) {
     $this->routeMatch = $route_match;
     $this->destination = $destination;
     $this->currentUser = $current_user;
@@ -101,6 +111,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     $this->entityTypeManager = $entity_type_manager;
     $this->messenger = $messenger;
     $this->dataPolicyConsentManager = $data_policy_manager;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -195,8 +206,18 @@ class RedirectSubscriber implements EventSubscriberInterface {
       return;
     }
 
+    // Set the destination that redirects the user after accepting the
+    // data policy agreements.
+    $destination = $this->destination->getAsArray();
+
+    // Check if there are hooks to invoke that do an override.
+    $implementations = $this->moduleHandler->getImplementations('data_policy_destination_alter');
+    foreach ($implementations as $module) {
+      $destination = $this->moduleHandler->invoke($module, 'data_policy_destination_alter', [$this->destination]);
+    }
+
     $url = Url::fromRoute('data_policy.data_policy.agreement', [], [
-      'query' => $this->destination->getAsArray(),
+      'query' => $destination,
     ]);
 
     $response = new RedirectResponse($url->toString());
