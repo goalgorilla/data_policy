@@ -116,15 +116,20 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    *   The event.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public function checkForRedirection(GetResponseEvent $event) {
+  public function checkForRedirection(GetResponseEvent $event): void {
+    // Check if a data policy is set.
     if (!$this->dataPolicyConsentManager->isDataPolicy()) {
       return;
     }
 
-    $route_name = $this->routeMatch->getRouteName();
-
-    if ($route_name == 'data_policy.data_policy.agreement') {
+    // Check if the current route is the data policy agreement page.
+    if (($route_name = $this->routeMatch->getRouteName()) === 'data_policy.data_policy.agreement') {
+      // The current route is the data policy agreement page. We don't need
+      // a redirect response.
       return;
     }
 
@@ -184,7 +189,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
       'user.logout',
     ];
 
-    if (in_array($route_name, $route_names)) {
+    if (in_array($route_name, $route_names, TRUE)) {
       return;
     }
 
