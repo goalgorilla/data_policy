@@ -182,11 +182,13 @@ class RedirectSubscriber implements EventSubscriberInterface {
     $route_names = [
       'entity.user.cancel_form',
       'data_policy.data_policy',
+      'system.403',
       'system.404',
       'system.batch_page.html',
       'system.batch_page.json',
       'user.cancel_confirm',
       'user.logout',
+      'entity_sanitizer_image_fallback.generator',
     ];
 
     if (in_array($route_name, $route_names, TRUE)) {
