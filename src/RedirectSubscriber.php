@@ -144,7 +144,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    if ($this->currentUser->hasPermission('without consent')) {
+    if ($this->getCurrentUser()->hasPermission('without consent')) {
       return;
     }
 
@@ -165,7 +165,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
     }
 
     $values = [
-      'user_id' => $this->currentUser->id(),
+      'user_id' => $this->getCurrentUser()->id(),
       'data_policy_revision_id' => $vid,
     ];
 
@@ -208,20 +208,43 @@ class RedirectSubscriber implements EventSubscriberInterface {
 
     // Set the destination that redirects the user after accepting the
     // data policy agreements.
-    $destination = $this->destination->getAsArray();
+    $destination = $this->getDestination();
 
     // Check if there are hooks to invoke that do an override.
     $implementations = $this->moduleHandler->getImplementations('data_policy_destination_alter');
     foreach ($implementations as $module) {
-      $destination = $this->moduleHandler->invoke($module, 'data_policy_destination_alter', [$this->destination]);
+      $destination = $this->moduleHandler->invoke($module, 'data_policy_destination_alter', [
+        $this->getCurrentUser(),
+        $this->getDestination(),
+      ]);
     }
 
     $url = Url::fromRoute('data_policy.data_policy.agreement', [], [
-      'query' => $destination,
+      'query' => $destination->getAsArray(),
     ]);
 
     $response = new RedirectResponse($url->toString());
     $event->setResponse($response);
+  }
+
+  /**
+   * Get the redirect destination.
+   *
+   * @return \Drupal\Core\Routing\RedirectDestinationInterface
+   *   The redirect destination.
+   */
+  protected function getDestination(): RedirectDestinationInterface {
+    return $this->destination;
+  }
+
+  /**
+   * Get the current user.
+   *
+   * @return \Drupal\Core\Session\AccountProxyInterface
+   *   The current user.
+   */
+  protected function getCurrentUser(): AccountProxyInterface {
+    return $this->currentUser;
   }
 
 }
