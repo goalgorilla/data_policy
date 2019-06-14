@@ -40,10 +40,10 @@ function data_policy_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_hook_info().
  */
 function data_policy_hook_info() {
-  $hooks = array(
+  $hooks = [
     'data_policy_destination_alter',
-  );
-  return array_fill_keys($hooks, array('group' => 'data_policy'));
+  ];
+  return array_fill_keys($hooks, ['group' => 'data_policy']);
 }
 
 /**
