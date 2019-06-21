@@ -114,3 +114,23 @@ function _data_policy_user_register_form_submit(array &$form, FormStateInterface
   $values = $form_state->getValues();
   \Drupal::service('data_policy.manager')->saveConsent($values['uid'], !empty($values['data_policy']));
 }
+
+/**
+ * Implements hook_entity_extra_field_info().
+ */
+function data_policy_entity_extra_field_info() {
+  return [
+    'user' => [
+      'user' => [
+        'form' => [
+          'data_policy' => [
+            'label' => t('Data policy'),
+            'description' => t('Checkbox for giving consent on data policy'),
+            'weight' => 1,
+            'visible' => TRUE,
+          ],
+        ],
+      ],
+    ],
+  ];
+}
