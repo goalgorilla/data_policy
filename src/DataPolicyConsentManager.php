@@ -72,6 +72,13 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   /**
    * {@inheritdoc}
    */
+  public function hasGivenConsent() {
+    return $this->getState();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function addCheckbox(array &$form) {
     $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
