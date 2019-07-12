@@ -13,6 +13,9 @@ use Drupal\data_policy\Entity\DataPolicy;
 function data_policy_install() {
   // Hide a message about a new version of data policy for the anonymous user.
   user_role_grant_permissions('anonymous', ['without consent']);
+
+  // Hide checkbox on all user form modes except register form mode.
+  data_policy_update_8002();
 }
 
 /**
@@ -47,4 +50,21 @@ function data_policy_update_8001() {
   ];
   $config->setData($data);
   $config->save(TRUE);
+}
+
+/**
+ * Hide checkbox on all user form modes except register form mode.
+ */
+function data_policy_update_8002() {
+  $config_names = \Drupal::configFactory()->listAll('core.entity_form_display.user.user.');
+  $id = array_search('core.entity_form_display.user.user.register', $config_names);
+
+  unset($config_names[$id]);
+
+  foreach ($config_names as $config_name) {
+    $config = \Drupal::configFactory()->getEditable($config_name);
+    $fields = $config->get('hidden');
+    $fields['data_policy'] = TRUE;
+    $config->set('hidden', $fields)->save();
+  }
 }

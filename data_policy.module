@@ -5,6 +5,7 @@
  * data_policy.module
  */
 
+use Drupal\Core\Entity\ContentEntityFormInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -86,9 +87,15 @@ function data_policy_views_data_alter(array &$data) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_alter().
  */
-function data_policy_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+function data_policy_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $form_object = $form_state->getFormObject();
+
+  if (!($form_object instanceof ContentEntityFormInterface && $form_object->getEntity()->getEntityTypeId() === 'user')) {
+    return;
+  }
+
   /** @var \Drupal\data_policy\DataPolicyConsentManagerInterface $data_policy_manager */
   $data_policy_manager = \Drupal::service('data_policy.manager');
 
