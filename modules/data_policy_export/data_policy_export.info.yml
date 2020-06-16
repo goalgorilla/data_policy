@@ -1,0 +1,7 @@
+name: Data Policy Export
+description: Creates the possibility to export data policies to CSV as a bulk action.
+core: 8.x
+dependencies:
+  - views_bulk_operations
+  - csv_serialization:csv_serialization
+type: module
