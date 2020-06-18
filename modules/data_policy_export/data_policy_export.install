@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the data_policy_export module.
+ */
+
+use Symfony\Component\Yaml\Yaml;
+
+/**
+ * Implements hook_install().
+ */
+function data_policy_export_install() {
+  // Set our adjusted views data as the new config.
+    $config_file = drupal_get_path('module', 'data_policy_export') . '/config/update/data_policy_export_view.yml';
+
+    if (is_file($config_file)) {
+      $settings = Yaml::parse(file_get_contents($config_file));
+      if (is_array($settings)) {
+        $config = \Drupal::configFactory()
+          ->getEditable('views.view.data_policy_agreements');
+        $config->setData($settings)->save(TRUE);
+      }
+    }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function data_policy_export_uninstall() {
+  // When uninstalling this module, we would like to place back the original
+  // configuration.
+  $config_file = drupal_get_path('module', 'data_policy') . '/config/install/views.view.data_policy_agreements.yml';
+
+  if (is_file($config_file)) {
+    $settings = Yaml::parse(file_get_contents($config_file));
+    if (is_array($settings)) {
+      $config = \Drupal::configFactory()
+        ->getEditable('views.view.data_policy_agreements');
+      $config->setData($settings)->save(TRUE);
+    }
+  }
+}
