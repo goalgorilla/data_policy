@@ -9,7 +9,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\data_policy\Entity\DataPolicyInterface;
-use Drupal\data_policy_export\Plugin\DataPolicyExportPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**

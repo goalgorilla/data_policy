@@ -78,6 +78,8 @@ class ExportDataPolicy extends ViewsBulkOperationsActionBase implements Containe
    *   The current user account.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    *   Config factory for the export plugin access.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   Date formatter to be able to format the date to human-friendly.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, DataPolicyExportPluginManager $dataPolicyExportPlugin, LoggerInterface $logger, AccountProxyInterface $currentUser, ConfigFactoryInterface $configFactory, DateFormatterInterface $date_formatter) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
@@ -108,7 +110,11 @@ class ExportDataPolicy extends ViewsBulkOperationsActionBase implements Containe
 
     // Check if headers exists.
     if (empty($this->context['sandbox']['results']['headers'])) {
-      $this->context['sandbox']['results']['headers'] = ['Name', 'State', 'Datetime'];
+      $this->context['sandbox']['results']['headers'] = [
+        'Name',
+        'State',
+        'Datetime',
+      ];
     }
 
     // Create the file if applicable.
@@ -169,6 +175,14 @@ class ExportDataPolicy extends ViewsBulkOperationsActionBase implements Containe
     }
   }
 
+  /**
+   * Helper function to return the human-friendly name to the CSV export.
+   *
+   * @param $state_id
+   *   The ID of the state for which we want to get the text.
+   * @return mixed
+   *   The text we will be using in the export.
+   */
   public function getStateName($state_id) {
     $options = [
       UserConsentInterface::STATE_UNDECIDED => t('Undecided'),
