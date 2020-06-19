@@ -178,8 +178,9 @@ class ExportDataPolicy extends ViewsBulkOperationsActionBase implements Containe
   /**
    * Helper function to return the human-friendly name to the CSV export.
    *
-   * @param $state_id
+   * @param int $state_id
    *   The ID of the state for which we want to get the text.
+   *
    * @return mixed
    *   The text we will be using in the export.
    */
