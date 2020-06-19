@@ -9,3 +9,9 @@ data_policy.data_policy.edit:
   title: 'Add new revision'
   appears_on:
     - entity.data_policy.version_history
+
+data_policy.data_policy.add:
+  route_name: data_policy.data_policy.add
+  title: 'Add new entity'
+  appears_on:
+    - entity.data_policy.collection

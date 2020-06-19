@@ -62,6 +62,14 @@ data_policy.data_policy.edit:
   requirements:
     _permission: 'edit data policy'
 
+data_policy.data_policy.add:
+  path: '/admin/config/people/data-policy/add'
+  defaults:
+    _entity_form: 'data_policy.add'
+    _title: 'Add'
+  requirements:
+    _permission: 'administer blocks'
+
 data_policy.data_policy.settings:
   path: '/admin/config/people/data-policy/settings'
   defaults:
@@ -73,7 +81,7 @@ data_policy.data_policy.settings:
     _admin_route: TRUE
 
 entity.data_policy.collection:
-  path: '/admin/config/people/data-policy/all'
+  path: '/admin/config/people/data-policy'
   defaults:
     _entity_list: 'data_policy'
     _title: 'Data policy'
