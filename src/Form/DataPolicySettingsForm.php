@@ -39,6 +39,18 @@ class DataPolicySettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('enforce_consent'),
     ];
 
+    $form['consent_text'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Enforce consent text'),
+      '#default_value' => $config->get('consent_text'),
+      '#rows' => '8',
+      '#states' => [
+        'visible' => [
+          ':input[name="enforce_consent"]' => ['checked' => TRUE],
+        ],
+      ],
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -48,6 +60,7 @@ class DataPolicySettingsForm extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $this->config('data_policy.data_policy')
       ->set('enforce_consent', $form_state->getValue('enforce_consent'))
+      ->set('consent_text', $form_state->getValue('consent_text'))
       ->save();
 
     parent::submitForm($form, $form_state);
