@@ -4,4 +4,5 @@ core: 8.x
 dependencies:
   - views_bulk_operations
   - csv_serialization:csv_serialization
+  - data_policy
 type: module
