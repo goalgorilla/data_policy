@@ -185,7 +185,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    * @return array
    *   An array as expected by drupal_render().
    */
-  public function revisionsOverviewPage() {
+  public function revisionsOverviewPage($entity_id = NULL) {
     $build = [
       'data_policy_revisions_table' => [
         '#theme' => 'table',
@@ -198,9 +198,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
       ],
     ];
 
-    $entity_id = $this->config('data_policy.data_policy')->get('entity_id');
-
-    if (empty($entity_id)) {
+    if (!$entity_id) {
       return $build;
     }
 

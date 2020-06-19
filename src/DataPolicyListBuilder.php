@@ -17,8 +17,9 @@ class DataPolicyListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header['id'] = $this->t('Data policy ID');
     $header['name'] = $this->t('Name');
+    $header['id'] = $this->t('Data policy ID');
+    $header['revisions'] = $this->t('Revisions');
     return $header + parent::buildHeader();
   }
 
@@ -27,12 +28,19 @@ class DataPolicyListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\data_policy\Entity\DataPolicy */
-    $row['id'] = $entity->id();
     $row['name'] = Link::createFromRoute(
       $entity->label(),
-      'entity.data_policy.edit_form',
-      ['data_policy' => $entity->id()]
+      'entity.data_policy.version_history',
+      ['entity_id' => $entity->id()]
     );
+    $row['id'] = $entity->id();
+
+    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
+    $data_policy_storage = \Drupal::entityTypeManager()->getStorage('data_policy');
+    $count = count($data_policy_storage->revisionIds($entity));
+
+    $row['revisions'] = $this->t('%count', ['%count' => $count]);
+
     return $row + parent::buildRow($entity);
   }
 

@@ -70,6 +70,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
         '_title' => 'Data policy',
         '_controller' => '\Drupal\data_policy\Controller\DataPolicy::revisionsOverviewPage',
       ])
+      ->setPath('/admin/config/people/data-policy/{entity_id}/all')
       ->setRequirement('_permission', 'view all data policy revisions')
       ->setOption('_admin_route', TRUE);
 

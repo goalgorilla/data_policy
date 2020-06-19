@@ -50,14 +50,15 @@ use Drupal\user\UserInterface;
  *     "status" = "status",
  *   },
  *   links = {
- *     "edit-form" = "/admin/config/people/data-policy/all/{data_policy}",
- *     "version-history" = "/admin/config/people/data-policy",
+ *     "collection" = "/admin/config/people/data-policy",
+ *     "edit-form" = "/admin/config/people/data-policy/{data_policy}",
+ *     "delete-form" = "/admin/config/people/data-policy/{data_policy}/delete",
+ *     "version-history" = "/admin/config/people/data-policy/{entity_id}/all",
  *     "revision" = "/admin/config/people/data-policy/{data_policy_revision}",
  *     "revision_edit" = "/admin/config/people/data-policy/{data_policy_revision}/edit",
  *     "revision_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert",
  *     "revision_delete" = "/admin/config/people/data-policy/{data_policy_revision}/delete",
- *     "translation_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert/{langcode}",
- *     "collection" = "/admin/config/people/data-policy/all"
+ *     "translation_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert/{langcode}"
  *   }
  * )
  */
