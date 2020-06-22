@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\user\UserInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -56,6 +57,7 @@ class UserConsentListBuilder extends EntityListBuilder {
   public function buildHeader() {
     return [
       'id' => $this->t('ID'),
+      'revision_id' => $this->t('Revision id(s)'),
       'user' => $this->t('User'),
       'created' => $this->t('Date and time of consent'),
     ];
@@ -65,10 +67,13 @@ class UserConsentListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
+    /** @var \Drupal\user\UserInterface $owner */
+    $owner = $entity->getOwner();
     /* @var $entity \Drupal\data_policy\Entity\UserConsentInterface */
     return [
       'id' => $entity->id(),
-      'user' => $entity->getOwner()->getDisplayName(),
+      'revision_id' => $entity->data_policy_revision_id->value,
+      'user' => ($owner instanceof UserInterface) ? $owner->getDisplayName() : '',
       'created' => $this->dateFormatter->format($entity->getChangedTime(), 'short'),
     ];
   }
