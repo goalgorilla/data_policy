@@ -93,7 +93,7 @@ class DataPolicyRevisionRevertForm extends ConfirmFormBase {
    * {@inheritdoc}
    */
   public function getCancelUrl() {
-    return new Url('entity.data_policy.version_history');
+    return new Url('entity.data_policy.version_history', ['entity_id' => $this->revision->id()]);
   }
 
   /**

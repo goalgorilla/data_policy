@@ -289,6 +289,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
             Url::fromRoute('entity.data_policy.revision_revert', [
               'data_policy' => $data_policy->id(),
               'data_policy_revision' => $vid,
+              'entity_id' => $entity_id,
             ]),
           ];
         }

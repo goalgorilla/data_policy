@@ -56,7 +56,7 @@ use Drupal\user\UserInterface;
  *     "version-history" = "/admin/config/people/data-policy/{entity_id}/all",
  *     "revision_edit" = "/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/edit",
  *     "revision" = "/admin/config/people/data-policy/{entity_id}/{data_policy_revision}",
- *     "revision_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert",
+ *     "revision_revert" = "/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/revert",
  *     "revision_delete" = "/admin/config/people/data-policy/{data_policy_revision}/delete",
  *     "translation_revert" = "/admin/config/people/data-policy/{data_policy_revision}/revert/{langcode}"
  *   }

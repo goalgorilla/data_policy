@@ -148,6 +148,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_title' => 'Revert to earlier revision',
         ])
         ->setRequirement('_permission', 'revert all data policy revisions')
+        ->setPath('/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/revert')
         ->setOption('_admin_route', TRUE);
 
       return $route;
