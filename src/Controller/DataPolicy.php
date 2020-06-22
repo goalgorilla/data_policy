@@ -84,7 +84,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   The data policy description text.
    */
   public function entityOverviewPage() {
-    $entity_id = $this->dataPolicyConsentManager()->getConfig('entity_id');
+    $entity_id = \Drupal::request()->get('id');
 
     if (!empty($entity_id)) {
       $description = $this->entityTypeManager()->getStorage('data_policy')
@@ -261,6 +261,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
         'url' => Url::fromRoute('entity.data_policy.revision', [
           'data_policy' => $data_policy->id(),
           'data_policy_revision' => $vid,
+          'entity_id' => $entity_id,
         ]),
       ];
 
@@ -270,6 +271,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
           'url' => Url::fromRoute('entity.data_policy.revision_edit', [
             'data_policy' => $data_policy->id(),
             'data_policy_revision' => $vid,
+            'entity_id' => $entity_id,
           ]),
         ];
       }

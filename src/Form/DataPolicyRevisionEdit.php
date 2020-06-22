@@ -37,7 +37,7 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
     $this->moduleHandler = $module_handler;
     $this->configFactory = $config_factory;
 
-    $entity_id = $this->config('data_policy.data_policy')->get('entity_id');
+    $entity_id = \Drupal::request()->get('entity_id');
 
     $this->entity = $this->entityManager->getStorage('data_policy')
       ->load($entity_id);
@@ -101,7 +101,7 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
 
     $this->messenger()->addStatus($this->t('Saved revision.'));
 
-    $form_state->setRedirect('entity.data_policy.version_history');
+    $form_state->setRedirect('entity.data_policy.version_history', ['entity_id' => $entity->id()]);
   }
 
   /**

@@ -123,6 +123,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
         '_title' => 'Edit revision',
       ])
       ->setRequirement('_custom_access', '\Drupal\data_policy\Controller\DataPolicy::revisionEditAccess')
+      ->setPath('/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/edit')
       ->setOption('_admin_route', TRUE);
 
     return $route;

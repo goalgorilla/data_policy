@@ -70,6 +70,14 @@ data_policy.data_policy.add:
   requirements:
     _permission: 'administer blocks'
 
+entity.data_policy.revision_add:
+  path: '/admin/config/people/data-policy/{entity_id}/add'
+  defaults:
+    _entity_form: 'data_policy.add'
+    _title: 'Add'
+  requirements:
+    _permission: 'administer blocks'
+
 data_policy.data_policy.settings:
   path: '/admin/config/people/data-policy/settings'
   defaults:
