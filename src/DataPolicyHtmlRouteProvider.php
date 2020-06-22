@@ -95,6 +95,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_title_callback' => '\Drupal\data_policy\Controller\DataPolicy::revisionOverviewTitle',
         ])
         ->setRequirement('_permission', 'access data policy revisions')
+        ->setPath('/admin/config/people/data-policy/{entity_id}/{data_policy_revision}')
         ->setOption('_admin_route', TRUE);
 
       return $route;
