@@ -173,6 +173,7 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_title' => 'Delete earlier revision',
         ])
         ->setRequirement('_permission', 'delete all data policy revisions')
+        ->setPath('/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/delete')
         ->setOption('_admin_route', TRUE);
 
       return $route;
