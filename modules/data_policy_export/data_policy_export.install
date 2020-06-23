@@ -61,7 +61,7 @@ views_bulk_operations_bulk_form:
           empty_zero: false
           hide_alter_empty: true
           batch: true
-          batch_size: 25
+          batch_size: 250
           form_step: true
           buttons: true
           clear_on_exposed: false
