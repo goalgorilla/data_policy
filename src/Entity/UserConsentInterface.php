@@ -99,4 +99,9 @@ interface UserConsentInterface extends ContentEntityInterface, EntityChangedInte
    */
   public function setRevision(DataPolicyInterface $data_policy);
 
+  /**
+   * @return string|null
+   */
+  public function label();
+
 }
