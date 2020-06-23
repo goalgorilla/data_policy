@@ -2,7 +2,7 @@ langcode: en
 status: true
 dependencies:
   module:
-    - data_policy_export
+    - views_bulk_operations
 id: data_policy_export_data_policy_action
 label: 'Export the selected data policies to CSV'
 type: user_consent
