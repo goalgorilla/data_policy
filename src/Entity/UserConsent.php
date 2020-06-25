@@ -6,6 +6,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\user\UserInterface;
 
 /**
@@ -160,6 +161,7 @@ class UserConsent extends ContentEntityBase implements UserConsentInterface {
     $fields['data_policy_revision_id'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Data policy revision ID'))
       ->setReadOnly(TRUE)
+      ->setCardinality(FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED)
       ->setSetting('unsigned', TRUE);
 
     $fields['state'] = BaseFieldDefinition::create('integer')
