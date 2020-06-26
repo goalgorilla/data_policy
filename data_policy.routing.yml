@@ -39,7 +39,7 @@ data_policy.description:
     _custom_access: '\Drupal\data_policy\Controller\DataPolicyInformController::access'
 
 data_policy.data_policy:
-  path: '/data-policy'
+  path: '/data-policy/{entity_id}'
   defaults:
     _controller: '\Drupal\data_policy\Controller\DataPolicy::entityOverviewPage'
     _title_callback: '\Drupal\data_policy\Controller\DataPolicy::entityOverviewTitle'
