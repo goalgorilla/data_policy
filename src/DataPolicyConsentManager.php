@@ -72,13 +72,6 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function hasGivenConsent() {
-    return $this->getState();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function addCheckbox(array &$form) {
     $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
@@ -195,42 +188,11 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   }
 
   /**
-   * Return state of last consent of the current user.
+   * Return states of last consent for entities of the current user.
    *
-   * @return int|false
-   *   The state number or FALSE if consents are absent.
+   * @return array|false
+   *   The state numbers or FALSE if consents are absent.
    */
-  protected function getState() {
-    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
-    $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
-
-    $this->entity = $data_policy_storage->load(1);
-    $vids = $data_policy_storage->revisionIds($this->entity);
-
-    foreach ($vids as $vid) {
-      $this->entity = $data_policy_storage->loadRevision($vid);
-
-      if ($this->entity->isDefaultRevision()) {
-        break;
-      }
-    }
-
-    $user_consents = $this->entityTypeManager->getStorage('user_consent')
-      ->loadByProperties([
-        'user_id' => $this->currentUser->id(),
-        'data_policy_revision_id' => $this->entity->getRevisionId(),
-      ]);
-
-    if (!empty($user_consents)) {
-      /** @var \Drupal\data_policy\Entity\UserConsentInterface $user_consent */
-      $user_consent = end($user_consents);
-
-      return $user_consent->state->value;
-    }
-
-    return FALSE;
-  }
-
   protected function getStates() {
     /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
