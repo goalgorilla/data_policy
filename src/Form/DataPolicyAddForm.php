@@ -50,6 +50,7 @@ class DataPolicyAddForm extends ContentEntityForm {
 
       $this->entity->set('name', $form_state->getValue('name'));
       $this->entity->set('field_description', $form_state->getValue('field_description'));
+      $this->entity->set('revision_log_message', $form_state->getValue('revision_log_message'));
       $this->entity->setRevisionCreationTime($this->time->getRequestTime());
       $this->entity->setRevisionUserId($this->currentUser()->id());
 
