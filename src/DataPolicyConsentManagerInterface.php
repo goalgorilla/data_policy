@@ -65,4 +65,23 @@ interface DataPolicyConsentManagerInterface {
    */
   public function getConfig($name);
 
+  /**
+   * Get the entity ids from consent text in settings form.
+   *
+   * @return array
+   *   Entity ids.
+   */
+  public function getEntityIdsFromConsentText();
+
+  /**
+   * Get the list of revisions for specific entities.
+   *
+   * @param array $entity_ids
+   *   The list of entity ids.
+   *
+   * @return array
+   *   The list of revisions.
+   */
+  public function getRevisionsByEntityIds($entity_ids);
+
 }

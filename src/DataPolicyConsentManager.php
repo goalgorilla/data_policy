@@ -126,53 +126,65 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
       $state = UserConsentInterface::STATE_NOT_AGREE;
     }
 
-    $last_state = $this->getState();
+    $last_states = $this->getStates();
 
-    if ($last_state !== FALSE) {
-      if ($last_state == $state) {
-        return;
-      }
-      else {
-        if (!empty($this->getConfig('enforce_consent'))) {
-          // Allow switching to state with higher priority (from "undecided" to
-          // "no agree").
-          if ($last_state > $state) {
-            return;
-          }
+    $return = [];
+    if ($last_states !== FALSE) {
+      foreach ($last_states as $key => $last_state) {
+        if ($last_state == $state) {
+          $return[$key] = TRUE;
         }
         else {
-          // Allow all switching cases without cases when switchbacking to the
-          // "undecided" state (from "not agree" to "undecided" or from "agree"
-          // to "undecided").
-          if ($last_state != UserConsentInterface::STATE_UNDECIDED && $state == UserConsentInterface::STATE_UNDECIDED) {
-            return;
+          if (!empty($this->getConfig('enforce_consent'))) {
+            // Allow switching to state with higher priority (from "undecided" to
+            // "no agree").
+            if ($last_state > $state) {
+              $return[$key] = TRUE;
+            }
+          }
+          else {
+            // Allow all switching cases without cases when switchbacking to the
+            // "undecided" state (from "not agree" to "undecided" or from "agree"
+            // to "undecided").
+            if ($last_state != UserConsentInterface::STATE_UNDECIDED && $state == UserConsentInterface::STATE_UNDECIDED) {
+              $return[$key] = TRUE;
+            }
           }
         }
       }
     }
 
-    $revision_id = $this->entityTypeManager->getStorage('data_policy')
-      ->load($this->getConfig('entity_id'))
-      ->getRevisionId();
+    if (in_array(TRUE, $return)) {
+      return;
+    }
 
+    $entities = $this->getEntityIdsFromConsentText();
+    $revisions = $this->getRevisionsByEntityIds($entities);
     $user_consents = $this->entityTypeManager->getStorage('user_consent')
       ->loadByProperties([
         'user_id' => $user_id,
         'status' => TRUE,
-        'data_policy_revision_id' => $revision_id,
+        'data_policy_revision_id' => array_map(function ($revision){return $revision->vid->value;}, $revisions),
       ]);
 
     if (!empty($user_consents)) {
-      /** @var \Drupal\data_policy\Entity\UserConsentInterface $user_consent */
-      $user_consent = reset($user_consents);
-
-      $user_consent->setPublished(FALSE)->save();
+      foreach ($user_consents as $user_consent) {
+        $user_consent->setPublished(FALSE)->save();
+      }
     }
 
-    UserConsent::create()->setRevision($this->entity)
-      ->setOwnerId($user_id)
-      ->set('state', $state)
-      ->save();
+    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
+    $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
+    foreach ($entities as $entity) {
+      /** @var \Drupal\data_policy\Entity\DataPolicy $data_policy */
+      $data_policy = $data_policy_storage->load($entity);
+
+      UserConsent::create()->setRevision($data_policy)
+        ->setOwnerId($user_id)
+        ->set('state', $state)
+        ->save();
+    }
+
   }
 
   /**
@@ -192,7 +204,7 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
     /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
 
-    $this->entity = $data_policy_storage->load($this->getConfig('entity_id'));
+    $this->entity = $data_policy_storage->load(1);
     $vids = $data_policy_storage->revisionIds($this->entity);
 
     foreach ($vids as $vid) {
@@ -219,8 +231,42 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
     return FALSE;
   }
 
+  protected function getStates() {
+    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
+    $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
+    $entity_ids = $this->getEntityIdsFromConsentText();
+
+    if (empty($entity_ids)) {
+      $entity_ids[] = $data_policy_storage->load($this->getConfig('entity_id'));
+    }
+
+    $revisions = $this->getRevisionsByEntityIds($entity_ids);
+    $revision_ids = array_map(function ($revision) { return $revision->vid->value; }, $revisions);
+
+    $user_consents = [];
+    foreach ($revision_ids as $entity_id => $revision_id) {
+      $user_consents[$entity_id] = $this->entityTypeManager->getStorage('user_consent')
+        ->loadByProperties([
+          'user_id' => $this->currentUser->id(),
+          'data_policy_revision_id' => $revision_id,
+        ]);
+    }
+
+    if (!empty($user_consents)) {
+      $states = [];
+      foreach ($user_consents as $entity_id => $user_consent) {
+        if (is_array($user_consent)) {
+          $states[$entity_id] = end($user_consent)->state->value;
+        }
+      }
+      return $states;
+    }
+
+    return FALSE;
+  }
+
   /**
-   * @return mixed
+   * {@inheritdoc}
    */
   public function getEntityIdsFromConsentText() {
     $consent_text = $this->getConfig('consent_text');
@@ -235,13 +281,9 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   }
 
   /**
-   * @param $entity_ids
-   *
-   * @return array
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * {@inheritdoc}
    */
-  protected function getRevisionsByEntityIds($entity_ids) {
+  public function getRevisionsByEntityIds($entity_ids) {
     $revisions = [];
     foreach ($entity_ids as $entity_id) {
       /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
