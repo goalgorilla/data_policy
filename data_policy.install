@@ -86,3 +86,17 @@ function data_policy_update_8002() {
 
   $insert_query->execute();
 }
+
+/**
+ * Add default consent_text to data policy and set default entity name.
+ */
+function data_policy_update_8003() {
+  /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
+  $data_policy = \Drupal::entityTypeManager()->getStorage('data_policy')->load(1);
+  $data_policy->setName('Data Policy');
+  $data_policy->save();
+
+  $data_policy_config = \Drupal::configFactory()->getEditable('data_policy.data_policy');
+  $data_policy_config->set('consent_text', 'I agree with the [id:1]');
+  $data_policy_config->save();
+}
