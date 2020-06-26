@@ -191,7 +191,7 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
    * {@inheritdoc}
    */
   public function isDataPolicy() {
-    return !empty($this->getConfig('entity_id'));
+    return !empty($this->getEntityIdsFromConsentText());
   }
 
   /**
