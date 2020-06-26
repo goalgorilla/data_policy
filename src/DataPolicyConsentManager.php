@@ -111,44 +111,12 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED) {
+  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED, $action = NULL) {
     if ($state === TRUE) {
       $state = UserConsentInterface::STATE_AGREE;
     }
     elseif ($state === FALSE) {
       $state = UserConsentInterface::STATE_NOT_AGREE;
-    }
-
-    $last_states = $this->getStates();
-
-    $return = [];
-    if ($last_states !== FALSE) {
-      foreach ($last_states as $key => $last_state) {
-        if ($last_state == $state) {
-          $return[$key] = TRUE;
-        }
-        else {
-          if (!empty($this->getConfig('enforce_consent'))) {
-            // Allow switching to state with higher priority (from "undecided" to
-            // "no agree").
-            if ($last_state > $state) {
-              $return[$key] = TRUE;
-            }
-          }
-          else {
-            // Allow all switching cases without cases when switchbacking to the
-            // "undecided" state (from "not agree" to "undecided" or from "agree"
-            // to "undecided").
-            if ($last_state != UserConsentInterface::STATE_UNDECIDED && $state == UserConsentInterface::STATE_UNDECIDED) {
-              $return[$key] = TRUE;
-            }
-          }
-        }
-      }
-    }
-
-    if (in_array(TRUE, $return)) {
-      return;
     }
 
     $entities = $this->getEntityIdsFromConsentText();
@@ -172,12 +140,27 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
       /** @var \Drupal\data_policy\Entity\DataPolicy $data_policy */
       $data_policy = $data_policy_storage->load($entity);
 
-      UserConsent::create()->setRevision($data_policy)
-        ->setOwnerId($user_id)
-        ->set('state', $state)
-        ->save();
+      if ($action === 'submit') {
+        $overrides = $this->entityTypeManager->getStorage('user_consent')
+          ->loadByProperties([
+            'user_id' => $user_id,
+            'data_policy_revision_id' => $data_policy->vid->value,
+          ]);
+        if (!empty($overrides)) {
+          /** @var \Drupal\data_policy\Entity\UserConsent $override */
+          foreach ($overrides as $override) {
+            $override->set('status', 1)->save();
+          }
+        }
+        else {
+          UserConsent::create()
+            ->setRevision($data_policy)
+            ->setOwnerId($user_id)
+            ->set('state', $state)
+            ->save();
+        }
+      }
     }
-
   }
 
   /**
@@ -185,46 +168,6 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
    */
   public function isDataPolicy() {
     return !empty($this->getEntityIdsFromConsentText());
-  }
-
-  /**
-   * Return states of last consent for entities of the current user.
-   *
-   * @return array|false
-   *   The state numbers or FALSE if consents are absent.
-   */
-  protected function getStates() {
-    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
-    $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
-    $entity_ids = $this->getEntityIdsFromConsentText();
-
-    if (empty($entity_ids)) {
-      $entity_ids[] = $data_policy_storage->load($this->getConfig('entity_id'));
-    }
-
-    $revisions = $this->getRevisionsByEntityIds($entity_ids);
-    $revision_ids = array_map(function ($revision) { return $revision->vid->value; }, $revisions);
-
-    $user_consents = [];
-    foreach ($revision_ids as $entity_id => $revision_id) {
-      $user_consents[$entity_id] = $this->entityTypeManager->getStorage('user_consent')
-        ->loadByProperties([
-          'user_id' => $this->currentUser->id(),
-          'data_policy_revision_id' => $revision_id,
-        ]);
-    }
-
-    if (!empty($user_consents)) {
-      $states = [];
-      foreach ($user_consents as $entity_id => $user_consent) {
-        if (is_array($user_consent)) {
-          $states[$entity_id] = end($user_consent)->state->value;
-        }
-      }
-      return $states;
-    }
-
-    return FALSE;
   }
 
   /**

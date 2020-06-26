@@ -129,7 +129,7 @@ class DataPolicyAgreement extends FormBase {
     $agree = !empty($form_state->getValue('data_policy'));
     $enforce = $this->config('data_policy.data_policy')->get('enforce_consent');
 
-    $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id(), $agree);
+    $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id(), $agree, 'submit');
 
     // If the user agrees or does not agree (but it is not enforced), check if
     // we should redirect him to the front page.

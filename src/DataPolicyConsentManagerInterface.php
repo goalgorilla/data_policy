@@ -36,7 +36,7 @@ interface DataPolicyConsentManagerInterface {
    *   - not agree,
    *   - agree.
    */
-  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED);
+  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED, $action = NULL);
 
   /**
    * Check if data policy is created.
