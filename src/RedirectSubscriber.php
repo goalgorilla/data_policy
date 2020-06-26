@@ -149,12 +149,75 @@ class RedirectSubscriber implements EventSubscriberInterface {
     }
 
     $config = $this->configFactory->get('data_policy.data_policy');
+    $entity_ids = $this->dataPolicyConsentManager->getEntityIdsFromConsentText();
 
-    $entity_id = $config->get('entity_id');
+    if (empty($entity_ids)) {
+      return;
+    }
 
+    foreach ($entity_ids as $key => $entity_id) {
+      $consents_data = $this->getConsentsData($entity_id, $config);
+      $user_consents = $consents_data['user_consent'];
+      $enforce_consent = $consents_data['enforce_consent'];
+
+      if (!empty($user_consents)) {
+        unset($entity_ids[$key]);
+      }
+      if (empty($entity_ids)) {
+        return;
+      }
+
+      if (!$enforce_consent) {
+        $link = Link::createFromRoute($this->t('here'), 'data_policy.data_policy.agreement');
+        $this->messenger->addStatus($this->t('We published a new version of the data policy. You can review the data policy @url.', [
+          '@url' => $link->toString(),
+        ]));
+        return;
+      }
+
+      $route_names = [
+        'entity.user.cancel_form',
+        'data_policy.data_policy',
+        'system.403',
+        'system.404',
+        'system.batch_page.html',
+        'system.batch_page.json',
+        'user.cancel_confirm',
+        'user.logout',
+        'entity_sanitizer_image_fallback.generator',
+      ];
+
+      if (in_array($route_name, $route_names, TRUE)) {
+        return;
+      }
+
+      // Set the destination that redirects the user after accepting the
+      // data policy agreements.
+      $destination = $this->getDestination();
+
+      // Check if there are hooks to invoke that do an override.
+      $implementations = $this->moduleHandler->getImplementations('data_policy_destination_alter');
+      foreach ($implementations as $module) {
+        $destination = $this->moduleHandler->invoke($module, 'data_policy_destination_alter', [
+          $this->getCurrentUser(),
+          $this->getDestination(),
+        ]);
+      }
+
+    }
+
+    $url = Url::fromRoute('data_policy.data_policy.agreement', [], [
+      'query' => $destination->getAsArray(),
+    ]);
+
+    $response = new RedirectResponse($url->toString());
+    $event->setResponse($response);
+  }
+
+
+  private function getConsentsData($entity_id, $config) {
     /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
-
     /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
 
@@ -173,58 +236,10 @@ class RedirectSubscriber implements EventSubscriberInterface {
       $values['state'] = UserConsentInterface::STATE_AGREE;
     }
 
-    $user_consents = $this->entityTypeManager->getStorage('user_consent')
-      ->loadByProperties($values);
-
-    if (!empty($user_consents)) {
-      return;
-    }
-
-    if (!$enforce_consent) {
-      $link = Link::createFromRoute($this->t('here'), 'data_policy.data_policy.agreement');
-
-      $this->messenger->addStatus($this->t('We published a new version of the data policy. You can review the data policy @url.', [
-        '@url' => $link->toString(),
-      ]));
-
-      return;
-    }
-
-    $route_names = [
-      'entity.user.cancel_form',
-      'data_policy.data_policy',
-      'system.403',
-      'system.404',
-      'system.batch_page.html',
-      'system.batch_page.json',
-      'user.cancel_confirm',
-      'user.logout',
-      'entity_sanitizer_image_fallback.generator',
+    return [
+      'enforce_consent' => $enforce_consent,
+      'user_consent' => $this->entityTypeManager->getStorage('user_consent')->loadByProperties($values),
     ];
-
-    if (in_array($route_name, $route_names, TRUE)) {
-      return;
-    }
-
-    // Set the destination that redirects the user after accepting the
-    // data policy agreements.
-    $destination = $this->getDestination();
-
-    // Check if there are hooks to invoke that do an override.
-    $implementations = $this->moduleHandler->getImplementations('data_policy_destination_alter');
-    foreach ($implementations as $module) {
-      $destination = $this->moduleHandler->invoke($module, 'data_policy_destination_alter', [
-        $this->getCurrentUser(),
-        $this->getDestination(),
-      ]);
-    }
-
-    $url = Url::fromRoute('data_policy.data_policy.agreement', [], [
-      'query' => $destination->getAsArray(),
-    ]);
-
-    $response = new RedirectResponse($url->toString());
-    $event->setResponse($response);
   }
 
   /**

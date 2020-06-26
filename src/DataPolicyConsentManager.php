@@ -82,29 +82,35 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   public function addCheckbox(array &$form) {
     $form['#attached']['library'][] = 'core/drupal.dialog.ajax';
 
-    $state = $this->getState();
-    $name = $this->entity->getName() ?: $this->t('Data policy');
+    $entity_ids = $this->getEntityIdsFromConsentText();
+    $revisions = $this->getRevisionsByEntityIds($entity_ids);
+    $links = [];
 
-    $link = Link::createFromRoute(strtolower($name), 'data_policy.data_policy', [], [
-      'attributes' => [
-        'class' => ['use-ajax'],
-        'data-dialog-type' => 'modal',
-        'data-dialog-options' => Json::encode([
-          'title' => $name,
-          'width' => 700,
-          'height' => 700,
-        ]),
-      ],
-    ]);
+    foreach ($revisions as $key => $revision) {
+      $name = $revision->getName() ?: $this->t('Data policy');
+      $links[$key] = Link::createFromRoute(strtolower($name), 'data_policy.data_policy', ['id' => $revision->id()], [
+        'attributes' => [
+          'class' => ['use-ajax'],
+          'data-dialog-type' => 'modal',
+          'data-dialog-options' => Json::encode([
+            'title' => $name,
+            'width' => 700,
+            'height' => 700,
+          ]),
+        ],
+      ]);
+    }
 
     $enforce_consent = !empty($this->getConfig('enforce_consent'));
+    $enforce_consent_text = $this->getConfig('consent_text');
+
+    foreach ($links as $entity_id => $link) {
+      $enforce_consent_text = str_replace("[id:{$entity_id}]", $link->toString(), $enforce_consent_text);
+    }
 
     $form['data_policy'] = [
       '#type' => 'checkbox',
-      '#title' => $this->t('I agree with the @url', [
-        '@url' => $link->toString(),
-      ]),
-      '#default_value' => $state == UserConsentInterface::STATE_AGREE,
+      '#title' => $enforce_consent_text,
       '#required' => $enforce_consent && $this->currentUser->isAnonymous(),
     ];
   }
@@ -211,6 +217,48 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
     }
 
     return FALSE;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getEntityIdsFromConsentText() {
+    $consent_text = $this->getConfig('consent_text');
+    preg_match_all("#\[(id:\d+)\]#", $consent_text, $matches, PREG_PATTERN_ORDER);
+    list($search, $entity_ids) = $matches;
+
+    foreach ($entity_ids as $key => $entity_id) {
+      $entity_ids[$key] = str_replace('id:', '', $entity_id);
+    }
+
+    return $entity_ids;
+  }
+
+  /**
+   * @param $entity_ids
+   *
+   * @return array
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  protected function getRevisionsByEntityIds($entity_ids) {
+    $revisions = [];
+    foreach ($entity_ids as $entity_id) {
+      /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
+      $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
+
+      $this->entity = $data_policy_storage->load($entity_id);
+      $vids = $data_policy_storage->revisionIds($this->entity);
+
+      foreach ($vids as $vid) {
+        $revisions[$entity_id] = $data_policy_storage->loadRevision($vid);
+        if ($data_policy_storage->loadRevision($vid)->isDefaultRevision()) {
+          break;
+        }
+      }
+    }
+
+    return $revisions;
   }
 
   /**
