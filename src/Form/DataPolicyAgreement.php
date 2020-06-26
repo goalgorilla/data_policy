@@ -70,9 +70,12 @@ class DataPolicyAgreement extends FormBase {
     $this->dataPolicyConsentManager->addCheckbox($form);
 
     // Add a message that the data policy was updated.
-    $entity_id = $this->config('data_policy.data_policy')->get('entity_id');
-    $timestamp = DataPolicy::load($entity_id)->getChangedTime();
+    $entity_ids = $this->dataPolicyConsentManager->getEntityIdsFromConsentText();
+    $revisions = $this->dataPolicyConsentManager->getRevisionsByEntityIds($entity_ids);
+    $timestamps = array_map(function ($revison) { return $revison->changed->value; }, $revisions);
+    $timestamp = max($timestamps);
     $date = \Drupal::service('date.formatter')->format($timestamp, 'html_date');
+
     $form['date'] = [
       '#theme' => 'status_messages',
       '#message_list' => [
