@@ -120,12 +120,10 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
     }
 
     $entities = $this->getEntityIdsFromConsentText();
-    $revisions = $this->getRevisionsByEntityIds($entities);
     $user_consents = $this->entityTypeManager->getStorage('user_consent')
       ->loadByProperties([
         'user_id' => $user_id,
         'status' => TRUE,
-        'data_policy_revision_id' => array_map(function ($revision){return $revision->vid->value;}, $revisions),
       ]);
 
     if (!empty($user_consents)) {
@@ -141,24 +139,11 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
       $data_policy = $data_policy_storage->load($entity);
 
       if ($action === 'submit') {
-        $overrides = $this->entityTypeManager->getStorage('user_consent')
-          ->loadByProperties([
-            'user_id' => $user_id,
-            'data_policy_revision_id' => $data_policy->vid->value,
-          ]);
-        if (!empty($overrides)) {
-          /** @var \Drupal\data_policy\Entity\UserConsent $override */
-          foreach ($overrides as $override) {
-            $override->set('status', 1)->save();
-          }
-        }
-        else {
-          UserConsent::create()
-            ->setRevision($data_policy)
-            ->setOwnerId($user_id)
-            ->set('state', $state)
-            ->save();
-        }
+        UserConsent::create()
+          ->setRevision($data_policy)
+          ->setOwnerId($user_id)
+          ->set('state', $state)
+          ->save();
       }
     }
   }

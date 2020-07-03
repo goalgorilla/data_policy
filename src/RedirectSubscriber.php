@@ -12,6 +12,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\data_policy\Entity\DataPolicyInterface;
 use Drupal\data_policy\Entity\UserConsentInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -218,19 +219,20 @@ class RedirectSubscriber implements EventSubscriberInterface {
   private function getConsentsData($entity_id, $config) {
     /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
-    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
 
-    foreach ($data_policy_storage->revisionIds($data_policy) as $vid) {
-      if ($data_policy_storage->loadRevision($vid)->isDefaultRevision()) {
-        break;
+    if ($data_policy instanceof DataPolicyInterface) {
+      foreach ($data_policy_storage->revisionIds($data_policy) as $vid) {
+        if ($data_policy_storage->loadRevision($vid)->isDefaultRevision()) {
+          break;
+        }
       }
-    }
 
-    $values = [
-      'user_id' => $this->getCurrentUser()->id(),
-      'data_policy_revision_id' => $vid,
-    ];
+      $values = [
+        'user_id' => $this->getCurrentUser()->id(),
+        'data_policy_revision_id' => $vid,
+      ];
+    }
 
     if ($enforce_consent = !empty($config->get('enforce_consent'))) {
       $values['state'] = UserConsentInterface::STATE_AGREE;
