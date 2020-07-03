@@ -6,9 +6,14 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\Xss;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Render\Markup;
+use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
+use Drupal\data_policy\DataPolicyConsentManagerInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Class DataPolicy.
@@ -39,42 +44,47 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
   protected $dataPolicyConsentManager;
 
   /**
-   * Retrieves the date formatter.
+   * The currently active request object.
    *
-   * @return \Drupal\Core\Datetime\DateFormatter
-   *   The date formatter.
+   * @var \Symfony\Component\HttpFoundation\Request
    */
-  protected function dateFormatter() {
-    if (!isset($this->dateFormatter)) {
-      $this->dateFormatter = \Drupal::service('date.formatter');
-    }
-    return $this->dateFormatter;
-  }
+  protected $request;
 
   /**
-   * Retrieves the renderer.
+   * DataPolicy constructor.
    *
-   * @return \Drupal\Core\Render\Renderer
-   *   The renderer.
-   */
-  protected function renderer() {
-    if (!isset($this->renderer)) {
-      $this->renderer = \Drupal::service('renderer');
-    }
-    return $this->renderer;
-  }
-
-  /**
-   * Returns the Data Policy consent manager service.
-   *
-   * @return \Drupal\data_policy\DataPolicyConsentManagerInterface
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   The date formatter service.
+   * @param \Drupal\Core\Render\RendererInterface $renderer
+   *   The renderer service.
+   * @param \Drupal\data_policy\DataPolicyConsentManagerInterface $data_policy_consent_manager
    *   The Data Policy consent manager.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
    */
-  protected function dataPolicyConsentManager() {
-    if (!$this->dataPolicyConsentManager) {
-      $this->dataPolicyConsentManager = \Drupal::service('data_policy.manager');
-    }
-    return $this->dataPolicyConsentManager;
+  public function __construct(
+    DateFormatterInterface $date_formatter,
+    RendererInterface $renderer,
+    DataPolicyConsentManagerInterface $data_policy_consent_manager,
+    Request $request
+  ) {
+    $this->dateFormatter = $date_formatter;
+    $this->renderer = $renderer;
+    $this->dataPolicyConsentManager = $data_policy_consent_manager;
+    $this->request = $request;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    /* @noinspection PhpParamsInspection */
+    return new static(
+      $container->get('date.formatter'),
+      $container->get('renderer'),
+      $container->get('data_policy.manager'),
+      $container->get('request_stack')->getCurrentRequest()
+    );
   }
 
   /**
@@ -84,7 +94,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   The data policy description text.
    */
   public function entityOverviewPage() {
-    $entity_id = \Drupal::request()->get('id');
+    $entity_id = $this->request->get('id');
 
     if (!empty($entity_id)) {
       $description = $this->entityTypeManager()->getStorage('data_policy')
@@ -111,7 +121,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   The data policy title.
    */
   public function entityOverviewTitle() {
-    $entity_id = \Drupal::request()->get('entity_id');
+    $entity_id = $this->request->get('entity_id');
 
     if (!empty($entity_id)) {
       $title = $this->entityTypeManager()->getStorage('data_policy')
@@ -132,7 +142,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   The access result.
    */
   public function entityOverviewAccess() {
-    if ($this->dataPolicyConsentManager()->isDataPolicy()) {
+    if ($this->dataPolicyConsentManager->isDataPolicy()) {
       return AccessResult::allowed();
     }
 
@@ -170,7 +180,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
       ->loadRevision($data_policy_revision);
 
     return $this->t('Data policy revision from %date', [
-      '%date' => $this->dateFormatter()->format($data_policy->getRevisionCreationTime()),
+      '%date' => $this->dateFormatter->format($data_policy->getRevisionCreationTime()),
     ]);
   }
 
@@ -229,7 +239,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
       ];
 
       // Use revision link to link to revisions that are not active.
-      $date = $this->dateFormatter()
+      $date = $this->dateFormatter
         ->format($revision->getRevisionCreationTime(), 'short');
 
       $row = [];
@@ -238,7 +248,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
         'data' => [
           '#theme' => 'data_policy_data_policy_revision',
           '#date' => $date,
-          '#username' => $this->renderer()->renderPlain($username),
+          '#username' => $this->renderer->renderPlain($username),
           '#current' => $revision->isDefaultRevision(),
           '#message' => [
             '#markup' => Unicode::truncate($revision->getRevisionLogMessage(), 80, TRUE, TRUE),
@@ -328,7 +338,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   of data policy.
    */
   public function agreementAccess() {
-    if ($this->dataPolicyConsentManager()->needConsent()) {
+    if ($this->dataPolicyConsentManager->needConsent()) {
       return AccessResult::allowed();
     }
 
@@ -346,7 +356,7 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    */
   public function revisionEditAccess($data_policy_revision) {
     if ($this->currentUser()->hasPermission('administer data policy entities') || $this->currentUser()->hasPermission('edit data policy')) {
-      $ids = $this->dataPolicyConsentManager()->getConfig('revision_ids');
+      $ids = $this->dataPolicyConsentManager->getConfig('revision_ids');
 
       if (!isset($ids[$data_policy_revision])) {
         return AccessResult::allowed();

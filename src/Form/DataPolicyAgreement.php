@@ -2,6 +2,7 @@
 
 namespace Drupal\data_policy\Form;
 
+use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
@@ -31,25 +32,41 @@ class DataPolicyAgreement extends FormBase {
   protected $destination;
 
   /**
+   * The date formatter service.
+   *
+   * @var \Drupal\Core\Datetime\DateFormatterInterface
+   */
+  protected $dateFormatter;
+
+  /**
    * DataPolicyAgreement constructor.
    *
    * @param \Drupal\data_policy\DataPolicyConsentManagerInterface $data_policy_manager
    *   The Data Policy consent manager.
    * @param \Drupal\Core\Routing\RedirectDestinationInterface $destination
    *   The redirect destination helper.
+   * @param \Drupal\Core\Datetime\DateFormatterInterface $date_formatter
+   *   The date formatter service.
    */
-  public function __construct(DataPolicyConsentManagerInterface $data_policy_manager, RedirectDestinationInterface $destination) {
+  public function __construct(
+    DataPolicyConsentManagerInterface $data_policy_manager,
+    RedirectDestinationInterface $destination,
+    DateFormatterInterface $date_formatter
+  ) {
     $this->dataPolicyConsentManager = $data_policy_manager;
     $this->destination = $destination;
+    $this->dateFormatter = $date_formatter;
   }
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
+    /* @noinspection PhpParamsInspection */
     return new static(
       $container->get('data_policy.manager'),
-      $container->get('redirect.destination')
+      $container->get('redirect.destination'),
+      $container->get('date.formatter')
     );
   }
 
@@ -75,7 +92,7 @@ class DataPolicyAgreement extends FormBase {
       return $revision->changed->value;
     }, $revisions);
     $timestamp = max($timestamps);
-    $date = \Drupal::service('date.formatter')->format($timestamp, 'html_date');
+    $date = $this->dateFormatter->format($timestamp, 'html_date');
 
     $form['date'] = [
       '#theme' => 'status_messages',
