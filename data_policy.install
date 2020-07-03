@@ -5,6 +5,7 @@
  * Install, update and uninstall functions for the data_policy module.
  */
 
+use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\data_policy\Entity\DataPolicy;
 
@@ -115,4 +116,16 @@ function data_policy_update_8003() {
   $data_policy_config = \Drupal::configFactory()->getEditable('data_policy.data_policy');
   $data_policy_config->set('consent_text', 'I agree with the [id:1]');
   $data_policy_config->save();
+}
+
+/**
+ * Update the "Data Policy Agreements" view.
+ */
+function data_policy_update_8004() {
+  $name = 'views.view.data_policy_agreements';
+
+  $install_source = drupal_get_path('module', 'data_policy') . '/config/install';
+  $source = new FileStorage($install_source);
+  $config_storage = \Drupal::service('config.storage');
+  $config_storage->write($name, $source->read($name));
 }

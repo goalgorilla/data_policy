@@ -33,12 +33,9 @@ class DataPolicyListBuilder extends EntityListBuilder {
       'entity.data_policy.version_history',
       ['entity_id' => $entity->id()]
     );
+
     $row['id'] = $entity->id();
-
-    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
-    $data_policy_storage = \Drupal::entityTypeManager()->getStorage('data_policy');
-    $count = count($data_policy_storage->revisionIds($entity));
-
+    $count = count($this->storage->revisionIds($entity));
     $row['revisions'] = $this->t('%count', ['%count' => $count]);
 
     return $row + parent::buildRow($entity);

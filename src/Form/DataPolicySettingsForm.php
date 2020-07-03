@@ -44,11 +44,6 @@ class DataPolicySettingsForm extends ConfigFormBase {
       '#title' => $this->t('Enforce consent text'),
       '#default_value' => $config->get('consent_text'),
       '#rows' => '8',
-      '#states' => [
-        'visible' => [
-          ':input[name="enforce_consent"]' => ['checked' => TRUE],
-        ],
-      ],
     ];
 
     return parent::buildForm($form, $form_state);
