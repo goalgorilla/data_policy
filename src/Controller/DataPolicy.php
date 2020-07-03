@@ -149,11 +149,6 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    *   An array suitable for drupal_render().
    */
   public function revisionOverviewPage($data_policy_revision) {
-    $build['data_policy'] = [
-      '#type' => 'fieldset',
-      '#title' => $this->t('Revision data'),
-    ];
-
     $data_policy = $this->entityTypeManager()->getStorage('data_policy')
       ->loadRevision($data_policy_revision);
 

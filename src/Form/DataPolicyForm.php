@@ -57,13 +57,6 @@ class DataPolicyForm extends ContentEntityForm {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function save(array $form, FormStateInterface $form_state) {
-    return parent::save($form, $form_state);
-  }
-
-  /**
    * Get status of clearing revision log message.
    *
    * @return bool

@@ -6,18 +6,11 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class DataPolicyAddFormю
+ * Class DataPolicyAddForm.
  *
  * @package Drupal\data_policy\Form
  */
 class DataPolicyAddForm extends ContentEntityForm {
-
-  /**
-   * {@inheritdoc}
-   */
-  public function form(array $form, FormStateInterface $form_state) {
-    return parent::form($form, $form_state);
-  }
 
   /**
    * {@inheritdoc}

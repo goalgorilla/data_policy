@@ -40,10 +40,10 @@ function data_policy_update_8001() {
     'weight' => -1,
     'settings' => [
       'size' => 60,
-      'placeholder' => ''
+      'placeholder' => '',
     ],
     'third_party_settings' => [],
-    'region' => 'content'
+    'region' => 'content',
 
   ];
   $config->setData($data);
@@ -61,9 +61,9 @@ function data_policy_update_8002() {
 
   // Retrieve existing field data.
   $data = $database->select('user_consent', 'uc')->fields('uc', [
-      'id',
-      'data_policy_revision_id',
-    ])->execute()->fetchAllKeyed();
+    'id',
+    'data_policy_revision_id',
+  ])->execute()->fetchAllKeyed();
 
   // Remove data from the storage.
   $database->update('user_consent')
@@ -78,10 +78,26 @@ function data_policy_update_8002() {
 
   // Restore entity data in the new schema.
   $insert_query = $database->insert('user_consent__data_policy_revision_id')
-    ->fields(['bundle', 'deleted', 'entity_id', 'revision_id', 'langcode', 'delta', 'data_policy_revision_id_value']);
+    ->fields([
+      'bundle',
+      'deleted',
+      'entity_id',
+      'revision_id',
+      'langcode',
+      'delta',
+      'data_policy_revision_id_value',
+    ]);
 
   foreach ($data as $id => $data_policy_revision_id) {
-    $insert_query->values(['user_consent', 0, $id, $id, 'en', 0, $data_policy_revision_id]);
+    $insert_query->values([
+      'user_consent',
+      0,
+      $id,
+      $id,
+      'en',
+      0,
+      $data_policy_revision_id,
+    ]);
   }
 
   $insert_query->execute();

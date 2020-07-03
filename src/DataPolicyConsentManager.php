@@ -161,7 +161,9 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   public function getEntityIdsFromConsentText() {
     $consent_text = $this->getConfig('consent_text');
     preg_match_all("#\[(id:\d+)\]#", $consent_text, $matches, PREG_PATTERN_ORDER);
+    // @codingStandardsIgnoreStart
     list($search, $entity_ids) = $matches;
+    // @codingStandardsIgnoreEnd
 
     foreach ($entity_ids as $key => $entity_id) {
       $entity_ids[$key] = str_replace('id:', '', $entity_id);

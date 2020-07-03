@@ -6,7 +6,6 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RedirectDestinationInterface;
-use Drupal\data_policy\Entity\DataPolicy;
 use Drupal\data_policy\DataPolicyConsentManagerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -72,7 +71,9 @@ class DataPolicyAgreement extends FormBase {
     // Add a message that the data policy was updated.
     $entity_ids = $this->dataPolicyConsentManager->getEntityIdsFromConsentText();
     $revisions = $this->dataPolicyConsentManager->getRevisionsByEntityIds($entity_ids);
-    $timestamps = array_map(function ($revison) { return $revison->changed->value; }, $revisions);
+    $timestamps = array_map(function ($revision) {
+      return $revision->changed->value;
+    }, $revisions);
     $timestamp = max($timestamps);
     $date = \Drupal::service('date.formatter')->format($timestamp, 'html_date');
 
@@ -83,7 +84,7 @@ class DataPolicyAgreement extends FormBase {
           [
             '#type' => 'html_tag',
             '#tag' => 'strong',
-            '#value' => t('Our data policy has been updated on %date', [
+            '#value' => $this->t('Our data policy has been updated on %date', [
               '%date' => $date,
             ]),
           ],
@@ -132,14 +133,14 @@ class DataPolicyAgreement extends FormBase {
     $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id(), $agree, 'submit');
 
     // If the user agrees or does not agree (but it is not enforced), check if
-    // we should redirect him to the front page.
+    // we should redirect to the front page.
     if ($agree || (!$agree && empty($enforce))) {
       if ($this->destination->get() === '/data-policy-agreement') {
         $form_state->setRedirect('<front>');
       }
     }
 
-    // If the user does not agree and it is enforced, we will redirect him to
+    // If the user does not agree and it is enforced, we will redirect to
     // the cancel account page.
     if (!$agree && !empty($enforce)) {
       $this->getRequest()->query->remove('destination');

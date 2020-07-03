@@ -215,7 +215,17 @@ class RedirectSubscriber implements EventSubscriberInterface {
     $event->setResponse($response);
   }
 
-
+  /**
+   * Get consent data.
+   *
+   * @param mixed $entity_id
+   *   The entity id.
+   * @param object $config
+   *   The config object.
+   *
+   * @return array
+   *   Array of data.
+   */
   private function getConsentsData($entity_id, $config) {
     /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');

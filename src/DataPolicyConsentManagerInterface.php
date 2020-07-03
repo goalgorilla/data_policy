@@ -35,6 +35,8 @@ interface DataPolicyConsentManagerInterface {
    *   - undecided,
    *   - not agree,
    *   - agree.
+   * @param mixed $action
+   *   The action (submit and etc.)
    */
   public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED, $action = NULL);
 
@@ -74,6 +76,6 @@ interface DataPolicyConsentManagerInterface {
    * @return array
    *   The list of revisions.
    */
-  public function getRevisionsByEntityIds($entity_ids);
+  public function getRevisionsByEntityIds(array $entity_ids);
 
 }

@@ -31,8 +31,8 @@ INSTALLATION
 CONFIGURATION
 -------------
 
- * Add the Data Policy Inform block to the region you want it to be shown at. Go to
-   /admin/structure/block and click on "Place block" in a region. In the
+ * Add the Data Policy Inform block to the region you want it to be shown at.
+   Go to /admin/structure/block and click on "Place block" in a region. In the
    overview click on the Data Policy Inform block.
 
  * Navigate to /admin/config/system/inform-consent and add the pages you would
