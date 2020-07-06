@@ -26,8 +26,7 @@ use Drupal\user\UserInterface;
  *     "form" = {
  *       "default" = "Drupal\data_policy\Form\DataPolicyForm",
  *       "add" = "Drupal\data_policy\Form\DataPolicyAddForm",
- *       "edit" = "Drupal\data_policy\Form\DataPolicyEditForm",
- *       "delete" = "Drupal\data_policy\Form\DataPolicyDeleteForm"
+ *       "edit" = "Drupal\data_policy\Form\DataPolicyEditForm"
  *     },
  *     "access" = "Drupal\data_policy\DataPolicyAccessControlHandler",
  *     "route_provider" = {
@@ -52,7 +51,6 @@ use Drupal\user\UserInterface;
  *   links = {
  *     "collection" = "/admin/config/people/data-policy",
  *     "edit-form" = "/admin/config/people/data-policy/{data_policy}",
- *     "delete-form" = "/admin/config/people/data-policy/{data_policy}/delete",
  *     "version-history" = "/admin/config/people/data-policy/{entity_id}/all",
  *     "revision_edit" = "/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/edit",
  *     "revision" = "/admin/config/people/data-policy/{entity_id}/{data_policy_revision}",
