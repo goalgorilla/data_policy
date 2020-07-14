@@ -33,6 +33,20 @@ class DataPolicyAddForm extends ContentEntityForm {
   protected $request;
 
   /**
+   * The route name.
+   *
+   * @var string
+   */
+  private $routeName;
+
+  /**
+   * The current entity id from request.
+   *
+   * @var string
+   */
+  private $entityId;
+
+  /**
    * DataPolicyAddForm constructor.
    *
    * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
@@ -56,6 +70,8 @@ class DataPolicyAddForm extends ContentEntityForm {
     parent::__construct($entity_repository, $entity_type_bundle_info, $time);
     $this->routeMatch = $route_match;
     $this->request = $request;
+    $this->routeName = $this->routeMatch->getRouteName();
+    $this->entityId = $this->request->get('entity_id');
   }
 
   /**
@@ -75,6 +91,25 @@ class DataPolicyAddForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    if ($this->routeName === 'entity.data_policy.revision_add') {
+      $this->entity = $this->entityTypeManager->getStorage('data_policy')->load($this->entityId);
+
+      $form = parent::buildForm($form, $form_state);
+
+      $form['active_revision']['#default_value'] = $this->entity->isDefaultRevision();
+      $form['active_revision']['#disabled'] = $this->entity->isDefaultRevision();
+      $form['new_revision']['#default_value'] = FALSE;
+
+      return $form;
+    }
+
+    return parent::buildForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
     $this->messenger()->addStatus($this->t('Succesfully created a new "%name" entity.', ['%name' => $this->entity->label()]));
@@ -87,14 +122,8 @@ class DataPolicyAddForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    $route_name = $this->routeMatch->getRouteName();
-
-    if ($route_name === 'entity.data_policy.revision_add') {
-      $entity_id = $this->request->get('entity_id');
-      $this->entity = $this->entityTypeManager->getStorage('data_policy')->load($entity_id);
-
+    if ($this->routeName === 'entity.data_policy.revision_add') {
       $this->entity->setNewRevision(TRUE);
-
       $active_revision = !empty($form_state->getValue('active_revision'));
 
       if (!$active_revision) {
@@ -110,7 +139,7 @@ class DataPolicyAddForm extends ContentEntityForm {
       $this->entity->save();
       $this->messenger()->addStatus($this->t('Created new revision.'));
 
-      $form_state->setRedirect('entity.data_policy.version_history', ['entity_id' => $entity_id]);
+      $form_state->setRedirect('entity.data_policy.version_history', ['entity_id' => $this->entityId]);
     }
     else {
       return parent::save($form, $form_state);

@@ -175,7 +175,7 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function getRevisionsByEntityIds($entity_ids) {
+  public function getRevisionsByEntityIds(array $entity_ids) {
     $revisions = [];
     foreach ($entity_ids as $entity_id) {
       /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
