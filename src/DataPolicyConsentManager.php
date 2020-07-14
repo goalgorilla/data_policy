@@ -80,13 +80,12 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
     $links = [];
 
     foreach ($revisions as $key => $revision) {
-      $name = $revision->getName() ?: $this->t('Data policy');
-      $links[$key] = Link::createFromRoute(strtolower($name), 'data_policy.data_policy', ['id' => $revision->id()], [
+      $links[$key] = Link::createFromRoute(strtolower($revision->getName()), 'data_policy.data_policy', ['id' => $revision->id()], [
         'attributes' => [
           'class' => ['use-ajax'],
           'data-dialog-type' => 'modal',
           'data-dialog-options' => Json::encode([
-            'title' => $name,
+            'title' => $revision->getName(),
             'width' => 700,
             'height' => 700,
           ]),
