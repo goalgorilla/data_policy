@@ -78,7 +78,6 @@ class DataPolicyAddForm extends ContentEntityForm {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /* @noinspection PhpParamsInspection */
     return new static(
       $container->get('entity.repository'),
       $container->get('entity_type.bundle.info'),
@@ -112,7 +111,7 @@ class DataPolicyAddForm extends ContentEntityForm {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
-    $this->messenger()->addStatus($this->t('Succesfully created a new "%name" entity.', ['%name' => $this->entity->label()]));
+    $this->messenger()->addStatus($this->t('Successfully created a new "%name" entity.', ['%name' => $this->entity->label()]));
     $form_state->setRedirect('entity.data_policy.collection');
 
     return $this->entity;

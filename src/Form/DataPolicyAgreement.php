@@ -8,6 +8,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\data_policy\DataPolicyConsentManagerInterface;
+use Drupal\data_policy\Entity\DataPolicyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -62,7 +63,6 @@ class DataPolicyAgreement extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /* @noinspection PhpParamsInspection */
     return new static(
       $container->get('data_policy.manager'),
       $container->get('redirect.destination'),
@@ -88,8 +88,8 @@ class DataPolicyAgreement extends FormBase {
     // Add a message that the data policy was updated.
     $entity_ids = $this->dataPolicyConsentManager->getEntityIdsFromConsentText();
     $revisions = $this->dataPolicyConsentManager->getRevisionsByEntityIds($entity_ids);
-    $timestamps = array_map(function ($revision) {
-      return $revision->changed->value;
+    $timestamps = array_map(function (DataPolicyInterface $revision) {
+      return $revision->getChangedTime();
     }, $revisions);
     $timestamp = max($timestamps);
     $date = $this->dateFormatter->format($timestamp, 'html_date');

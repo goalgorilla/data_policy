@@ -66,12 +66,11 @@ class UserConsentListBuilder extends EntityListBuilder {
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    /** @var \Drupal\user\UserInterface $owner */
     $owner = $entity->getOwner();
     /* @var $entity \Drupal\data_policy\Entity\UserConsentInterface */
     return [
       'id' => $entity->id(),
-      'user' => ($owner instanceof UserInterface) ? $owner->getDisplayName() : '',
+      'user' => ($owner instanceof UserInterface) ? $owner->getDisplayName() : $this->t('Deleted user'),
       'created' => $this->dateFormatter->format($entity->getChangedTime(), 'short'),
     ];
   }

@@ -34,8 +34,7 @@ class DataPolicyListBuilder extends EntityListBuilder {
       ]);
 
     $row['id'] = $entity->id();
-    $count = count($this->storage->revisionIds($entity));
-    $row['revisions'] = $this->t('%count', ['%count' => $count]);
+    $row['revisions'] = count($this->storage->revisionIds($entity));
 
     return $row + parent::buildRow($entity);
   }

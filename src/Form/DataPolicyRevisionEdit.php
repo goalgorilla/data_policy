@@ -4,11 +4,12 @@ namespace Drupal\data_policy\Form;
 
 use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityRepositoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides a form for editing a Data policy revision.
@@ -18,9 +19,23 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class DataPolicyRevisionEdit extends DataPolicyForm {
 
   /**
+   * The currently active request object.
+   *
+   * @var \Symfony\Component\HttpFoundation\Request
+   */
+  protected $request;
+
+  /**
+   * The current revision id from request.
+   *
+   * @var string
+   */
+  private $revisionId;
+
+  /**
    * Constructs a DataPolicyRevisionEdit object.
    *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   * @param \Drupal\Core\Entity\EntityRepositoryInterface $entity_repository
    *   The entity manager.
    * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
    *   The entity type bundle service.
@@ -30,17 +45,23 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
    *   The module handler service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   The config factory.
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   *   The current request.
    */
-  public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info = NULL, TimeInterface $time = NULL, ModuleHandlerInterface $module_handler = NULL, ConfigFactoryInterface $config_factory) {
-    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
-
+  public function __construct(
+    EntityRepositoryInterface $entity_repository,
+    EntityTypeBundleInfoInterface $entity_type_bundle_info,
+    TimeInterface $time,
+    ModuleHandlerInterface $module_handler,
+    ConfigFactoryInterface $config_factory,
+    Request $request
+  ) {
+    parent::__construct($entity_repository, $entity_type_bundle_info, $time);
     $this->moduleHandler = $module_handler;
     $this->configFactory = $config_factory;
-
-    $entity_id = \Drupal::request()->get('entity_id');
-
-    $this->entity = $this->entityManager->getStorage('data_policy')
-      ->load($entity_id);
+    $this->request = $request;
+    $this->revisionId = $this->request->get('data_policy_revision');
+    $this->entity = $this->entityManager->getStorage('data_policy')->loadRevision($this->revisionId);
   }
 
   /**
@@ -48,11 +69,12 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
    */
   public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('entity.manager'),
+      $container->get('entity.repository'),
       $container->get('entity_type.bundle.info'),
       $container->get('datetime.time'),
       $container->get('module_handler'),
-      $container->get('config.factory')
+      $container->get('config.factory'),
+      $container->get('request_stack')->getCurrentRequest()
     );
   }
 
@@ -66,17 +88,12 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, FormStateInterface $form_state, $data_policy_revision = NULL) {
-    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $entity */
-    $entity = &$this->entity;
-
-    $entity = $this->entityManager->getStorage('data_policy')
-      ->loadRevision($data_policy_revision);
-
+  public function buildForm(array $form, FormStateInterface $form_state) {
+    $this->entity = $this->entityManager->getStorage('data_policy')->loadRevision($this->revisionId);
     $form = parent::buildForm($form, $form_state);
 
-    $form['active_revision']['#default_value'] = $entity->isDefaultRevision();
-    $form['active_revision']['#disabled'] = $entity->isDefaultRevision();
+    $form['active_revision']['#default_value'] = $this->entity->isDefaultRevision();
+    $form['active_revision']['#disabled'] = $this->entity->isDefaultRevision();
     $form['new_revision']['#default_value'] = FALSE;
 
     return $form;
@@ -86,22 +103,17 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
    * {@inheritdoc}
    */
   public function save(array $form, FormStateInterface $form_state) {
-    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $entity */
-    $entity = &$this->entity;
-
-    if (!empty($form_state->getValue('active_revision')) && !$entity->isDefaultRevision()) {
-      $entity->isDefaultRevision(TRUE);
+    if (!empty($form_state->getValue('active_revision')) && !$this->entity->isDefaultRevision()) {
+      $this->entity->isDefaultRevision(TRUE);
       $config = $this->configFactory->getEditable('data_policy.data_policy');
       $ids = $config->get('revision_ids');
-      $ids[$entity->getRevisionId()] = TRUE;
+      $ids[$this->entity->getRevisionId()] = TRUE;
       $config->set('revision_ids', $ids)->save();
     }
 
-    $entity->save();
-
+    $this->entity->save();
     $this->messenger()->addStatus($this->t('Saved revision.'));
-
-    $form_state->setRedirect('entity.data_policy.version_history', ['entity_id' => $entity->id()]);
+    $form_state->setRedirect('entity.data_policy.version_history', ['entity_id' => $this->entity->id()]);
   }
 
   /**

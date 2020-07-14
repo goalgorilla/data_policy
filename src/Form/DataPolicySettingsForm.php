@@ -41,9 +41,9 @@ class DataPolicySettingsForm extends ConfigFormBase {
 
     $form['consent_text'] = [
       '#type' => 'textarea',
-      '#title' => $this->t('Enforce consent text'),
+      '#title' => $this->t('Consent text'),
       '#default_value' => $config->get('consent_text'),
-      '#rows' => '8',
+      '#rows' => 8,
     ];
 
     return parent::buildForm($form, $form_state);
