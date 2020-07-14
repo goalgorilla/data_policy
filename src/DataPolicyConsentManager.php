@@ -132,13 +132,12 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
       }
     }
 
-    /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
-    $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
-    foreach ($entities as $entity) {
-      /** @var \Drupal\data_policy\Entity\DataPolicy $data_policy */
-      $data_policy = $data_policy_storage->load($entity);
-
-      if ($action === 'submit') {
+    if ($action === 'submit') {
+      /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
+      $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
+      foreach ($entities as $entity) {
+        /** @var \Drupal\data_policy\Entity\DataPolicy $data_policy */
+        $data_policy = $data_policy_storage->load($entity);
         UserConsent::create()
           ->setRevision($data_policy)
           ->setOwnerId($user_id)
@@ -160,16 +159,9 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
    */
   public function getEntityIdsFromConsentText() {
     $consent_text = $this->getConfig('consent_text');
-    preg_match_all("#\[(id:\d+)\]#", $consent_text, $matches, PREG_PATTERN_ORDER);
-    // @codingStandardsIgnoreStart
-    list($search, $entity_ids) = $matches;
-    // @codingStandardsIgnoreEnd
+    preg_match_all("#\[id:(\d+)\]#", $consent_text, $matches);
 
-    foreach ($entity_ids as $key => $entity_id) {
-      $entity_ids[$key] = str_replace('id:', '', $entity_id);
-    }
-
-    return $entity_ids;
+    return $matches[1];
   }
 
   /**

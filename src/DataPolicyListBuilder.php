@@ -28,11 +28,10 @@ class DataPolicyListBuilder extends EntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     /* @var $entity \Drupal\data_policy\Entity\DataPolicy */
-    $row['name'] = Link::createFromRoute(
-      $entity->label(),
-      'entity.data_policy.version_history',
-      ['entity_id' => $entity->id()]
-    );
+    $row['name'] = Link::createFromRoute($entity->label(), 'entity.data_policy.revision', [
+        'entity_id' => $entity->id(),
+        'data_policy_revision' => $entity->vid->value,
+      ]);
 
     $row['id'] = $entity->id();
     $count = count($this->storage->revisionIds($entity));

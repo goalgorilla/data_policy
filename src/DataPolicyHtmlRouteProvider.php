@@ -70,7 +70,6 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
         '_title' => 'Data policy',
         '_controller' => '\Drupal\data_policy\Controller\DataPolicy::revisionsOverviewPage',
       ])
-      ->setPath('/admin/config/people/data-policy/{entity_id}/all')
       ->setRequirement('_permission', 'view all data policy revisions')
       ->setOption('_admin_route', TRUE);
 
@@ -95,7 +94,6 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_title_callback' => '\Drupal\data_policy\Controller\DataPolicy::revisionOverviewTitle',
         ])
         ->setRequirement('_permission', 'access data policy revisions')
-        ->setPath('/admin/config/people/data-policy/{entity_id}/{data_policy_revision}')
         ->setOption('_admin_route', TRUE);
 
       return $route;
@@ -124,7 +122,6 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
         '_title' => 'Edit revision',
       ])
       ->setRequirement('_custom_access', '\Drupal\data_policy\Controller\DataPolicy::revisionEditAccess')
-      ->setPath('/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/edit')
       ->setOption('_admin_route', TRUE);
 
     return $route;
@@ -148,7 +145,6 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_title' => 'Revert to earlier revision',
         ])
         ->setRequirement('_permission', 'revert all data policy revisions')
-        ->setPath('/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/revert')
         ->setOption('_admin_route', TRUE);
 
       return $route;
@@ -173,7 +169,6 @@ class DataPolicyHtmlRouteProvider extends AdminHtmlRouteProvider {
           '_title' => 'Delete earlier revision',
         ])
         ->setRequirement('_permission', 'delete all data policy revisions')
-        ->setPath('/admin/config/people/data-policy/{entity_id}/{data_policy_revision}/delete')
         ->setOption('_admin_route', TRUE);
 
       return $route;

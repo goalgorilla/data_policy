@@ -5,6 +5,7 @@
  * data_policy.module
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -89,7 +90,7 @@ function data_policy_views_data_alter(array &$data) {
  * Implements hook_form_FORM_ID_alter().
  */
 function data_policy_form_user_register_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  /** @var \Drupal\data_policy\DataPolicyConsentManager $data_policy_manager */
+  /** @var \Drupal\data_policy\DataPolicyConsentManagerInterface $data_policy_manager */
   $data_policy_manager = \Drupal::service('data_policy.manager');
 
   if (!$data_policy_manager->isDataPolicy()) {
@@ -99,7 +100,6 @@ function data_policy_form_user_register_form_alter(&$form, FormStateInterface $f
   $data_policy_manager->addCheckbox($form);
 
   $form['actions']['submit']['#submit'][] = '_data_policy_user_register_form_submit';
-
 }
 
 /**
@@ -113,4 +113,22 @@ function data_policy_form_user_register_form_alter(&$form, FormStateInterface $f
 function _data_policy_user_register_form_submit(array &$form, FormStateInterface $form_state) {
   $values = $form_state->getValues();
   \Drupal::service('data_policy.manager')->saveConsent($values['uid'], !empty($values['data_policy']));
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function data_policy_entity_operation(EntityInterface $entity) {
+  $operations = [];
+
+  if ($entity->getEntityTypeId() === 'data_policy') {
+    $operations['list'] = [
+      'title' => t('Revisions'),
+      'weight' => 150,
+      'url' => $entity->toUrl('version-history')
+        ->setRouteParameter('entity_id', $entity->id()),
+    ];
+  }
+
+  return $operations;
 }
