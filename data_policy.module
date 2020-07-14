@@ -122,7 +122,7 @@ function data_policy_entity_operation(EntityInterface $entity) {
   $operations = [];
 
   if ($entity->getEntityTypeId() === 'data_policy') {
-    $operations['list'] = [
+    $operations['revisions'] = [
       'title' => t('Revisions'),
       'weight' => 150,
       'url' => $entity->toUrl('version-history')
