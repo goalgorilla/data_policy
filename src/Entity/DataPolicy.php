@@ -206,6 +206,7 @@ class DataPolicy extends RevisionableContentEntityBase implements DataPolicyInte
       ->setLabel(t('Name'))
       ->setDescription(t('The name of the Data policy entity.'))
       ->setRevisionable(TRUE)
+      ->setRequired(TRUE)
       ->setSettings([
         'max_length' => 50,
         'text_processing' => 0,

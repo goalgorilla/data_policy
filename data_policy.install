@@ -129,3 +129,14 @@ function data_policy_update_8004() {
   $config_storage = \Drupal::service('config.storage');
   $config_storage->write($name, $source->read($name));
 }
+
+/**
+ * Make the 'Name' field form data policy required.
+ */
+function data_policy_update_8005() {
+  // Update definitions and schema.
+  $manager = \Drupal::entityDefinitionUpdateManager();
+  $storage_definition = $manager->getFieldStorageDefinition('name', 'data_policy');
+  $storage_definition->setRequired(TRUE);
+  $manager->updateFieldStorageDefinition($storage_definition);
+}
