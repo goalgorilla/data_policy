@@ -47,8 +47,6 @@ class DataPolicyForm extends ContentEntityForm {
       $form['langcode']['widget'][0]['value']['#languages'] = LanguageInterface::STATE_CONFIGURABLE;
     }
 
-    $form['name']['widget'][0]['value']['#description'] = $this->t('Title of the data policy page and link.');
-
     return $form;
   }
 

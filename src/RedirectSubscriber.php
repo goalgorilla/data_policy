@@ -12,7 +12,6 @@ use Drupal\Core\Routing\RouteMatchInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
-use Drupal\data_policy\Entity\DataPolicyInterface;
 use Drupal\data_policy\Entity\UserConsentInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -128,9 +127,6 @@ class RedirectSubscriber implements EventSubscriberInterface {
    *
    * @param \Symfony\Component\HttpKernel\Event\GetResponseEvent $event
    *   The event.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function checkForRedirection(GetResponseEvent $event): void {
     // Check if a data policy is set.
@@ -173,38 +169,40 @@ class RedirectSubscriber implements EventSubscriberInterface {
         $this->messenger->addStatus($this->t('We published a new version of the data policy. You can review the data policy @url.', [
           '@url' => $link->toString(),
         ]));
+
         return;
       }
+    }
 
-      $route_names = [
-        'entity.user.cancel_form',
-        'data_policy.data_policy',
-        'system.403',
-        'system.404',
-        'system.batch_page.html',
-        'system.batch_page.json',
-        'user.cancel_confirm',
-        'user.logout',
-        'entity_sanitizer_image_fallback.generator',
-      ];
+    $route_names = [
+      'entity.user.cancel_form',
+      'data_policy.data_policy',
+      'system.403',
+      'system.404',
+      'system.batch_page.html',
+      'system.batch_page.json',
+      'user.cancel_confirm',
+      'user.logout',
+      'entity_sanitizer_image_fallback.generator',
+    ];
 
-      if (in_array($route_name, $route_names, TRUE)) {
-        return;
-      }
+    if (in_array($route_name, $route_names, TRUE)) {
+      return;
+    }
 
-      // Set the destination that redirects the user after accepting the
-      // data policy agreements.
-      $destination = $this->getDestination();
+    // Set the destination that redirects the user after accepting the
+    // data policy agreements.
+    $destination = $this->getDestination();
 
-      // Check if there are hooks to invoke that do an override.
-      $implementations = $this->moduleHandler->getImplementations('data_policy_destination_alter');
-      foreach ($implementations as $module) {
-        $destination = $this->moduleHandler->invoke($module, 'data_policy_destination_alter', [
-          $this->getCurrentUser(),
-          $this->getDestination(),
-        ]);
-      }
+    // Check if there are hooks to invoke that do an override.
+    $implementations = $this->moduleHandler->getImplementations('data_policy_destination_alter');
 
+    if (!empty($implementations)) {
+      $module = end($implementations);
+      $destination = $this->moduleHandler->invoke($module, 'data_policy_destination_alter', [
+        $this->getCurrentUser(),
+        $this->getDestination(),
+      ]);
     }
 
     $url = Url::fromRoute('data_policy.data_policy.agreement', [], [
@@ -229,20 +227,13 @@ class RedirectSubscriber implements EventSubscriberInterface {
   private function getConsentsData($entity_id, $config) {
     /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
+    /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
     $data_policy = $data_policy_storage->load($entity_id);
 
-    if ($data_policy instanceof DataPolicyInterface) {
-      foreach ($data_policy_storage->revisionIds($data_policy) as $vid) {
-        if ($data_policy_storage->loadRevision($vid)->isDefaultRevision()) {
-          break;
-        }
-      }
-
-      $values = [
-        'user_id' => $this->getCurrentUser()->id(),
-        'data_policy_revision_id' => $vid,
-      ];
-    }
+    $values = [
+      'user_id' => $this->getCurrentUser()->id(),
+      'data_policy_revision_id' => $data_policy->vid->value,
+    ];
 
     if ($enforce_consent = !empty($config->get('enforce_consent'))) {
       $values['state'] = UserConsentInterface::STATE_AGREE;

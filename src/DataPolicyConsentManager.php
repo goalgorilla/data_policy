@@ -172,15 +172,9 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
       /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
       $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
 
-      $this->entity = $data_policy_storage->load($entity_id);
-      $vids = $data_policy_storage->revisionIds($this->entity);
-
-      foreach ($vids as $vid) {
-        $revisions[$entity_id] = $data_policy_storage->loadRevision($vid);
-        if ($data_policy_storage->loadRevision($vid)->isDefaultRevision()) {
-          break;
-        }
-      }
+      /** @var \Drupal\data_policy\Entity\DataPolicyInterface $entity */
+      $entity = $data_policy_storage->load($entity_id);
+      $revisions[$entity_id] = $data_policy_storage->loadRevision($entity->vid->value);
     }
 
     return $revisions;
