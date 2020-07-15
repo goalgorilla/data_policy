@@ -124,7 +124,7 @@ function data_policy_entity_operation(EntityInterface $entity) {
   if ($entity->getEntityTypeId() === 'data_policy') {
     $operations['revisions'] = [
       'title' => t('Revisions'),
-      'weight' => 150,
+      'weight' => 1,
       'url' => $entity->toUrl('version-history')
         ->setRouteParameter('entity_id', $entity->id()),
     ];
