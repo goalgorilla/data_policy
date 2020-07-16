@@ -3,6 +3,7 @@
 namespace Drupal\data_policy;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Link;
@@ -216,15 +217,15 @@ class RedirectSubscriber implements EventSubscriberInterface {
   /**
    * Get consent data.
    *
-   * @param mixed $entity_id
+   * @param int $entity_id
    *   The entity id.
-   * @param object $config
+   * @param \Drupal\Core\Config\ImmutableConfig $config
    *   The config object.
    *
    * @return array
    *   Array of data.
    */
-  private function getConsentsData($entity_id, $config) {
+  private function getConsentsData($entity_id, ImmutableConfig $config) {
     /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
     /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
@@ -232,7 +233,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
 
     $values = [
       'user_id' => $this->getCurrentUser()->id(),
-      'data_policy_revision_id' => $data_policy->vid->value,
+      'data_policy_revision_id' => $data_policy->getRevisionId(),
     ];
 
     if ($enforce_consent = !empty($config->get('enforce_consent'))) {

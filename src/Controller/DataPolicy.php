@@ -79,7 +79,6 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {
-    /* @noinspection PhpParamsInspection */
     return new static(
       $container->get('date.formatter'),
       $container->get('renderer'),
@@ -114,16 +113,16 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
     $links = [];
 
     foreach ($entity_ids as $entity_id) {
-      /** @var DataPolicyConsentManagerInterface $entity */
+      /** @var \Drupal\data_policy\Entity\DataPolicyInterface $entity */
       $entity = $this->entityTypeManager()->getStorage('data_policy')->load($entity_id);
       $links[] = Link::createFromRoute($entity->getName(), 'entity.data_policy.revision', [
         'entity_id' => $entity->id(),
-        'data_policy_revision' => $entity->vid->value,
+        'data_policy_revision' => $entity->getRevisionId(),
       ]);
     }
 
     return [
-      '#title' => 'Active revisions',
+      '#title' => $this->t('Active revisions'),
       '#theme' => 'item_list',
       '#items' => $links,
     ];

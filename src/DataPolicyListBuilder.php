@@ -30,7 +30,7 @@ class DataPolicyListBuilder extends EntityListBuilder {
     /* @var $entity \Drupal\data_policy\Entity\DataPolicy */
     $row['name'] = Link::createFromRoute($entity->label(), 'entity.data_policy.revision', [
       'entity_id' => $entity->id(),
-      'data_policy_revision' => $entity->vid->value,
+      'data_policy_revision' => $entity->getRevisionId(),
     ]);
 
     $row['id'] = $entity->id();

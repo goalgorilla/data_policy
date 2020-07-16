@@ -135,7 +135,7 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
       /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
       $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
       foreach ($entities as $entity) {
-        /** @var \Drupal\data_policy\Entity\DataPolicy $data_policy */
+        /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
         $data_policy = $data_policy_storage->load($entity);
         UserConsent::create()
           ->setRevision($data_policy)
