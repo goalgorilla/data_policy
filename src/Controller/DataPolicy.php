@@ -8,6 +8,7 @@ use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Datetime\DateFormatterInterface;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Link;
 use Drupal\Core\Render\Markup;
 use Drupal\Core\Render\RendererInterface;
 use Drupal\Core\Url;
@@ -101,16 +102,30 @@ class DataPolicy extends ControllerBase implements ContainerInjectionInterface {
         ->load($entity_id)
         ->field_description
         ->value;
-
       $description = Markup::create($description);
+
+      return [
+        '#theme' => 'data_policy_data_policy',
+        '#content' => $description,
+      ];
     }
-    else {
-      $description = $this->t('Data policy is not created.');
+
+    $entity_ids = $this->dataPolicyConsentManager->getEntityIdsFromConsentText();
+    $links = [];
+
+    foreach ($entity_ids as $entity_id) {
+      /** @var DataPolicyConsentManagerInterface $entity */
+      $entity = $this->entityTypeManager()->getStorage('data_policy')->load($entity_id);
+      $links[] = Link::createFromRoute($entity->getName(), 'entity.data_policy.revision', [
+        'entity_id' => $entity->id(),
+        'data_policy_revision' => $entity->vid->value,
+      ]);
     }
 
     return [
-      '#theme' => 'data_policy_data_policy',
-      '#content' => $description,
+      '#title' => 'Active revisions',
+      '#theme' => 'item_list',
+      '#items' => $links,
     ];
   }
 
