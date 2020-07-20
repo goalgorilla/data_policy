@@ -28,7 +28,7 @@ class DataPolicyRevisionEdit extends DataPolicyForm {
   /**
    * The current revision id from request.
    *
-   * @var string
+   * @var int
    */
   private $revisionId;
 

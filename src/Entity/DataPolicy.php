@@ -25,8 +25,7 @@ use Drupal\user\UserInterface;
  *     "translation" = "Drupal\data_policy\DataPolicyTranslationHandler",
  *     "form" = {
  *       "default" = "Drupal\data_policy\Form\DataPolicyForm",
- *       "add" = "Drupal\data_policy\Form\DataPolicyAddForm",
- *       "edit" = "Drupal\data_policy\Form\DataPolicyEditForm"
+ *       "add" = "Drupal\data_policy\Form\DataPolicyAddForm"
  *     },
  *     "access" = "Drupal\data_policy\DataPolicyAccessControlHandler",
  *     "route_provider" = {

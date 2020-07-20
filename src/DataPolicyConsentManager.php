@@ -110,7 +110,7 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
   /**
    * {@inheritdoc}
    */
-  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED, $action = NULL) {
+  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED, $is_submit = FALSE) {
     if ($state === TRUE) {
       $state = UserConsentInterface::STATE_AGREE;
     }
@@ -131,7 +131,7 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
       }
     }
 
-    if ($action === 'submit') {
+    if ($is_submit) {
       /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
       $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
       foreach ($entities as $entity) {
@@ -167,17 +167,7 @@ class DataPolicyConsentManager implements DataPolicyConsentManagerInterface {
    * {@inheritdoc}
    */
   public function getRevisionsByEntityIds(array $entity_ids) {
-    $revisions = [];
-    foreach ($entity_ids as $entity_id) {
-      /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
-      $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
-
-      /** @var \Drupal\data_policy\Entity\DataPolicyInterface $entity */
-      $entity = $data_policy_storage->load($entity_id);
-      $revisions[$entity_id] = $data_policy_storage->loadRevision($entity->vid->value);
-    }
-
-    return $revisions;
+    return $this->entityTypeManager->getStorage('data_policy')->loadMultiple($entity_ids);
   }
 
   /**

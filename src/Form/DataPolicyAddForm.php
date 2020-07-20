@@ -42,7 +42,7 @@ class DataPolicyAddForm extends ContentEntityForm {
   /**
    * The current entity id from request.
    *
-   * @var string
+   * @var int
    */
   private $entityId;
 
@@ -96,8 +96,8 @@ class DataPolicyAddForm extends ContentEntityForm {
 
       $form = parent::buildForm($form, $form_state);
 
-      $form['active_revision']['#default_value'] = $this->entity->isDefaultRevision();
-      $form['active_revision']['#disabled'] = $this->entity->isDefaultRevision();
+      $form['active_revision']['#default_value'] = TRUE;
+      $form['active_revision']['#disabled'] = TRUE;
       $form['new_revision']['#default_value'] = FALSE;
 
       return $form;
