@@ -153,26 +153,31 @@ class RedirectSubscriber implements EventSubscriberInterface {
       return;
     }
 
-    foreach ($entity_ids as $key => $entity_id) {
-      $consents_data = $this->getConsentsData($entity_id, $config);
-      $user_consents = $consents_data['user_consent'];
-      $enforce_consent = $consents_data['enforce_consent'];
+    $existing_consents = $this->dataPolicyConsentManager->getExistingUserConsents($this->getCurrentUser()->id());
+
+    if (empty($existing_consents)) {
+      $this->addStatusLink();
+      return;
+    }
+
+    foreach ($entity_ids as $entity_id) {
+      $user_consents = $this->getUserConsents($entity_id, $config);
 
       if (!empty($user_consents)) {
-        unset($entity_ids[$key]);
+        foreach ($user_consents as $id => $user_consent) {
+          unset($existing_consents[$id]);
+        }
       }
-      if (empty($entity_ids)) {
-        return;
-      }
+    }
 
-      if (!$enforce_consent) {
-        $link = Link::createFromRoute($this->t('here'), 'data_policy.data_policy.agreement');
-        $this->messenger->addStatus($this->t('We published a new version of the data policy. You can review the data policy @url.', [
-          '@url' => $link->toString(),
-        ]));
+    if (empty($existing_consents)) {
+      return;
+    }
 
-        return;
-      }
+    $enforce_consent = !empty($config->get('enforce_consent'));
+    if (!$enforce_consent) {
+      $this->addStatusLink();
+      return;
     }
 
     $route_names = [
@@ -215,6 +220,16 @@ class RedirectSubscriber implements EventSubscriberInterface {
   }
 
   /**
+   * Add the status link.
+   */
+  private function addStatusLink() {
+    $link = Link::createFromRoute($this->t('here'), 'data_policy.data_policy.agreement');
+    $this->messenger->addStatus($this->t('We published a new version of the data policy. You can review the data policy @url.', [
+      '@url' => $link->toString(),
+    ]));
+  }
+
+  /**
    * Get consent data.
    *
    * @param int $entity_id
@@ -225,7 +240,7 @@ class RedirectSubscriber implements EventSubscriberInterface {
    * @return array
    *   Array of data.
    */
-  private function getConsentsData($entity_id, ImmutableConfig $config) {
+  private function getUserConsents($entity_id, ImmutableConfig $config) {
     /** @var \Drupal\data_policy\DataPolicyStorageInterface $data_policy_storage */
     $data_policy_storage = $this->entityTypeManager->getStorage('data_policy');
     /** @var \Drupal\data_policy\Entity\DataPolicyInterface $data_policy */
@@ -236,14 +251,11 @@ class RedirectSubscriber implements EventSubscriberInterface {
       'data_policy_revision_id' => $data_policy->getRevisionId(),
     ];
 
-    if ($enforce_consent = !empty($config->get('enforce_consent'))) {
+    if (!empty($config->get('enforce_consent'))) {
       $values['state'] = UserConsentInterface::STATE_AGREE;
     }
 
-    return [
-      'enforce_consent' => $enforce_consent,
-      'user_consent' => $this->entityTypeManager->getStorage('user_consent')->loadByProperties($values),
-    ];
+    return $this->entityTypeManager->getStorage('user_consent')->loadByProperties($values);
   }
 
   /**

@@ -35,10 +35,21 @@ interface DataPolicyConsentManagerInterface {
    *   - undecided,
    *   - not agree,
    *   - agree.
-   * @param bool $is_submit
-   *   The submit action.
+   * @param string $action
+   *   The action (submit and etc.)
    */
-  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED, $is_submit = FALSE);
+  public function saveConsent($user_id, $state = UserConsentInterface::STATE_UNDECIDED, $action = NULL);
+
+  /**
+   * Get existing user consents.
+   *
+   * @param int $user_id
+   *   The user ID.
+   *
+   * @return array
+   *   The array of existing consents.
+   */
+  public function getExistingUserConsents($user_id);
 
   /**
    * Check if data policy is created.

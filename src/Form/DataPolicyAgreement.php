@@ -9,6 +9,7 @@ use Drupal\Core\Link;
 use Drupal\Core\Routing\RedirectDestinationInterface;
 use Drupal\data_policy\DataPolicyConsentManagerInterface;
 use Drupal\data_policy\Entity\DataPolicyInterface;
+use Drupal\data_policy\Entity\UserConsentInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -81,8 +82,7 @@ class DataPolicyAgreement extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id());
-
+    $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id(), UserConsentInterface::STATE_UNDECIDED, 'visit');
     $this->dataPolicyConsentManager->addCheckbox($form);
 
     // Add a message that the data policy was updated.
@@ -147,7 +147,7 @@ class DataPolicyAgreement extends FormBase {
     $agree = !empty($form_state->getValue('data_policy'));
     $enforce = $this->config('data_policy.data_policy')->get('enforce_consent');
 
-    $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id(), $agree, TRUE);
+    $this->dataPolicyConsentManager->saveConsent($this->currentUser()->id(), $agree, 'submit');
 
     // If the user agrees or does not agree (but it is not enforced), check if
     // we should redirect to the front page.
