@@ -5,6 +5,7 @@
  * data_policy.module
  */
 
+use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Routing\RouteMatchInterface;
@@ -39,10 +40,10 @@ function data_policy_help($route_name, RouteMatchInterface $route_match) {
  * Implements hook_hook_info().
  */
 function data_policy_hook_info() {
-  $hooks = array(
+  $hooks = [
     'data_policy_destination_alter',
-  );
-  return array_fill_keys($hooks, array('group' => 'data_policy'));
+  ];
+  return array_fill_keys($hooks, ['group' => 'data_policy']);
 }
 
 /**
@@ -113,4 +114,13 @@ function data_policy_form_user_register_form_alter(&$form, FormStateInterface $f
 function _data_policy_user_register_form_submit(array &$form, FormStateInterface $form_state) {
   $values = $form_state->getValues();
   \Drupal::service('data_policy.manager')->saveConsent($values['uid'], !empty($values['data_policy']));
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function data_policy_data_policy_delete(EntityInterface $entity) {
+  \Drupal::configFactory()->getEditable('data_policy.data_policy')
+    ->set('entity_id', 0)
+    ->save();
 }

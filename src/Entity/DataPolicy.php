@@ -48,6 +48,7 @@ use Drupal\user\UserInterface;
  *     "status" = "status",
  *   },
  *   links = {
+ *     "canonical" = "/admin/config/people/data-policy/all/{data_policy}",
  *     "edit-form" = "/admin/config/people/data-policy/all/{data_policy}",
  *     "version-history" = "/admin/config/people/data-policy",
  *     "revision" = "/admin/config/people/data-policy/{data_policy_revision}",
